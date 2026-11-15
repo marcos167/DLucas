@@ -137,12 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const completePasswordReset = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password })
     if (error) throw new Error(error.message)
-    // se a senha era temporária, libera o acesso obrigatório
-    const { data } = await supabase.auth.getSession()
-    const id = data.session?.user.id
-    if (id) {
-      await supabase.from('profiles').update({ must_change_password: false }).eq('id', id)
-    }
+    // O trigger no Auth confirma a troca real e libera a exigência no perfil.
     await refreshProfile()
   }, [refreshProfile])
 
@@ -150,11 +145,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password })
     if (error) throw new Error(error.message)
-    if (profile?.id) {
-      await supabase.from('profiles').update({ must_change_password: false }).eq('id', profile.id)
-    }
+    // Não permitir que uma chamada REST ao perfil simule troca de senha.
     await refreshProfile()
-  }, [profile?.id, refreshProfile])
+  }, [refreshProfile])
 
   const value = useMemo<AuthState>(() => ({
     session,
