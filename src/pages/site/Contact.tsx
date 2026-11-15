@@ -1,25 +1,22 @@
 import { Mail, MessageCircle, Clock, MapPin } from 'lucide-react'
 import LeadForm from '@/components/site/LeadForm'
+import { PageHeader } from '@/components/site/PageSections'
 import { whatsappLink, WHATSAPP_NUMBER } from '@/components/site/SiteLayout'
 
 export default function Contact() {
   const wa = whatsappLink("Olá! Vim pelo site da D'Luca Connect.")
   return (
-    <div className="container-page py-12 lg:py-16">
-      <div className="max-w-2xl">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">Contato</p>
-        <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink-950 sm:text-4xl">
-          Fale com a D'Luca
-        </h1>
-        <p className="mt-4 text-ink-600">
-          Envie sua mensagem pelo formulário ou utilize os canais de atendimento abaixo.
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Contato"
+        title="Fale com a D'Luca"
+        description="Envie sua mensagem pelo formulário ou utilize os canais de atendimento abaixo."
+      />
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.15fr]">
+      <div className="container-page grid gap-8 py-12 lg:grid-cols-[1fr_1.15fr] lg:py-16">
         <div className="space-y-3">
           {wa && (
-            <a href={wa} target="_blank" rel="noreferrer" className="card flex items-center gap-4 p-5 transition hover:shadow-lift">
+            <a href={wa} target="_blank" rel="noreferrer" className="card flex items-center gap-4 p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                 <MessageCircle className="h-5 w-5" />
               </span>

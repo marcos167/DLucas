@@ -144,6 +144,19 @@ em pílula tonal e variação opcional com seta.
 />
 ```
 
+O `StatCard` agora aparece também nos resumos de **faturas, repasses,
+relatórios, histórico e portal da farmácia**. Passe `value="—"` durante o
+carregamento de cada consulta (não mostre `R$ 0,00` antes de receber os dados).
+Em listas limitadas ou filtradas, use `hint` para deixar claro o recorte do número.
+
+### Seções do site (`PageSections`)
+
+As páginas internas do site usam `PageHeader` para o cabeçalho com gradiente,
+grade mascarada, título e ações opcionais; `FeatureCard` para grades de recursos;
+e `CtaBand` para o fechamento escuro com CTA em âmbar. O `FeatureCard` aceita
+`headingLevel={3}` quando está dentro de uma seção que já tem `<h2>`.
+Não duplique esse markup nas novas páginas.
+
 ### Modal
 
 Overlay com desfoque de 3 px, superfície com `shadow-modal`, cabeçalho com

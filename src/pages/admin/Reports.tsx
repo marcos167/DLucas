@@ -4,7 +4,8 @@ import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
-import { Card, CardHeader, EmptyState, Input, Skeleton } from '@/components/ui'
+import { Activity, BadgeCheck, CircleAlert, Coins, Package, Receipt, TrendingUp, Truck } from 'lucide-react'
+import { Card, CardHeader, EmptyState, Input, Skeleton, StatCard } from '@/components/ui'
 import { listOrders } from '@/lib/api'
 import { brl, ORDER_STATUS_LABEL } from '@/lib/utils'
 import type { OrderStatus } from '@/types'
@@ -76,7 +77,7 @@ export default function Reports() {
   const payout = delivered.reduce((s, o) => s + o.courier_payout_cents, 0)
   const successRate = orders.length ? Math.round((delivered.length / orders.length) * 100) : 0
 
-  const COLORS = ['#178271', '#0ea5e9', '#6366f1', '#8b5cf6', '#06b6d4', '#3b82f6', '#10b981', '#ef4444', '#94a3b8']
+  const COLORS = ['#07785f', '#0ea5e9', '#6366f1', '#8b5cf6', '#06b6d4', '#3b82f6', '#10b981', '#ef4444', '#94a3b8']
 
   return (
     <div className="space-y-4">
@@ -88,18 +89,16 @@ export default function Reports() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {[
-          { l: 'Pedidos', v: orders.length },
-          { l: 'Entregues', v: delivered.length },
-          { l: 'Taxa de sucesso', v: `${successRate}%` },
-          { l: 'Receita', v: brl(revenue) },
-          { l: 'Repasses', v: brl(payout) },
-        ].map((k) => (
-          <div key={k.l} className="card p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">{k.l}</p>
-            <p className="kpi-value mt-1">{isLoading ? '—' : k.v}</p>
-          </div>
-        ))}
+        <StatCard label="Pedidos" value={isLoading ? '—' : orders.length}
+          hint="Até 1.000 pedidos no período" icon={<Package className="h-4 w-4" />} />
+        <StatCard label="Entregues" value={isLoading ? '—' : delivered.length}
+          icon={<BadgeCheck className="h-4 w-4" />} />
+        <StatCard label="Taxa de sucesso" value={isLoading ? '—' : `${successRate}%`}
+          icon={<TrendingUp className="h-4 w-4" />} tone="neutral" />
+        <StatCard label="Receita" value={isLoading ? '—' : brl(revenue)}
+          icon={<Coins className="h-4 w-4" />} tone="accent" />
+        <StatCard label="Repasses" value={isLoading ? '—' : brl(payout)}
+          icon={<Truck className="h-4 w-4" />} tone="neutral" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -114,7 +113,7 @@ export default function Reports() {
                   <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#67788f' }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #eceef2', fontSize: 12 }} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line type="monotone" dataKey="entregues" name="Entregues" stroke="#178271" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="entregues" name="Entregues" stroke="#07785f" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="falhas" name="Falhas/cancel." stroke="#ef4444" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
@@ -132,7 +131,7 @@ export default function Reports() {
                   <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#67788f' }} axisLine={false} tickLine={false} interval={0} angle={-12} textAnchor="end" height={44} />
                   <YAxis tick={{ fontSize: 11, fill: '#67788f' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 100}`} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #eceef2', fontSize: 12 }} formatter={(v: number) => brl(v)} />
-                  <Bar dataKey="valor" name="Receita" fill="#22a289" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="valor" name="Receita" fill="#12b98c" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -172,9 +171,12 @@ export default function Reports() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Margem bruta</p><p className="kpi-value mt-1 text-brand-800">{brl(revenue - payout)}</p></div>
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Ticket médio</p><p className="kpi-value mt-1">{brl(delivered.length ? Math.round(revenue / delivered.length) : 0)}</p></div>
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Falhas / cancelamentos</p><p className="kpi-value mt-1 text-red-600">{failed.length}</p></div>
+        <StatCard label="Margem bruta" value={isLoading ? '—' : brl(revenue - payout)}
+          icon={<Activity className="h-4 w-4" />} />
+        <StatCard label="Ticket médio" value={isLoading ? '—' : brl(delivered.length ? Math.round(revenue / delivered.length) : 0)}
+          icon={<Receipt className="h-4 w-4" />} tone="neutral" />
+        <StatCard label="Falhas / cancelamentos" value={isLoading ? '—' : failed.length}
+          icon={<CircleAlert className="h-4 w-4" />} tone="danger" />
       </div>
     </div>
   )

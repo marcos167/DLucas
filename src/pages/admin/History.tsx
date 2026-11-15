@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { History as HistoryIcon, Search } from 'lucide-react'
-import { Card, CardHeader, EmptyState, Input, SearchInput, Skeleton, Tabs } from '@/components/ui'
+import { History as HistoryIcon, Search, Coins, Wallet } from 'lucide-react'
+import { Card, CardHeader, EmptyState, Input, SearchInput, Skeleton, StatCard, Tabs } from '@/components/ui'
 import { listOrders } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { brl, formatDateTime, relativeTime } from '@/lib/utils'
@@ -55,9 +55,12 @@ export default function History() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Registros</p><p className="kpi-value mt-1">{rows.length}</p></div>
-            <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Valor cobrado</p><p className="kpi-value mt-1">{brl(totalValue)}</p></div>
-            <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Repasses</p><p className="kpi-value mt-1">{brl(totalPayout)}</p></div>
+            <StatCard label="Registros" value={orders.isLoading ? '—' : rows.length}
+              icon={<HistoryIcon className="h-4 w-4" />} />
+            <StatCard label="Valor cobrado" value={orders.isLoading ? '—' : brl(totalValue)}
+              icon={<Coins className="h-4 w-4" />} tone="accent" />
+            <StatCard label="Repasses" value={orders.isLoading ? '—' : brl(totalPayout)}
+              icon={<Wallet className="h-4 w-4" />} tone="neutral" />
           </div>
 
           <Card>
