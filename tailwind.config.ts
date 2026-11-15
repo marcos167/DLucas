@@ -1,4 +1,6 @@
 import type { Config } from 'tailwindcss'
+import defaultColors from 'tailwindcss/colors'
+import plugin from 'tailwindcss/plugin'
 
 /**
  * Sistema visual DLucas Express.
@@ -8,39 +10,136 @@ import type { Config } from 'tailwindcss'
  * - Champagne gold como acento preciso sobre superfícies marfim e grafite.
  * - Tipografia com tracking negativo nos títulos grandes (óptico, não mecânico).
  * - Movimento discreto com alternativa para quem prefere movimento reduzido.
+ *
+ * Temas: as paletas abaixo chegam ao CSS como variáveis (`--c-ink-900` etc.).
+ * O tema padrão (`:root`) usa exatamente os valores declarados aqui; o tema do
+ * aplicativo dos entregadores (`html.theme-rider`, ligado por `App.tsx` conforme
+ * o endereço, ver `src/lib/riderTheme.ts`) troca só as variáveis. Assim as telas e os componentes compartilhados não
+ * precisam de classes próprias para o tema escuro.
  */
+
+type Scale = Record<string, string>
+
+const SHADES = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'] as const
+
+/** Champagne gold: subtle accents, dark shades maintain contrast on light surfaces. */
+const brand: Scale = {
+  50: '#f8f5ee',
+  100: '#f0e8d9',
+  200: '#e3d3b4',
+  300: '#d8bf91',
+  400: '#c6a66b',
+  500: '#a9854d',
+  600: '#826337',
+  700: '#654b29',
+  800: '#49371f',
+  900: '#302519',
+  950: '#17130f',
+}
+
+const ink: Scale = {
+  50: '#f5f2ec',
+  100: '#eae6df',
+  200: '#d5d0c7',
+  300: '#a6a6a6',
+  400: '#737373',
+  500: '#686868',
+  600: '#525252',
+  700: '#3c3c3c',
+  800: '#242424',
+  900: '#151515',
+  950: '#090909',
+}
+
+/** Paletas padrão do Tailwind usadas em avisos, selos e estados. */
+const SEMANTIC = ['red', 'amber', 'emerald', 'sky', 'cyan', 'blue', 'indigo', 'violet'] as const
+const semantic = Object.fromEntries(
+  SEMANTIC.map((name) => [name, defaultColors[name] as unknown as Scale]),
+) as Record<(typeof SEMANTIC)[number], Scale>
+
+/**
+ * Tema do aplicativo dos entregadores: verde-escuro com texto creme, medido
+ * nas telas do aplicativo original (fundo #0e1f19, faixas e cartões #152a23,
+ * destaque #bad6be).
+ *
+ * A escala é a mesma, de trás para a frente: `ink-50` continua sendo "fundo da
+ * página" e `ink-900` "texto principal", então todo par claro/escuro que já
+ * existe nas telas mantém o contraste. Pelo mesmo motivo `white` (superfície
+ * de cartão e texto sobre preenchimento escuro) vira a superfície escura.
+ */
+const riderInk: Scale = {
+  50: '#0e1f19',
+  100: '#1a3129',
+  200: '#27443a',
+  300: '#3d5c50',
+  400: '#82978c',
+  500: '#9db0a5',
+  600: '#b7c6bc',
+  700: '#ced9d0',
+  800: '#e0e7e0',
+  900: '#eef1ea',
+  950: '#f7f5ee',
+}
+const riderBrand: Scale = {
+  50: '#1a382e',
+  100: '#20463a',
+  200: '#2c5a4a',
+  300: '#3b715d',
+  400: '#55907a',
+  500: '#7fb39a',
+  600: '#a3ccb0',
+  700: '#bad6be',
+  800: '#cde3d0',
+  900: '#e0efe2',
+  950: '#f0f8f1',
+}
+const RIDER_SURFACE = '#152a23'
+
+/** "#rrggbb" → "r g b", o formato que aceita opacidade em `rgb(var(--x) / a)`. */
+function triplet(hex: string): string {
+  const value = Number.parseInt(hex.slice(1), 16)
+  return `${value >> 16} ${(value >> 8) & 255} ${value & 255}`
+}
+/** Cores da paleta como referência à variável do tema. */
+function themed(name: string): Scale {
+  return Object.fromEntries(SHADES.map((shade) => [shade, `rgb(var(--c-${name}-${shade}) / <alpha-value>)`]))
+}
+function variables(name: string, scale: Scale): Record<string, string> {
+  return Object.fromEntries(SHADES.map((shade) => [`--c-${name}-${shade}`, triplet(scale[shade])]))
+}
+/** O tom mais claro vira o mais escuro e vice-versa; o 500 fica onde está. */
+function inverted(scale: Scale): Scale {
+  return Object.fromEntries(SHADES.map((shade, index) => [shade, scale[SHADES[SHADES.length - 1 - index]]]))
+}
+
+const themeVariables = plugin(({ addBase }) => {
+  addBase({
+    ':root': {
+      '--c-white': '255 255 255',
+      ...variables('ink', ink),
+      ...variables('brand', brand),
+      ...Object.assign({}, ...SEMANTIC.map((name) => variables(name, semantic[name]))),
+    },
+    // `html.` dá precedência sobre `:root` sem depender da ordem das regras
+    'html.theme-rider': {
+      '--c-white': triplet(RIDER_SURFACE),
+      ...variables('ink', riderInk),
+      ...variables('brand', riderBrand),
+      ...Object.assign({}, ...SEMANTIC.map((name) => variables(name, inverted(semantic[name])))),
+    },
+  })
+})
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        /** Champagne gold: subtle accents, dark shades maintain contrast on light surfaces. */
-        brand: {
-          50: '#f8f5ee',
-          100: '#f0e8d9',
-          200: '#e3d3b4',
-          300: '#d8bf91',
-          400: '#c6a66b',
-          500: '#a9854d',
-          600: '#826337',
-          700: '#654b29',
-          800: '#49371f',
-          900: '#302519',
-          950: '#17130f',
-        },
-        ink: {
-          50: '#f5f2ec',
-          100: '#eae6df',
-          200: '#d5d0c7',
-          300: '#a6a6a6',
-          400: '#737373',
-          500: '#686868',
-          600: '#525252',
-          700: '#3c3c3c',
-          800: '#242424',
-          900: '#151515',
-          950: '#090909',
-        },
+        /** Variáveis do tema (ver o topo do arquivo). */
+        white: 'rgb(var(--c-white) / <alpha-value>)',
+        brand: themed('brand'),
+        ink: themed('ink'),
+        ...Object.fromEntries(SEMANTIC.map((name) => [name, themed(name)])),
         accent: {
           DEFAULT: '#c6a66b',
           50: '#f8f5ee',
@@ -61,6 +160,14 @@ export default {
           500: '#22c55e',
           600: '#16a34a',
         },
+      },
+      /**
+       * Anel de foco sem cor declarada: o Tailwind tira o padrão de `blue.500`
+       * e, como essa paleta agora é variável, cairia num azul mais claro.
+       * Fixar o valor mantém o que já estava em uso.
+       */
+      ringColor: {
+        DEFAULT: '#3b82f6',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
@@ -165,5 +272,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [themeVariables],
 } satisfies Config

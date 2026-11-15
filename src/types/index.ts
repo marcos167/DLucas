@@ -181,6 +181,12 @@ export interface Order {
   courier?: Pick<Courier, 'id' | 'full_name' | 'phone' | 'availability'>
 }
 
+/**
+ * Pedido como o aplicativo do entregador o recebe: sem preço, repasse nem
+ * contrato. Entregadores têm salário fixo e não trabalham com valores.
+ */
+export type CourierOrder = Omit<Order, 'quoted_price_cents' | 'courier_payout_cents' | 'contract_id' | 'courier'>
+
 export interface OrderEvent {
   id: number
   order_id: string
@@ -207,6 +213,9 @@ export interface DeliveryOffer {
   created_at: string
   order?: Order
 }
+
+/** Oferta vista pelo entregador: o pedido vem sem valores. */
+export type CourierOffer = Omit<DeliveryOffer, 'order'> & { order?: CourierOrder }
 
 export interface Occurrence {
   id: string

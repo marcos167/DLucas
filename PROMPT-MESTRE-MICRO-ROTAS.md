@@ -268,5 +268,8 @@ VITE_SUPABASE_URL=http://localhost:54321 VITE_SUPABASE_ANON_KEY=local npm run de
 - **Pacote não muda de lote.** Um pacote devolvido pode ser reprogramado no mesmo lote
   (atribuir de novo o devolve à fila de roteiros); para levá-lo ao lote de outro dia,
   cancele e importe de novo.
-- **As telas antigas do entregador** (pedidos sob demanda) continuam mostrando o valor do
-  repasse. O módulo novo não tem dado financeiro.
+- **O aplicativo do entregador não mostra valores**, nem nos roteiros nem nos pedidos sob
+  demanda (os entregadores têm salário fixo). As telas não pedem preço nem repasse ao
+  servidor. A regra de acesso do banco, porém, ainda devolveria essas colunas dos pedidos
+  a um entregador que consultasse a API por fora do aplicativo; fechar isso pede uma
+  migração nova.

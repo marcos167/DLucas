@@ -580,11 +580,16 @@ Toda ação grava em `audit_logs` com autor, e-mail, papel e descrição.
 | `/portal/unidades`, `/portal/funcionarios` | Farmácia (admin) | Gestão da própria farmácia |
 | `/portal/financeiro`, `/portal/comprovantes` | Farmácia | Faturas e documentos |
 | `/portal/configuracoes` | Farmácia | Dados cadastrais |
-| `/entregador` | Entregador | Meu dia |
-| `/entregador/ofertas` | Entregador | Ofertas recebidas |
+| `/entregador` | Entregador | Aba Hoje: roteiros, conferência e entregas do dia |
+| `/entregador/mapa` | Entregador | Aba Mapa: paradas e entregas por período |
+| `/entregador/proximas` | Entregador | Aba Próximas: o que está programado para os próximos dias |
+| `/entregador/disponiveis` | Entregador | Aba Disponíveis: retiradas lançadas para o entregador |
+| `/entregador/perfil` | Entregador | Aba Perfil: cadastro, disponibilidade, senha e saída |
 | `/entregador/entrega/:id` | Entregador | Execução da entrega |
-| `/entregador/historico` | Entregador | Entregas concluídas |
-| `/entregador/perfil` | Entregador | Perfil e disponibilidade |
+| `/entregador/historico` | Entregador | Entregas concluídas (aberto pelo Perfil) |
+
+`/entregador/rotas` e `/entregador/ofertas` (endereços antigos) redirecionam para `/entregador` e
+`/entregador/disponiveis`.
 
 ---
 
@@ -647,12 +652,26 @@ Toda ação grava em `audit_logs` com autor, e-mail, papel e descrição.
 
 | Página | Chamadas de API | O que faz |
 |---|---|---|
-| `CourierLayout.tsx` | `updateCourier` + Realtime | Barra inferior mobile-first, **contador de ofertas ao vivo** via `postgres_changes` na tabela `delivery_offers`, alternância de disponibilidade e troca de senha obrigatória. |
-| `CourierHome.tsx` | `listOffersForCourier`, `listOrders` | "Meu dia": ofertas pendentes e entregas em andamento. |
-| `CourierOffers.tsx` | `listOffersForCourier`, `respondToOffer` | Lista de ofertas com farmácia, rota, distância, mensagem e prazo; **Aceitar** e **Recusar**. Ao aceitar, navega para a entrega usando o `order_id` retornado. |
-| `CourierDelivery.tsx` | `getOrder`, `updateOrder`, `pushLocation`, `uploadProof`, `createOccurrence`, `listProofs`, `getProofUrl` | Execução da entrega: botão da próxima etapa (`COURIER_FLOW`), **rastreio só ao autorizar o GPS**, envio de comprovante por foto e registro de ocorrência. |
-| `CourierHistory.tsx` | `listOrders` | Entregas concluídas com valores de repasse. |
-| `CourierProfile.tsx` | `updateCourier`, `listPayouts` | Dados pessoais, veículo, disponibilidade e histórico de repasses. |
+| `CourierLayout.tsx` | `updateCourier` + Realtime | Casca do aplicativo: cinco abas embaixo (Hoje, Mapa, Próximas, Disponíveis, Perfil), sem barra de título, **contador de retiradas ao vivo** via `postgres_changes` na tabela `delivery_offers`, alternância de disponibilidade e troca de senha obrigatória. |
+| `CourierHome.tsx` | `listCourierOrders` + dados do dia (`RiderContext`) | Aba **Hoje**: saudação, disponibilidade, busca (protocolo, endereço, farmácia), roteiros do dia, conferência de pacotes e entregas em andamento. |
+| `CourierMap.tsx` | `listCourierOrders` + dados do dia | Aba **Mapa**: paradas e entregas por período, detalhe do ponto e atalho para Waze e Google Maps. O mapa (`rider/RiderMap.tsx`) carrega sob demanda. |
+| `CourierUpcoming.tsx` | `listCourierOrders` + dados do dia | Aba **Próximas**: roteiros e entregas programados para os próximos dias, agrupados por data. |
+| `CourierOffers.tsx` | `listOffersForCourier`, `respondToOffer` | Aba **Disponíveis**: retiradas lançadas para o entregador, com coleta, entrega, distância, mensagem e prazo; **Aceitar** e **Recusar**. Ao aceitar, navega para a entrega usando o `order_id` retornado. |
+| `CourierDelivery.tsx` | `getCourierOrder`, `updateOrder`, `pushLocation`, `uploadProof`, `createOccurrence`, `listProofs`, `getProofUrl` | Execução da entrega: botão da próxima etapa (`COURIER_FLOW`), **rastreio só ao autorizar o GPS**, envio de comprovante por foto e registro de ocorrência. |
+| `CourierHistory.tsx` | `listCourierOrders` | Entregas concluídas e não entregues (aberto pelo Perfil). |
+| `CourierProfile.tsx` | `updateCourier` | Aba **Perfil**: dados pessoais, veículo, disponibilidade, telefone, histórico, troca de senha e saída. |
+
+**Sem valores.** Os entregadores têm salário fixo, então nenhuma tela desta área mostra preço,
+repasse ou histórico financeiro. As consultas usam `listCourierOrders`, `getCourierOrder` e
+`listOffersForCourier`, que pedem ao servidor apenas `COURIER_ORDER_COLUMNS` (sem
+`quoted_price_cents`, `courier_payout_cents` e `contract_id`); `listPayouts` não é chamada aqui.
+Guardas: `src/pages/courier/no-values.test.ts` (código das telas) e `src/lib/courier-api.test.ts`
+(resposta das consultas). Limite: a regra de acesso do banco ainda devolveria essas colunas a
+um entregador que consultasse a API por fora do aplicativo; fechar isso pede uma migração nova.
+
+**Tema.** O verde-escuro vale para `/entregador` e o que está abaixo. `App.tsx` liga a classe
+`theme-rider` no `<html>` conforme o endereço (`src/lib/riderTheme.ts`) e as cores chegam por
+variáveis (ver `DESIGN-SYSTEM.md`). O restante da plataforma continua no tema claro.
 
 ---
 
@@ -671,7 +690,7 @@ Toda ação grava em `audit_logs` com autor, e-mail, papel e descrição.
    └── Atribuir direto → assignOrder() → status ASSIGNED
 
 3. ENTREGADOR responde (celular)
-   /entregador/ofertas → respondToOffer()
+   /entregador/disponiveis → respondToOffer()
    ├── ACEITOU → trigger oferece o pedido a ele, cancela as outras ofertas,
    │             grava OFFER_ACCEPTED → status ACCEPTED
    │             entregador vira ON_DELIVERY automaticamente
@@ -1061,7 +1080,7 @@ referência do módulo; esta seção só situa as peças.
 | Organizador de roteiros e matriz de distâncias | `src/lib/logistics/organizer.ts`, `matrix.ts` |
 | Fila offline, envio e armazenamento no aparelho | `src/lib/logistics/offline/` |
 | Painel da central | `src/pages/admin/Distribution.tsx`, `CourierRoutes.tsx`, `Coverage.tsx`, `distribution/` |
-| Aplicativo do funcionário | `src/pages/courier/RiderRoutes.tsx`, `RiderRoute.tsx`, `RiderCheck.tsx`, `rider/` |
+| Aplicativo do funcionário | `src/pages/courier/CourierHome.tsx` (aba Hoje), `RiderRoute.tsx`, `RiderCheck.tsx`, `rider/` |
 | Casca offline (service worker) e manifesto | `public/sw.js`, `public/manifest.webmanifest` |
 
 ### Rotas novas
@@ -1071,7 +1090,7 @@ referência do módulo; esta seção só situa as peças.
 | `/app/distribuicao` | equipe | Lote, importação, distribuição, exceções, conflitos |
 | `/app/distribuicao/:lote/funcionario/:id` | equipe | Roteiros e conferências de um funcionário |
 | `/app/cobertura` | equipe | Regiões, faixas de CEP, limites e parâmetros |
-| `/entregador/rotas` | entregador | Roteiros do dia |
+| `/entregador` | entregador | Aba Hoje: roteiros do dia (antes em `/entregador/rotas`, que redireciona para cá) |
 | `/entregador/rotas/:id` | entregador | Paradas e baixa dos pacotes |
 | `/entregador/conferencia` | entregador | Conferência de saída e de retorno |
 

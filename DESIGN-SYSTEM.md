@@ -196,6 +196,48 @@ profundidade técnica onde interessa.
 
 ---
 
+## Tema do aplicativo dos entregadores
+
+A área `/entregador` usa um segundo tema, verde-escuro com texto creme, medido nas
+telas do aplicativo original da operação. O restante da plataforma não muda.
+
+| Papel | Classe | Tema claro | Tema do entregador |
+|---|---|---|---|
+| Fundo da página | `bg-ink-50` | `#f5f2ec` | `#0e1f19` |
+| Superfície (cartão, barra de abas) | `bg-white` | `#ffffff` | `#152a23` |
+| Borda | `border-ink-200` | `#d5d0c7` | `#27443a` |
+| Texto principal | `text-ink-950` | `#090909` | `#f7f5ee` |
+| Texto secundário | `text-ink-500` | `#686868` | `#9db0a5` |
+| Destaque (botão, seleção) | `bg-brand-700` | `#654b29` | `#bad6be` |
+
+Como funciona:
+
+- As paletas `white`, `ink`, `brand` e as de estado (`red`, `amber`, `emerald`, `sky`,
+  `cyan`, `blue`, `indigo`, `violet`) são variáveis CSS (`--c-ink-900` etc.), declaradas
+  em `tailwind.config.ts`. O tema claro (`:root`) usa os valores de sempre.
+- `App.tsx` liga a classe `theme-rider` no `<html>` quando o endereço é `/entregador` ou
+  está abaixo dele (`src/lib/riderTheme.ts`) e ajusta a cor da barra do navegador. A
+  classe troca só as variáveis: a escala é a mesma, de trás para a frente.
+- Por isso as telas não têm classes próprias para o escuro. `bg-white` quer dizer
+  "superfície" e `text-white` "texto sobre preenchimento", nos dois temas.
+
+Regras para as telas do entregador:
+
+1. Só cores das paletas acima. Cor fixa (`#fff`, `bg-black`, `text-[#...]`) e as paletas
+   que não viraram variável (`gray`, `slate`, `green`...) não acompanham o tema.
+2. Preenchimento de destaque com `bg-brand-600` ou `bg-brand-700` e texto `text-white`
+   (no tema, texto escuro sobre verde-claro, como no aplicativo original).
+3. Abas embaixo, sem barra de título; estado vazio com `QuietState` e botões em pílula
+   com `PillButton` (`src/pages/courier/rider/ui.tsx`). No mesmo arquivo ficam os desenhos
+   de traço fino das telas vazias (`ParcelBox`, `QuietCalendar`) e o filtro `Chip`.
+4. Medidas tiradas do aplicativo original (tela de 412 px): saudação em `font-editorial`
+   20 px; título de tela vazia 15 px e frase 13 px; filtros e avisos 12 px; rótulo das
+   abas 10,5 px com ícone de 24 px; campo de busca 44 px; barra de abas 60 px. Na aba
+   ativa o ícone fica na cor de destaque e o rótulo em branco, com uma barrinha em cima.
+5. Nenhum valor em dinheiro: `src/pages/courier/no-values.test.ts` falha se aparecer.
+
+---
+
 ## Acessibilidade
 
 Decisões que não são negociáveis:

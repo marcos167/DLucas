@@ -262,6 +262,23 @@
   }
 }
 
+/*
+ * Tema do aplicativo dos entregadores (classe no <html>, ver src/lib/riderTheme.ts).
+ * As cores são variáveis definidas em tailwind.config.ts; aqui fica apenas o
+ * que não é cor de paleta: controles nativos e barras de rolagem escuros.
+ */
+html.theme-rider {
+  color-scheme: dark;
+}
+/* o véu atrás das janelas continua escuro (neste tema, ink-950 é o tom claro) */
+html.theme-rider .modal-veil {
+  background-color: rgb(0 0 0 / 0.6);
+}
+/* os avisos sobem para não cobrir as abas, que ficam embaixo */
+html.theme-rider .toast-region {
+  bottom: calc(3.75rem + env(safe-area-inset-bottom));
+}
+
 .leaflet-container {
   font: inherit;
   border-radius: 1rem;

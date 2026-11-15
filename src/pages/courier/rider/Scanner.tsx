@@ -66,7 +66,7 @@ export function ScannerModal({ open, onClose, onCode }: { open: boolean; onClose
         <p className="py-6 text-center text-sm text-red-700">{error}</p>
       ) : (
         <div className="space-y-2">
-          <div className="relative overflow-hidden rounded-xl bg-ink-950">
+          <div className="relative overflow-hidden rounded-xl bg-black">
             <video ref={video} playsInline muted className="aspect-[4/3] w-full object-cover" />
             <div className="pointer-events-none absolute inset-x-6 top-1/2 h-0.5 -translate-y-1/2 bg-red-500/80" />
           </div>

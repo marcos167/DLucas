@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import {
-  ArrowLeft, Camera, CheckCircle2, Clock, MapPin, Navigation, Phone, ShieldCheck, ShieldOff,
-  Thermometer, TriangleAlert, Upload, Package, Banknote,
+  ArrowLeft, Camera, Check, CheckCircle2, Clock, MapPin, Navigation, Phone, ShieldCheck, ShieldOff,
+  Thermometer, TriangleAlert, Upload, Package,
 } from 'lucide-react'
 import { Alert, Button, Card, EmptyState, Field, Input, Skeleton, Textarea } from '@/components/ui'
-import { getOrder, listProofs, pushLocation, updateOrder, uploadProof, createOccurrence, getProofUrl } from '@/lib/api'
+import { getCourierOrder, listProofs, pushLocation, updateOrder, uploadProof, createOccurrence, getProofUrl } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useGeolocation } from '@/hooks/useGeolocation'
-import { COURIER_FLOW, brl, formatDateTime, relativeTime } from '@/lib/utils'
+import { COURIER_FLOW, formatDateTime, relativeTime } from '@/lib/utils'
 import { OrderStatusBadge, RouteBlock, OrderTimeline, OrderMetaChips } from '@/components/dashboard/OrderBits'
 import type { OrderStatus } from '@/types'
+import { Page } from './rider/ui'
 
 const STEPS: OrderStatus[] = ['ACCEPTED', 'PICKING_UP', 'COLLECTED', 'IN_TRANSIT', 'DELIVERED']
 
@@ -31,7 +32,8 @@ export default function CourierDelivery() {
   const [occDesc, setOccDesc] = useState('')
   const lastSent = useRef(0)
 
-  const order = useQuery({ queryKey: ['courier-order', id], queryFn: () => getOrder(id), enabled: !!id, refetchInterval: 20_000 })
+  // o pedido chega sem valores: entregadores têm salário fixo
+  const order = useQuery({ queryKey: ['courier-order', id], queryFn: () => getCourierOrder(id), enabled: !!id, refetchInterval: 20_000 })
   const proofs = useQuery({ queryKey: ['courier-proofs', id], queryFn: () => listProofs(id), enabled: !!id })
 
   const geo = useGeolocation({ watch: sharing, enabled: sharing })
@@ -108,21 +110,24 @@ export default function CourierDelivery() {
     } finally { setBusy(false) }
   }
 
-  if (order.isLoading) return <Skeleton className="h-72" />
+  if (order.isLoading) return <Page><Skeleton className="h-72 w-full rounded-2xl" /></Page>
   if (!order.data) {
-    return <EmptyState title="Pedido não encontrado" description="Você não tem acesso a este pedido."
-      action={<Link to="/entregador" className="btn-secondary">Voltar</Link>} />
+    return (
+      <Page>
+        <EmptyState title="Pedido não encontrado" description="Você não tem acesso a este pedido."
+          action={<Link to="/entregador" className="btn-secondary">Voltar</Link>} />
+      </Page>
+    )
   }
 
   const o = order.data
 
   return (
-    <div className="space-y-3">
+    <Page className="space-y-3">
       <div className="flex items-center gap-2">
-        <Link to="/entregador" className="rounded-lg p-1.5 text-ink-500 hover:bg-ink-100"><ArrowLeft className="h-4 w-4" /></Link>
+        <Link to="/entregador" aria-label="Voltar para Hoje" className="rounded-lg p-1.5 text-ink-500 hover:bg-ink-100"><ArrowLeft className="h-4 w-4" /></Link>
         <span className="font-mono text-[12px] font-bold text-ink-900">{o.code}</span>
         <OrderStatusBadge status={o.status} />
-        <span className="ml-auto text-[11px] font-semibold text-brand-800">{brl(o.courier_payout_cents)}</span>
       </div>
 
       {message && <Alert tone="success">{message}</Alert>}
@@ -135,7 +140,7 @@ export default function CourierDelivery() {
               <div className="flex flex-col items-center">
                 <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
                   s.done ? 'bg-brand-600 text-white' : 'bg-ink-200 text-ink-500'
-                }`}>{s.done ? '✓' : i + 1}</span>
+                }`}>{s.done ? <Check className="h-3.5 w-3.5" strokeWidth={3} aria-label="concluído" /> : i + 1}</span>
                 <span className="mt-1 w-14 text-center text-[9px] leading-tight text-ink-500">
                   {s.status === 'ACCEPTED' ? 'Aceito' : s.status === 'PICKING_UP' ? 'A caminho' : s.status === 'COLLECTED' ? 'Coletado' : 'Em rota'}
                 </span>
@@ -160,8 +165,8 @@ export default function CourierDelivery() {
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide text-ink-400">Farmácia</p>
-            <p className="font-medium">{o.pharmacy?.trade_name}</p>
-            <p className="text-ink-500">{o.unit?.name}</p>
+            <p className="font-medium">{o.pharmacy?.trade_name ?? o.unit?.name ?? '—'}</p>
+            {o.pharmacy?.trade_name && <p className="text-ink-500">{o.unit?.name}</p>}
           </div>
         </div>
         {o.delivery_instructions && (
@@ -315,15 +320,11 @@ export default function CourierDelivery() {
             <CheckCircle2 className="h-4 w-4" /> Entrega concluída
           </p>
           <p className="mt-1 text-[11.5px] text-ink-600">Concluída em {formatDateTime(o.delivered_at)}</p>
-          <p className="mt-1 flex items-center justify-between text-[12px]">
-            <span className="text-ink-500">Repasse</span>
-            <span className="font-bold text-brand-800"><Banknote className="mr-1 inline h-3.5 w-3.5" />{brl(o.courier_payout_cents)}</span>
-          </p>
         </div>
       )}
 
       {occOpen && (
-        <div className="fixed inset-0 z-40 flex items-end bg-ink-950/50 p-0 sm:items-center sm:justify-center sm:p-4">
+        <div className="fixed inset-0 z-40 flex items-end bg-black/50 p-0 sm:items-center sm:justify-center sm:p-4">
           <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white p-4 sm:max-w-md sm:rounded-2xl">
             <p className="text-[13px] font-bold text-ink-900">Registrar ocorrência</p>
             <div className="mt-3 space-y-3">
@@ -365,6 +366,6 @@ export default function CourierDelivery() {
         <Package className="h-3 w-3" /> Atualizado {relativeTime(o.updated_at)}
         <MapPin className="ml-2 h-3 w-3" /> Nenhuma posição é simulada
       </p>
-    </div>
+    </Page>
   )
 }

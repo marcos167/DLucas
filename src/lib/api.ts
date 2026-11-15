@@ -1,7 +1,8 @@
 import { supabase } from './supabase'
 import type {
   Order, OrderEvent, Courier, Pharmacy, PharmacyUnit, CourierLocation,
-  DeliveryOffer, Occurrence, InvoiceItem, Payment, Proof, Profile,
+  Occurrence, InvoiceItem, Payment, Proof, Profile,
+  CourierOffer, CourierOrder, OrderStatus,
 } from '@/types'
 
 /** Erro normalizado para exibir mensagens amigáveis */
@@ -68,6 +69,57 @@ export async function getOrder(id: string): Promise<Order & { events: OrderEvent
     .eq('id', id)
     .single()
   const order = wrap(data, error) as Order & { events: OrderEvent[] }
+  order.events = (order.events ?? []).sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+  return order
+}
+
+/* ------------------------------------------------------------------ PEDIDOS NO APLICATIVO DO ENTREGADOR */
+
+/**
+ * Colunas do pedido que o aplicativo do entregador pede ao servidor.
+ *
+ * Ficam de fora o preço cobrado, o repasse e o contrato: entregadores têm
+ * salário fixo e as telas deles não mostram nem recebem valores.
+ */
+export const COURIER_ORDER_COLUMNS = [
+  'id', 'code', 'pharmacy_id', 'unit_id', 'created_by', 'status', 'priority',
+  'pickup_zip_code', 'pickup_street', 'pickup_number', 'pickup_complement', 'pickup_district',
+  'pickup_city', 'pickup_state', 'pickup_latitude', 'pickup_longitude', 'pickup_instructions',
+  'recipient_name', 'recipient_phone', 'recipient_document',
+  'delivery_zip_code', 'delivery_street', 'delivery_number', 'delivery_complement', 'delivery_district',
+  'delivery_city', 'delivery_state', 'delivery_latitude', 'delivery_longitude', 'delivery_instructions',
+  'package_count', 'package_description', 'is_temperature_controlled', 'requires_proof', 'scheduled_for',
+  'courier_id', 'assigned_at', 'accepted_at', 'collected_at', 'delivered_at', 'cancelled_at', 'cancel_reason',
+  'estimated_distance_km', 'dispatch_notes', 'created_at', 'updated_at',
+] as const
+
+const COURIER_ORDER_SELECT = `${COURIER_ORDER_COLUMNS.join(', ')},
+  pharmacy:pharmacies(id, trade_name),
+  unit:pharmacy_units(id, name)`
+
+/** Pedidos do entregador nos estados pedidos, do mais recente para o mais antigo. */
+export async function listCourierOrders(params: {
+  courierId: string
+  status: OrderStatus[]
+  limit?: number
+}): Promise<CourierOrder[]> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select(COURIER_ORDER_SELECT)
+    .eq('courier_id', params.courierId)
+    .in('status', params.status)
+    .order('updated_at', { ascending: false })
+    .limit(params.limit ?? 100)
+  return wrap(data, error) as unknown as CourierOrder[]
+}
+
+export async function getCourierOrder(id: string): Promise<CourierOrder & { events: OrderEvent[] }> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select(`${COURIER_ORDER_SELECT}, events:order_events(*)`)
+    .eq('id', id)
+    .single()
+  const order = wrap(data, error) as unknown as CourierOrder & { events: OrderEvent[] }
   order.events = (order.events ?? []).sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
   return order
 }
@@ -223,14 +275,14 @@ export async function assignOrder(params: {
   wrap(null, cancelError)
 }
 
-export async function listOffersForCourier(courierId: string): Promise<DeliveryOffer[]> {
+export async function listOffersForCourier(courierId: string): Promise<CourierOffer[]> {
   const { data, error } = await supabase
     .from('delivery_offers')
-    .select('*, order:orders(*, pharmacy:pharmacies(id,trade_name), unit:pharmacy_units(id,name))')
+    .select(`*, order:orders(${COURIER_ORDER_SELECT})`)
     .eq('courier_id', courierId)
     .eq('status', 'PENDING')
     .order('created_at', { ascending: false })
-  return wrap(data, error) as DeliveryOffer[]
+  return wrap(data, error) as unknown as CourierOffer[]
 }
 
 export async function respondToOffer(offerId: string, accept: boolean) {

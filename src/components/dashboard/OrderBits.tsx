@@ -15,7 +15,12 @@ export function PriorityBadge({ priority }: { priority: Order['priority'] }) {
   return <span className={cn('badge', ORDER_PRIORITY_CLASS[priority])}>{ORDER_PRIORITY_LABEL[priority]}</span>
 }
 
-export function RouteBlock({ order, compact }: { order: Order; compact?: boolean }) {
+/** Campos de endereço usados pelo bloco de rota (vale para o pedido completo e para o do entregador). */
+type RouteFields = Pick<Order,
+  | 'pickup_street' | 'pickup_number' | 'pickup_district' | 'pickup_city' | 'pickup_state'
+  | 'delivery_street' | 'delivery_number' | 'delivery_district' | 'delivery_city' | 'delivery_state'>
+
+export function RouteBlock({ order, compact }: { order: RouteFields; compact?: boolean }) {
   return (
     <div className="flex gap-3">
       <div className="mt-1.5 flex flex-col items-center">
@@ -47,7 +52,9 @@ export function RouteBlock({ order, compact }: { order: Order; compact?: boolean
   )
 }
 
-export function OrderMetaChips({ order }: { order: Order }) {
+export function OrderMetaChips({ order }: {
+  order: Pick<Order, 'package_count' | 'is_temperature_controlled' | 'estimated_distance_km' | 'scheduled_for'>
+}) {
   return (
     <div className="flex flex-wrap gap-1.5">
       <span className="inline-flex items-center gap-1 rounded-lg bg-ink-100 px-2 py-1 text-[11px] font-medium text-ink-700">

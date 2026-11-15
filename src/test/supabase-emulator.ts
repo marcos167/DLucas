@@ -9,7 +9,7 @@ import type { PGlite, Transaction } from '@electric-sql/pglite'
  * uma transação com o papel `authenticated` (ou `anon`) e o usuário do token.
  *
  * Cobre o que a aplicação usa, não a API inteira:
- *   REST     select (filtros, ordem, limite, contagem, embed de um nível),
+ *   REST     select (filtros, ordem, limite, contagem, recursos embutidos),
  *            insert, upsert, update, delete e chamadas de função (rpc)
  *   Auth     login por senha, renovação, usuário atual e saída
  *   Storage  envio de arquivo, URL assinada e download
@@ -193,6 +193,7 @@ export function createSupabaseEmulator(db: PGlite, options: EmulatorOptions = {}
 
   async function embed(
     tx: Transaction, baseTable: string, alias: string, name: string, target: string, hint: string | undefined, inner: string,
+    depth: number,
   ): Promise<string> {
     const targetInfo = await tableInfo(tx, target)
     const relations = await tx.query<{ conname: string; source: string; source_col: string; target_col: string }>(
@@ -213,32 +214,29 @@ export function createSupabaseEmulator(db: PGlite, options: EmulatorOptions = {}
     if (candidates.length > 1) {
       throw new HttpError(300, 'PGRST201', `Could not embed because more than one relationship was found for '${baseTable}' and '${target}'`)
     }
-    const columns = inner.trim() === '*' || inner.trim() === ''
-      ? 'x.*'
-      : splitTop(inner).map((column) => {
-        const clean = column.trim()
-        if (!targetInfo.columns.has(clean)) {
-          throw new HttpError(400, 'PGRST100', `Emulador: seleção "${clean}" não suportada dentro de ${target}(...)`)
-        }
-        return `x.${quote(clean)}`
-      }).join(', ')
+    // cada nível tem os seus apelidos: a seleção interna pode trazer outros recursos embutidos
+    const x = `x${depth}`
+    const e = `e${depth}`
+    const columns = await selectList(tx, target, targetInfo, x, inner.trim() === '' ? '*' : inner, depth + 1)
     const relation = candidates[0]
     if (relation.source === baseTable) {
-      return `(select row_to_json(e) from (select ${columns} from public.${quote(target)} x
-                where x.${quote(relation.target_col)} = ${alias}.${quote(relation.source_col)}) e) as ${quote(name)}`
+      return `(select row_to_json(${e}) from (select ${columns} from public.${quote(target)} ${x}
+                where ${x}.${quote(relation.target_col)} = ${alias}.${quote(relation.source_col)}) ${e}) as ${quote(name)}`
     }
-    return `(select coalesce(json_agg(row_to_json(e)), '[]'::json) from (select ${columns} from public.${quote(target)} x
-              where x.${quote(relation.source_col)} = ${alias}.${quote(relation.target_col)}) e) as ${quote(name)}`
+    return `(select coalesce(json_agg(row_to_json(${e})), '[]'::json) from (select ${columns} from public.${quote(target)} ${x}
+              where ${x}.${quote(relation.source_col)} = ${alias}.${quote(relation.target_col)}) ${e}) as ${quote(name)}`
   }
 
-  async function selectList(tx: Transaction, table: string, info: TableInfo, alias: string, select: string | null): Promise<string> {
+  async function selectList(
+    tx: Transaction, table: string, info: TableInfo, alias: string, select: string | null, depth = 0,
+  ): Promise<string> {
     if (!select || select.trim() === '*') return `${alias}.*`
     const parts: string[] = []
     for (const raw of splitTop(select.replace(/\s+/g, ''))) {
       if (raw === '*') { parts.push(`${alias}.*`); continue }
       const embedded = /^(?:([a-zA-Z_]\w*):)?([a-zA-Z_]\w*)(?:!(\w+))?\((.*)\)$/.exec(raw)
       if (embedded) {
-        parts.push(await embed(tx, table, alias, embedded[1] ?? embedded[2], embedded[2], embedded[3], embedded[4]))
+        parts.push(await embed(tx, table, alias, embedded[1] ?? embedded[2], embedded[2], embedded[3], embedded[4], depth))
         continue
       }
       const plain = /^(?:([a-zA-Z_]\w*):)?([a-zA-Z_]\w*)$/.exec(raw)
