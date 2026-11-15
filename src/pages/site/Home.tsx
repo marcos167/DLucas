@@ -1,263 +1,203 @@
 import { Link } from 'react-router-dom'
 import {
-  ArrowRight, Bike, Boxes, CheckCircle2, ClipboardList, Clock, FileText, MapPin,
-  PackageCheck, ShieldCheck, Thermometer, Wallet, Building2, Users,
+  ArrowRight, ArrowUpRight, Bike, Boxes, CheckCircle2, ClipboardList, FileText,
+  MapPin, ShieldCheck, Thermometer, Wallet, Building2, Users,
 } from 'lucide-react'
 import { whatsappLink } from '@/components/site/SiteLayout'
 
 const pillars = [
   {
-    icon: Thermometer,
-    title: 'Cuidado com medicamentos',
-    text: 'Fluxo pensado para farmácias de manipulação: identificação de itens sensíveis à temperatura e conferência na coleta e na entrega.',
+    number: '01', icon: Thermometer, title: 'Cuidado em primeiro lugar',
+    text: 'Fluxo pensado para farmácias de manipulação, com identificação de itens sensíveis à temperatura e conferência em cada etapa.',
   },
   {
-    icon: Boxes,
-    title: 'Operação organizada',
-    text: 'Cada pedido tem origem, destino, volumes, prazo e responsável registrados. Nada depende de mensagem solta em aplicativo.',
+    number: '02', icon: Boxes, title: 'Operação sob controle',
+    text: 'Origem, destino, volumes, instruções e responsáveis registrados em um único lugar. Clareza para quem solicita e para quem entrega.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Rastreamento autorizado',
-    text: 'O acompanhamento de rota só é exibido quando o entregador autoriza o compartilhamento de localização.',
+    number: '03', icon: ShieldCheck, title: 'Visibilidade com respeito',
+    text: 'Acompanhamento de localização apenas quando o entregador autoriza o compartilhamento. Transparência sem abrir mão da privacidade.',
   },
 ]
 
 const workflow = [
-  { step: '01', title: 'A farmácia cadastra o pedido', text: 'Unidade de origem, endereço de coleta, destinatário e instruções.' },
-  { step: '02', title: 'A central despacha', text: 'O despachante escolhe o entregador ou usa a sugestão automática.' },
-  { step: '03', title: 'O entregador aceita', text: 'Recebe a oferta, confirma a coleta e atualiza cada etapa.' },
-  { step: '04', title: 'Acompanhamento e comprovante', text: 'Status em tempo real, ocorrências registradas e comprovante arquivado.' },
+  { step: '01', title: 'Solicitação', text: 'A farmácia registra unidade, destinatário e instruções do pedido.' },
+  { step: '02', title: 'Despacho', text: 'A central distribui a entrega e acompanha a fila operacional.' },
+  { step: '03', title: 'Entrega', text: 'O entregador aceita a oferta e atualiza cada etapa da rota.' },
+  { step: '04', title: 'Comprovação', text: 'Status, ocorrências e comprovante ficam vinculados ao pedido.' },
+]
+
+const audiences = [
+  { icon: Building2, title: 'Farmácias de manipulação', text: 'Pedidos, acompanhamento, comprovantes e faturas em um portal exclusivo.', to: '/farmacias', cta: 'Conhecer o portal' },
+  { icon: ClipboardList, title: 'Central de despacho', text: 'Distribuição, mapa operacional, ocorrências e visão consolidada da operação.', to: '/servicos', cta: 'Explorar recursos' },
+  { icon: Bike, title: 'Entregadores', text: 'Ofertas e etapas da entrega em uma experiência criada para o celular.', to: '/entregadores', cta: 'Fazer parte da rede' },
+]
+
+const capabilities = [
+  { icon: FileText, title: 'Comprovantes digitalizados' },
+  { icon: Wallet, title: 'Faturas e pagamentos parciais' },
+  { icon: MapPin, title: 'Mapa operacional' },
+  { icon: Users, title: 'Permissões por perfil' },
+  { icon: ClipboardList, title: 'Auditoria de atividades' },
+  { icon: CheckCircle2, title: 'Histórico por pedido' },
 ]
 
 export default function Home() {
   return (
     <div>
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-ink-950 via-ink-950 to-[#071019] text-white">
-        <div className="bg-grid-subtle pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="pointer-events-none absolute -left-32 top-0 h-[28rem] w-[28rem] rounded-full bg-brand-500/20 blur-[110px]" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-accent-400/10 blur-[100px]" />
-        {/* linha de luz no topo: separa o hero do header sem borda dura */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent" aria-hidden="true" />
-        <div className="container-page relative grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
-          <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-200 shadow-inner-light backdrop-blur-sm">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-300 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-300" />
-              </span>
-              Logística para saúde
-            </span>
-            <h1 className="mt-6 font-display text-[2.5rem] font-extrabold leading-[1.06] tracking-[-0.03em] sm:text-[3rem] lg:text-[3.5rem]">
-              Transporte de medicamentos com{' '}
-              <span className="bg-gradient-to-r from-brand-200 via-brand-300 to-brand-400 bg-clip-text text-transparent">
-                controle de ponta a ponta
-              </span>
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-300 sm:text-lg">
-              A D'Luca Connect conecta farmácias de manipulação, central de despacho e motoboys
-              em uma única plataforma: pedidos, distribuição, acompanhamento e financeiro.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/orcamento" className="btn-accent btn-sheen btn-lg group">
-                Solicitar orçamento
-                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                to="/entrar"
-                className="btn btn-lg border border-white/15 bg-white/[0.06] text-white shadow-inner-light backdrop-blur-sm transition hover:border-white/25 hover:bg-white/10"
-              >
-                Acessar plataforma
-              </Link>
-            </div>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-6 text-sm">
-              {[
-                { k: 'Pedidos', v: 'Centralizados' },
-                { k: 'Despacho', v: 'Manual e automático' },
-                { k: 'Financeiro', v: 'Faturas e repasses' },
-              ].map((i) => (
-                <div key={i.k}>
-                  <dt className="text-[11px] uppercase tracking-wider text-ink-500">{i.k}</dt>
-                  <dd className="mt-1 font-semibold text-white">{i.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-
-          <div className="relative animate-fade-up">
-            <div className="rounded-3xl border border-white/12 bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-2.5 shadow-[0_24px_70px_-20px_rgb(0_0_0/0.7)] backdrop-blur-sm">
-              <div className="overflow-hidden rounded-[1.15rem] bg-white p-5 text-ink-900 shadow-[inset_0_1px_0_rgb(255_255_255/0.6)]">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-ink-400">Pedido em rota</p>
-                    <p className="font-display text-[17px] font-bold tracking-[-0.02em] tabular">DLC-2611-01042</p>
-                  </div>
-                  <span className="badge bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200">Em rota</span>
-                </div>
-                <div className="mt-4 space-y-3.5">
-                  <div className="flex gap-3">
-                    <div className="mt-1 flex flex-col items-center">
-                      <span className="h-2.5 w-2.5 rounded-full bg-brand-600" />
-                      <span className="my-1 h-8 w-px bg-ink-200" />
-                      <span className="h-2.5 w-2.5 rounded-full border-2 border-ink-400" />
-                    </div>
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-wide text-ink-400">Coleta</p>
-                        <p className="font-medium">Farmácia · Unidade Centro</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] uppercase tracking-wide text-ink-400">Destino</p>
-                        <p className="font-medium">Paciente · Jardim Paulista</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 rounded-xl bg-ink-50 p-3 text-xs">
-                    <div className="flex items-center gap-1.5 text-ink-600"><Thermometer className="h-3.5 w-3.5" /> Refrigerado</div>
-                    <div className="flex items-center gap-1.5 text-ink-600"><PackageCheck className="h-3.5 w-3.5" /> 2 volumes</div>
-                    <div className="flex items-center gap-1.5 text-ink-600"><Clock className="h-3.5 w-3.5" /> Previsão 40 min</div>
-                    <div className="flex items-center gap-1.5 text-ink-600"><MapPin className="h-3.5 w-3.5" /> 6,2 km</div>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center gap-2 rounded-xl border border-dashed border-ink-200 px-3 py-2 text-xs text-ink-500">
-                  <ShieldCheck className="h-3.5 w-3.5 text-brand-600" />
-                  Localização visível apenas com autorização do entregador
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PILARES */}
-      <section className="container-page py-16 sm:py-20">
-        <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">Por que D'Luca Connect</p>
-          <h2 className="section-title mt-2">Tecnologia e operação no mesmo lugar</h2>
-          <p className="mt-3 text-ink-600">
-            A plataforma foi desenhada para quem movimenta medicamentos todos os dias e precisa de
-            registro, previsibilidade e prestação de contas.
+      <section className="site-hero relative isolate flex min-h-[690px] flex-col justify-end overflow-hidden bg-ink-50 text-ink-950 sm:min-h-[720px] lg:min-h-[760px]">
+        <img
+          src="/images/hero-daylight.jpg"
+          alt=""
+          aria-hidden="true"
+          loading="eager"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center] opacity-60 sm:opacity-100"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink-50 via-ink-50/95 to-ink-50/20" aria-hidden="true" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-50/95 via-transparent to-white/15" aria-hidden="true" />
+        <div className="container-page relative flex flex-1 flex-col justify-center pb-12 pt-20 sm:pt-24 lg:pb-20">
+          <p className="site-reveal flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-700">
+            <span className="h-px w-9 bg-brand-400" aria-hidden="true" /> DLucas Express / Logística em saúde
           </p>
+          <h1 className="site-reveal mt-9 max-w-[930px] font-display text-[clamp(2.75rem,6.2vw,6.15rem)] font-medium leading-[1.07] tracking-[-0.055em] text-ink-950 [animation-delay:90ms]">
+            Cada entrega carrega <span className="font-editorial italic font-normal tracking-[-0.04em] text-brand-700">algo essencial.</span>
+          </h1>
+          <p className="site-reveal mt-8 max-w-[590px] text-[15px] leading-[1.85] text-ink-700 sm:text-[17px] [animation-delay:180ms]">
+            Tecnologia e operação para o transporte de medicamentos. Da solicitação ao comprovante, conectamos farmácias, despacho e entregadores com precisão e cuidado.
+          </p>
+          <div className="site-reveal mt-10 flex flex-wrap gap-3 [animation-delay:270ms]">
+            <Link to="/orcamento" className="site-button-ink group inline-flex min-h-12 items-center gap-6 px-7 py-3.5 text-[12px] font-bold uppercase tracking-[0.12em]">
+              Solicitar proposta <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </Link>
+            <Link to="/servicos" className="site-button-outline inline-flex min-h-12 items-center gap-6 px-7 py-3.5 text-[12px] font-bold uppercase tracking-[0.12em]">
+              Explorar serviços <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {pillars.map((p) => (
-            <div
-              key={p.title}
-              className="group relative overflow-hidden rounded-2xl border border-ink-200/70 bg-white p-6 shadow-card transition-all duration-200 ease-out hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover"
-            >
-              {/* brilho que sobe no hover */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 -top-24 h-24 bg-gradient-to-b from-brand-200/40 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
-              />
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-100/70 text-brand-700 ring-1 ring-inset ring-brand-200/60 transition-transform duration-200 group-hover:scale-105">
-                <p.icon className="h-5 w-5" />
-              </div>
-              <h3 className="relative mt-4 font-display text-title-sm text-ink-950">{p.title}</h3>
-              <p className="relative mt-2 text-[13.5px] leading-relaxed text-ink-600">{p.text}</p>
-            </div>
-          ))}
+        <div className="border-t border-ink-200/70 bg-white/85 backdrop-blur-sm">
+          <div className="container-page grid gap-4 py-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-700 sm:grid-cols-3 sm:gap-8">
+            <span><span className="mr-3 text-brand-700">01 /</span> Pedidos centralizados</span>
+            <span><span className="mr-3 text-brand-700">02 /</span> Despacho coordenado</span>
+            <span><span className="mr-3 text-brand-700">03 /</span> Acompanhamento autorizado</span>
+          </div>
         </div>
       </section>
 
-      {/* FLUXO */}
-      <section className="border-y border-ink-200 bg-ink-50/70">
-        <div className="container-page py-16 sm:py-20">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="container-page grid gap-10 py-20 sm:py-28 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-36">
+        <div>
+          <p className="site-kicker">A nossa perspectiva</p>
+          <h2 className="site-heading mt-6 max-w-lg">Excelência está <em>nos detalhes.</em></h2>
+        </div>
+        <div className="flex flex-col justify-end border-l border-brand-400/40 pl-6 sm:pl-10">
+          <p className="max-w-xl font-display text-[18px] leading-[1.65] text-ink-800 sm:text-[22px]">
+            Em saúde, uma entrega não é apenas um trajeto. É a continuidade de um cuidado que começou muito antes da coleta.
+          </p>
+          <p className="mt-6 max-w-xl text-[15px] leading-8 text-ink-600">
+            Por isso, a DLucas Express reúne pessoas, processos e informação numa experiência operacional mais clara para cada parte envolvida.
+          </p>
+          <Link to="/como-funciona" className="site-text-link mt-8 inline-flex w-fit items-center gap-3 text-xs font-bold uppercase tracking-[0.12em]">
+            Entenda nosso processo <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      <section className="bg-white py-20 sm:py-28">
+        <div className="container-page">
+          <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">Como funciona</p>
-              <h2 className="section-title mt-2">Do pedido ao comprovante</h2>
+              <p className="site-kicker">O que nos move</p>
+              <h2 className="site-heading mt-5 max-w-2xl">Uma operação feita para <em>inspirar confiança.</em></h2>
             </div>
-            <Link to="/como-funciona" className="link-quiet text-sm font-semibold">Ver detalhes →</Link>
+            <p className="max-w-xs text-sm leading-7 text-ink-600">Uma experiência em que visibilidade, disciplina e respeito caminham juntos.</p>
           </div>
-          <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {workflow.map((w) => (
-              <li key={w.step} className="card p-5">
-                <span className="font-display text-2xl font-extrabold text-brand-200">{w.step}</span>
-                <h3 className="mt-2 text-sm font-bold text-ink-950">{w.title}</h3>
-                <p className="mt-1 text-[13px] leading-relaxed text-ink-600">{w.text}</p>
-              </li>
+          <div className="mt-12 grid border-t border-ink-200 md:grid-cols-3">
+            {pillars.map((pillar) => (
+              <article key={pillar.number} className="site-feature group border-b border-ink-200 px-1 py-10 md:border-r md:px-8 md:last:border-r-0 lg:px-10">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold tracking-[0.2em] text-brand-700">{pillar.number} / 03</span>
+                  <pillar.icon className="h-6 w-6 text-brand-600 transition-transform duration-300 group-hover:-translate-y-1" strokeWidth={1.3} />
+                </div>
+                <h3 className="mt-16 max-w-xs font-display text-[23px] font-medium tracking-[-0.04em] text-ink-950">{pillar.title}</h3>
+                <p className="mt-4 max-w-xs text-[14px] leading-7 text-ink-600">{pillar.text}</p>
+              </article>
             ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* PERFIS */}
-      <section className="container-page py-16 sm:py-20">
-        <div className="grid gap-4 lg:grid-cols-3">
-          {[
-            {
-              icon: Building2, title: 'Farmácias de manipulação',
-              text: 'Crie pedidos, acompanhe entregas, baixe comprovantes e consulte faturas em um portal exclusivo.',
-              to: '/farmacias', cta: 'Conhecer o portal',
-            },
-            {
-              icon: ClipboardList, title: 'Central de despacho',
-              text: 'Dashboards operacionais, distribuição manual ou por sugestão, mapa de entregas e ocorrências.',
-              to: '/servicos', cta: 'Ver recursos',
-            },
-            {
-              icon: Bike, title: 'Entregadores',
-              text: 'Área mobile-first: ofertas, aceite, etapas da entrega, ocorrências e comprovantes.',
-              to: '/entregadores', cta: 'Quero ser entregador',
-            },
-          ].map((c) => (
-            <div key={c.title} className="card flex flex-col p-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink-950 text-brand-300">
-                <c.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 font-display text-lg font-bold text-ink-950">{c.title}</h3>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-600">{c.text}</p>
-              <Link to={c.to} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:gap-2.5 transition-all">
-                {c.cta} <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container-page pb-8">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-800 to-ink-950 px-6 py-12 text-center sm:px-12">
-          <h2 className="font-display text-2xl font-extrabold text-white sm:text-3xl">
-            Pronto para organizar o transporte da sua farmácia?
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-brand-100/80">
-            Conte como é a sua operação. Nossa equipe responde com uma proposta comercial adequada
-            ao seu volume e às suas regiões de entrega.
-          </p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link to="/orcamento" className="btn bg-white text-ink-950 hover:bg-brand-50">
-              Solicitar orçamento <ArrowRight className="h-4 w-4" />
-            </Link>
-            {whatsappLink('') && (
-              <a href={whatsappLink("Olá! Quero saber mais sobre a D'Luca Connect.")} target="_blank" rel="noreferrer"
-                 className="btn border border-white/25 bg-white/5 text-white hover:bg-white/10">
-                Falar no WhatsApp
-              </a>
-            )}
-            <Link to="/empresas" className="btn border border-white/25 bg-white/5 text-white hover:bg-white/10">
-              <Users className="h-4 w-4" /> Nova empresa
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* RECURSOS */}
-      <section className="container-page py-14">
-        <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { icon: FileText, t: 'Comprovantes digitalizados' },
-            { icon: Wallet, t: 'Faturas com pagamento parcial' },
-            { icon: MapPin, t: 'Mapa operacional de entregas' },
-            { icon: Users, t: 'Permissões por perfil de usuário' },
-            { icon: ClipboardList, t: 'Auditoria de atividades' },
-            { icon: CheckCircle2, t: 'Histórico completo por pedido' },
-          ].map((f) => (
-            <div key={f.t} className="flex items-center gap-3 rounded-xl border border-ink-200/70 px-4 py-3">
-              <f.icon className="h-4 w-4 text-brand-700" />
-              <span className="text-sm font-medium text-ink-800">{f.t}</span>
+      <section className="border-y border-ink-200 bg-brand-50 py-20 text-ink-950 sm:py-28">
+        <div className="container-page grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+          <div className="relative overflow-hidden border border-ink-200 bg-white">
+            <img src="/images/editorial-care.jpg" alt="Entrega cuidadosa de uma encomenda na recepção de uma farmácia" loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+            <span className="absolute bottom-0 left-0 border-r border-t border-brand-400/30 bg-white/95 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-700 backdrop-blur">O cuidado em movimento</span>
+          </div>
+          <div>
+            <p className="site-kicker">Processo com propósito</p>
+            <h2 className="mt-6 max-w-xl font-display text-[clamp(2.4rem,4vw,4.5rem)] font-medium leading-[1.12] tracking-[-0.05em]">Do pedido à entrega, <span className="font-editorial italic text-brand-700">sem perder o fio.</span></h2>
+            <p className="mt-6 max-w-lg text-[15px] leading-8 text-ink-600">Cada etapa ganha contexto, responsável e registro. O resultado é uma operação mais organizada para a farmácia e mais clara para quem realiza a entrega.</p>
+            <Link to="/servicos" className="site-text-link mt-9 inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.12em]">Conhecer os serviços <ArrowUpRight className="h-4 w-4" /></Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="container-page py-20 sm:py-28">
+        <div className="flex flex-wrap items-end justify-between gap-5">
+          <div><p className="site-kicker">Nosso método</p><h2 className="site-heading mt-5">Clareza em <em>cada etapa.</em></h2></div>
+          <Link to="/como-funciona" className="site-text-link inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]">Ver detalhes <ArrowUpRight className="h-4 w-4" /></Link>
+        </div>
+        <ol className="mt-12 grid border-t border-ink-200 sm:grid-cols-2 lg:grid-cols-4">
+          {workflow.map((item) => (
+            <li key={item.step} className="border-b border-ink-200 py-8 sm:pr-7 lg:border-r lg:px-7 lg:first:pl-0 lg:last:border-r-0">
+              <span className="font-editorial text-[38px] italic text-brand-600">{item.step}</span>
+              <h3 className="mt-6 font-display text-[18px] font-semibold tracking-[-0.03em] text-ink-950">{item.title}</h3>
+              <p className="mt-3 text-[14px] leading-7 text-ink-600">{item.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="bg-white py-20 sm:py-28">
+        <div className="container-page">
+          <p className="site-kicker">Uma plataforma, diferentes perspectivas</p>
+          <h2 className="site-heading mt-5 max-w-3xl">Conectamos quem <em>faz acontecer.</em></h2>
+          <div className="mt-12 grid gap-4 lg:grid-cols-3">
+            {audiences.map((audience) => (
+              <Link key={audience.title} to={audience.to} className="site-audience group flex min-h-[330px] flex-col border border-ink-200 bg-ink-50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-brand-400 hover:shadow-[0_18px_40px_-20px_rgb(9_9_9/0.22)] sm:p-9">
+                <audience.icon className="h-7 w-7 text-brand-700" strokeWidth={1.3} />
+                <div className="mt-auto pt-14">
+                  <h3 className="font-display text-[23px] font-medium tracking-[-0.04em] text-ink-950">{audience.title}</h3>
+                  <p className="mt-3 max-w-sm text-[14px] leading-7 text-ink-600">{audience.text}</p>
+                  <span className="mt-7 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.12em] text-brand-700">{audience.cta} <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-brand-400/30 bg-gradient-to-r from-[#f0e9dc] via-ink-50 to-white py-20 text-ink-950 sm:py-28">
+        <div className="container-page grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
+          <div>
+            <p className="site-kicker">O próximo passo</p>
+            <h2 className="mt-5 max-w-2xl font-display text-[clamp(2.4rem,4.2vw,4.8rem)] font-medium leading-[1.12] tracking-[-0.05em]">Uma nova referência para a <span className="font-editorial italic text-brand-700">sua operação.</span></h2>
+          </div>
+          <div className="lg:pl-16">
+            <p className="max-w-lg text-[15px] leading-8 text-ink-600">Conte como funciona a logística da sua farmácia. Nossa equipe prepara uma proposta de acordo com volume, regiões e necessidades da sua operação.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/orcamento" className="site-button-ink inline-flex items-center gap-4 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Solicitar orçamento <ArrowUpRight className="h-4 w-4" /></Link>
+              {whatsappLink('') && <a href={whatsappLink("Olá! Quero saber mais sobre a DLucas Express.")} target="_blank" rel="noreferrer" className="site-button-outline inline-flex items-center px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Falar no WhatsApp</a>}
+              <Link to="/empresas" className="site-button-outline inline-flex items-center gap-2 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]"><Users className="h-4 w-4" /> Nova empresa</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container-page py-16 sm:py-20" aria-label="Recursos da plataforma">
+        <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+          {capabilities.map((capability) => (
+            <div key={capability.title} className="flex items-center gap-4 border-b border-ink-200 pb-5">
+              <capability.icon className="h-5 w-5 shrink-0 text-brand-700" strokeWidth={1.4} />
+              <span className="text-[13px] font-medium text-ink-800">{capability.title}</span>
             </div>
           ))}
         </div>

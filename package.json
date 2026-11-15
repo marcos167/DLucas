@@ -1,9 +1,9 @@
 {
-  "name": "dluca-connect",
+  "name": "dlucas-express",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "D'Luca Connect — plataforma de logística e transporte de medicamentos",
+  "description": "DLucas Express — plataforma de logística e transporte de medicamentos",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "tsc -b && vite build",

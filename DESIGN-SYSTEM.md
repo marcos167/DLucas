@@ -1,4 +1,4 @@
-# Design system — D'Luca Connect
+# Design system — DLucas Express
 
 Guia do sistema visual. Serve para manter consistência quando novas telas forem
 criadas e para justificar as decisões estéticas adiante.

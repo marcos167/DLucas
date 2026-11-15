@@ -1,4 +1,4 @@
-// Tipos de domínio do D'Luca Connect
+// Tipos de domínio do DLucas Express
 export type UserRole =
   | 'SUPER_ADMIN'
   | 'ADMIN'

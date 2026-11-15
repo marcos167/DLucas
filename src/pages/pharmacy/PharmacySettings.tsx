@@ -79,7 +79,7 @@ export default function PharmacySettings() {
         </div>
       </Card>
       <p className="px-1 text-[11px] text-ink-400">
-        Alterações de situação cadastral (ativa/inativa) são feitas pela administração da D'Luca.
+        Alterações de situação cadastral (ativa/inativa) são feitas pela administração da DLucas Express.
       </p>
     </div>
   )

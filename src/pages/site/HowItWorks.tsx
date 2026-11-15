@@ -43,7 +43,7 @@ export default function HowItWorks() {
       <PageHeader
         eyebrow="Como funciona"
         title="Seis etapas, tudo registrado"
-        description="O fluxo abaixo é o caminho padrão de um pedido dentro da D'Luca Connect, do cadastro ao financeiro."
+        description="O fluxo abaixo é o caminho padrão de um pedido dentro da DLucas Express, do cadastro ao financeiro."
       />
 
       <section className="container-page py-14">
@@ -52,7 +52,7 @@ export default function HowItWorks() {
           <span
             className="pointer-events-none absolute bottom-8 left-[1.4rem] top-8 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, rgb(18 185 140 / 0.5), rgb(18 185 140 / 0.08) 85%, transparent)',
+              background: 'linear-gradient(to bottom, rgb(198 166 107 / 0.55), rgb(198 166 107 / 0.08) 85%, transparent)',
             }}
             aria-hidden="true"
           />
@@ -66,7 +66,7 @@ export default function HowItWorks() {
                   <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-ink-950 to-ink-900 text-brand-300 shadow-lift ring-1 ring-inset ring-white/10">
                     <s.icon className="h-5 w-5" />
                     {/* número da etapa no canto do ícone */}
-                    <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white shadow-[0_2px_6px_rgb(9_95_77/0.45)] ring-2 ring-white tabular">
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white shadow-[0_2px_6px_rgb(101_75_41/0.28)] ring-2 ring-white tabular">
                       {i + 1}
                     </span>
                   </span>
@@ -107,7 +107,7 @@ export default function HowItWorks() {
             </Link>
             <Link
               to="/farmacias"
-              className="btn border border-white/15 bg-white/[0.06] text-white shadow-inner-light backdrop-blur-sm transition hover:border-white/25 hover:bg-white/10"
+              className="btn-secondary"
             >
               Para farmácias
             </Link>

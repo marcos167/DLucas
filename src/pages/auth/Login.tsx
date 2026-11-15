@@ -46,36 +46,35 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-ink-950 via-ink-950 to-brand-950 p-10 text-white lg:flex">
-        {/* malha técnica que esvanece — dá textura sem competir com o texto */}
-        <div className="bg-grid-subtle pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="pointer-events-none absolute -left-24 top-10 h-96 w-96 rounded-full bg-brand-500/20 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-accent-400/10 blur-[90px]" />
-        <div className="relative"><Logo variant="light" /></div>
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-ink-50 p-10 text-ink-950 lg:flex">
+        <img src="/images/hero-daylight.jpg" alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_center] opacity-65" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-ink-50/95 to-ink-50/45" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-50/90 via-transparent to-white/30" aria-hidden="true" />
+        <div className="relative"><Logo /></div>
         <div className="relative max-w-md">
-          <h1 className="font-display text-display-sm leading-[1.15] text-white">
+          <h1 className="font-display text-display-sm leading-[1.15] text-ink-950">
             A central da sua operação de transporte de medicamentos
           </h1>
-          <p className="mt-4 text-[13.5px] leading-relaxed text-ink-300">
+          <p className="mt-4 text-[13.5px] leading-relaxed text-ink-700">
             Painel administrativo, portal das farmácias e área do entregador em um único acesso —
             cada perfil vê somente o que lhe compete.
           </p>
-          <ul className="mt-8 space-y-3 text-[13.5px] text-ink-200">
+          <ul className="mt-8 space-y-3 text-[13.5px] text-ink-800">
             {[
               'Despacho manual e por sugestão automática',
               'Rastreamento apenas com autorização',
               'Faturas, pagamentos e relatórios',
             ].map((t) => (
               <li key={t} className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500/15 ring-1 ring-inset ring-brand-400/25">
-                  <ShieldCheck className="h-3.5 w-3.5 text-brand-300" />
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 ring-1 ring-inset ring-brand-400/30">
+                  <ShieldCheck className="h-3.5 w-3.5 text-brand-700" />
                 </span>
                 {t}
               </li>
             ))}
           </ul>
         </div>
-        <p className="text-xs text-ink-500">© {new Date().getFullYear()} D'Luca Transportes</p>
+        <p className="relative text-xs text-ink-600">© {new Date().getFullYear()} DLucas Express</p>
       </div>
 
       <div className="flex flex-col justify-center bg-ink-50/60 px-5 py-12 sm:px-10">
@@ -86,7 +85,7 @@ export default function Login() {
           </Link>
           <h2 className="mt-6 font-display text-display-sm text-ink-950">Entrar na plataforma</h2>
           <p className="mt-2 text-[13.5px] text-ink-600">
-            Use o e-mail corporativo cadastrado pela D'Luca.
+            Use o e-mail corporativo cadastrado pela DLucas Express.
           </p>
 
           {!configured && (

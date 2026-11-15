@@ -1,6 +1,6 @@
-# D'Luca Connect — Documentação
+# DLucas Express — Documentação
 
-Plataforma SaaS de logística e transporte de medicamentos para a **D'Luca Transportes**.
+Plataforma SaaS de logística e transporte de medicamentos para a **DLucas Express**.
 Projeto construído do zero: aplicação nova, banco novo, identidade visual própria.
 
 ---

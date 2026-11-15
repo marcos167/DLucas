@@ -65,8 +65,8 @@ export default function Settings() {
       <Card>
         <CardHeader title="Identidade da plataforma" description="Informações exibidas no site e nos documentos" />
         <div className="grid gap-4 p-4 sm:grid-cols-2">
-          <Field label="Empresa" hint="Somente leitura nesta versão"><Input value="D'Luca Transportes" readOnly disabled /></Field>
-          <Field label="Produto" hint="Somente leitura"><Input value="D'Luca Connect" readOnly disabled /></Field>
+          <Field label="Empresa" hint="Somente leitura nesta versão"><Input value="DLucas Express" readOnly disabled /></Field>
+          <Field label="Produto" hint="Somente leitura"><Input value="DLucas Express" readOnly disabled /></Field>
           <Field label="Canal de WhatsApp" hint="Definido em VITE_COMPANY_WHATSAPP"><Input value={import.meta.env.VITE_COMPANY_WHATSAPP || 'não configurado'} readOnly disabled /></Field>
           <Field label="Projeto Supabase" hint="Conexão atual"><Input value={import.meta.env.VITE_SUPABASE_URL || 'não configurado'} readOnly disabled /></Field>
         </div>

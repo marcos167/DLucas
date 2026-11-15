@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Servidor do deck de apresentação da D'Luca Connect.
+Servidor do deck de apresentação da DLucas Express.
 
 Por que não `python3 -m http.server`: aquele servidor, ao abrir a raiz,
 devolve a LISTAGEM de diretório — e a preview do ambiente carrega a raiz,
@@ -51,7 +51,7 @@ def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8899
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.ThreadingTCPServer(("0.0.0.0", port), Handler) as httpd:
-        print(f"D'Luca Connect · apresentação em http://0.0.0.0:{port}{DECK}", flush=True)
+        print(f"DLucas Express · apresentação em http://0.0.0.0:{port}{DECK}", flush=True)
         print(f"Raiz (/) redireciona para {DECK}", flush=True)
         httpd.serve_forever()
 

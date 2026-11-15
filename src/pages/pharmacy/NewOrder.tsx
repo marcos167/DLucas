@@ -385,7 +385,7 @@ export default function NewOrder() {
             Criar pedido
           </Button>
           <p className="mt-2 text-center text-[11px] text-ink-500">
-            O pedido entra na fila de despacho da central D'Luca.
+            O pedido entra na fila de despacho da central DLucas Express.
           </p>
           {temperature && (
             <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-cyan-700">

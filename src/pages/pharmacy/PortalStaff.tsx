@@ -18,7 +18,7 @@ export default function PortalStaff() {
   return (
     <div className="space-y-4">
       <Alert tone="info" title="Gestão de acessos">
-        Novos usuários da sua farmácia são criados pela equipe administrativa da D'Luca, garantindo
+        Novos usuários da sua farmácia são criados pela equipe administrativa da DLucas Express, garantindo
         que cada acesso seja auditado. Solicite a inclusão ou desativação pelo canal de atendimento.
       </Alert>
 

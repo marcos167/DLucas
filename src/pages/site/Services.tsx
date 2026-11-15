@@ -49,7 +49,7 @@ export default function Services() {
       <PageHeader
         eyebrow="Serviços"
         title="Transporte e logística de medicamentos com processo definido"
-        description="Os serviços abaixo descrevem o que a plataforma D'Luca Connect suporta hoje. A proposta comercial é montada caso a caso, conforme volume, regiões e horários da sua operação."
+        description="Os serviços abaixo descrevem o que a plataforma DLucas Express suporta hoje. A proposta comercial é montada caso a caso, conforme volume, regiões e horários da sua operação."
       />
 
       <section className="container-page py-14">
@@ -93,7 +93,7 @@ export default function Services() {
             </Link>
             <Link
               to="/como-funciona"
-              className="btn border border-white/15 bg-white/[0.06] text-white shadow-inner-light backdrop-blur-sm transition hover:border-white/25 hover:bg-white/10"
+              className="btn-secondary"
             >
               Ver como funciona
             </Link>

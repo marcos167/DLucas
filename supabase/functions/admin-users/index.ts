@@ -1,5 +1,5 @@
 // =====================================================================
-// D'Luca Connect — Edge Function: admin-users
+// DLucas Express — Edge Function: admin-users
 // Criação de usuários e redefinição de senha com verificação de papel.
 // Somente SUPER_ADMIN / ADMIN podem executar. Toda ação é auditada.
 // =====================================================================

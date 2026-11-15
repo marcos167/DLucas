@@ -43,7 +43,7 @@ export default function PortalHome() {
     return (
       <EmptyState
         title="Farmácia não vinculada"
-        description="Seu usuário ainda não está vinculado a uma farmácia. Fale com o administrador da D'Luca."
+        description="Seu usuário ainda não está vinculado a uma farmácia. Fale com o administrador da DLucas Express."
       />
     )
   }
@@ -165,7 +165,7 @@ export default function PortalHome() {
           )}
           {openInvoices.length > 0 && (
             <p className="flex items-center gap-1.5 border-t border-ink-100 px-4 py-2.5 text-[11px] text-ink-500">
-              <AlertTriangle className="h-3 w-3 text-amber-500" /> Pagamentos são registrados pela equipe financeira da D'Luca.
+              <AlertTriangle className="h-3 w-3 text-amber-500" /> Pagamentos são registrados pela equipe financeira da DLucas Express.
             </p>
           )}
         </Card>

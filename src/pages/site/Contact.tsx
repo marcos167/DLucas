@@ -4,12 +4,12 @@ import { PageHeader } from '@/components/site/PageSections'
 import { whatsappLink, WHATSAPP_NUMBER } from '@/components/site/SiteLayout'
 
 export default function Contact() {
-  const wa = whatsappLink("Olá! Vim pelo site da D'Luca Connect.")
+  const wa = whatsappLink("Olá! Vim pelo site da DLucas Express.")
   return (
     <div>
       <PageHeader
         eyebrow="Contato"
-        title="Fale com a D'Luca"
+        title="Fale com a DLucas Express"
         description="Envie sua mensagem pelo formulário ou utilize os canais de atendimento abaixo."
       />
 
