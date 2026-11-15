@@ -5,7 +5,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!assets/|apresentacao\\.html).*)",
+      "source": "/((?!assets/|apresentacao(/.*)?$|apresentacao\\.html$).*)",
       "destination": "/index.html"
     }
   ],
@@ -28,6 +28,33 @@
         {
           "key": "Permissions-Policy",
           "value": "geolocation=(self), camera=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/apresentacao.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/apresentacao",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/apresentacao/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
         }
       ]
     }
