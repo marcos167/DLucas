@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -11,7 +11,7 @@ import { createOrder, listContracts, listUnits } from '@/lib/api'
 import { orderSchema, fieldErrors } from '@/lib/validation'
 import { useAuth } from '@/contexts/AuthContext'
 import { distanceKm, maskPhone, brl } from '@/lib/utils'
-import { geocodeAddress } from '@/lib/geocode'
+import { destinationAddressKey, destinationForAddress, geocodeAddress, type GeocodedDestination } from '@/lib/geocode'
 import type { Contract, PharmacyUnit } from '@/types'
 
 export default function NewOrder() {
@@ -42,9 +42,18 @@ export default function NewOrder() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [serverError, setServerError] = useState('')
   const [geocodeState, setGeocodeState] = useState<'idle' | 'loading' | 'ok' | 'fail'>('idle')
-  const [coords, setCoords] = useState<{ pickup?: { lat: number; lng: number }; delivery?: { lat: number; lng: number } }>({})
+  const [destination, setDestination] = useState<GeocodedDestination | null>(null)
+  const [pickup, setPickup] = useState<GeocodedDestination | null>(null)
+  const formRef = useRef(form)
+  formRef.current = form
+  const locateRequest = useRef(0)
 
   const selectedUnit: PharmacyUnit | undefined = (units.data ?? []).find((u) => u.id === form.unit_id)
+  const validDestination = destinationForAddress(destination, form)
+  const destinationChanged = destination != null && validDestination == null
+  const pickupKey = [form.unit_id, form.pickup_street, form.pickup_number, form.pickup_district,
+    form.pickup_city, form.pickup_state].map((part) => part.trim().toLocaleLowerCase('pt-BR')).join('|')
+  const pickupCoords = pickup?.addressKey === pickupKey ? pickup : null
 
   // Preenche o endereço de coleta a partir da unidade selecionada
   useEffect(() => {
@@ -58,40 +67,55 @@ export default function NewOrder() {
       pickup_state: selectedUnit.state,
       pickup_instructions: selectedUnit.pickup_instructions ?? f.pickup_instructions,
     }))
-    if (selectedUnit.latitude != null && selectedUnit.longitude != null) {
-      setCoords((c) => ({ ...c, pickup: { lat: selectedUnit.latitude!, lng: selectedUnit.longitude! } }))
-    }
   }, [selectedUnit])
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }))
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const next = { ...formRef.current, [k]: e.target.value }
+    formRef.current = next
+    setForm(next)
+  }
 
   async function locate() {
+    const snapshot = formRef.current
+    const request = ++locateRequest.current
+    const addressKey = destinationAddressKey(snapshot)
+    const currentPickupKey = [snapshot.unit_id, snapshot.pickup_street, snapshot.pickup_number,
+      snapshot.pickup_district, snapshot.pickup_city, snapshot.pickup_state]
+      .map((part) => part.trim().toLocaleLowerCase('pt-BR')).join('|')
     setGeocodeState('loading')
     const pickupQuery = [
-      form.pickup_street, form.pickup_number, form.pickup_district, form.pickup_city, form.pickup_state, 'Brasil',
+      snapshot.pickup_street, snapshot.pickup_number, snapshot.pickup_district,
+      snapshot.pickup_city, snapshot.pickup_state, 'Brasil',
     ].filter(Boolean).join(', ')
     const deliveryQuery = [
-      form.delivery_street, form.delivery_number, form.delivery_district, form.delivery_city, form.delivery_state, 'Brasil',
+      snapshot.delivery_street, snapshot.delivery_number, snapshot.delivery_district,
+      snapshot.delivery_city, snapshot.delivery_state, 'Brasil',
     ].filter(Boolean).join(', ')
 
     const [p, d] = await Promise.all([
-      coords.pickup ? Promise.resolve(null) : geocodeAddress(pickupQuery),
+      selectedUnit?.latitude != null && selectedUnit.longitude != null ? Promise.resolve(null) : geocodeAddress(pickupQuery),
       geocodeAddress(deliveryQuery),
     ])
-    const next = { ...coords }
-    if (p) next.pickup = { lat: p.lat, lng: p.lng }
-    if (d) next.delivery = { lat: d.lat, lng: d.lng }
-    setCoords(next)
-    setGeocodeState(next.pickup && next.delivery ? 'ok' : next.delivery || next.pickup ? 'ok' : 'fail')
+    // Edits or a newer lookup invalidate the entire old response.
+    const latest = formRef.current
+    const latestPickupKey = [latest.unit_id, latest.pickup_street, latest.pickup_number,
+      latest.pickup_district, latest.pickup_city, latest.pickup_state]
+      .map((part) => part.trim().toLocaleLowerCase('pt-BR')).join('|')
+    if (request !== locateRequest.current || addressKey !== destinationAddressKey(latest) || currentPickupKey !== latestPickupKey) {
+      if (request === locateRequest.current) setGeocodeState('idle')
+      return
+    }
+    setPickup(p ? { lat: p.lat, lng: p.lng, addressKey: currentPickupKey } : null)
+    setDestination(d ? { lat: d.lat, lng: d.lng, addressKey } : null)
+    setGeocodeState(d || p ? 'ok' : 'fail')
   }
 
   // A origem de cobrança é sempre a coordenada cadastrada da unidade, não
   // uma coordenada de coleta informada pelo navegador. O banco arredonda km
   // a duas casas antes de calcular o adicional do contrato.
-  const estimatedKm = selectedUnit?.latitude != null && selectedUnit?.longitude != null && coords.delivery
+  const estimatedKm = selectedUnit?.latitude != null && selectedUnit?.longitude != null && validDestination
     ? Number(distanceKm(
-        { lat: selectedUnit.latitude, lng: selectedUnit.longitude }, coords.delivery,
+        { lat: selectedUnit.latitude, lng: selectedUnit.longitude }, validDestination,
       ).toFixed(2))
     : null
 
@@ -146,8 +170,8 @@ export default function NewOrder() {
         pickup_city: d.pickup_city,
         pickup_state: d.pickup_state.toUpperCase(),
         pickup_instructions: d.pickup_instructions || null,
-        pickup_latitude: coords.pickup?.lat ?? null,
-        pickup_longitude: coords.pickup?.lng ?? null,
+        pickup_latitude: selectedUnit?.latitude ?? pickupCoords?.lat ?? null,
+        pickup_longitude: selectedUnit?.longitude ?? pickupCoords?.lng ?? null,
         recipient_name: d.recipient_name,
         recipient_phone: d.recipient_phone,
         recipient_document: d.recipient_document || null,
@@ -159,8 +183,8 @@ export default function NewOrder() {
         delivery_state: d.delivery_state.toUpperCase(),
         delivery_zip_code: d.delivery_zip_code || null,
         delivery_instructions: d.delivery_instructions || null,
-        delivery_latitude: coords.delivery?.lat ?? null,
-        delivery_longitude: coords.delivery?.lng ?? null,
+        delivery_latitude: validDestination?.lat ?? null,
+        delivery_longitude: validDestination?.lng ?? null,
         package_count: d.package_count,
         package_description: d.package_description || null,
         is_temperature_controlled: temperature,
@@ -285,15 +309,15 @@ export default function NewOrder() {
                 </Button>
               </div>
             </div>
-            {coords.delivery && (
+            {validDestination && (
               <p className="flex items-center gap-1.5 text-[11.5px] text-emerald-700">
                 <CheckCircle2 className="h-3.5 w-3.5" /> Endereço de destino localizado para o mapa.
               </p>
             )}
-            {geocodeState === 'fail' && (
+            {(destinationChanged || (geocodeState === 'fail' && !validDestination)) && (
               <p className="flex items-center gap-1.5 text-[11.5px] text-amber-700">
-                <AlertTriangle className="h-3.5 w-3.5" /> Não foi possível localizar o endereço automaticamente.
-                O pedido pode ser criado, mas não aparecerá no mapa.
+                <AlertTriangle className="h-3.5 w-3.5" /> Localize novamente o endereço após alterações ou se a consulta falhar.
+                O pedido pode ser criado sem coordenadas de destino.
               </p>
             )}
             <Field label="Instruções de entrega">
