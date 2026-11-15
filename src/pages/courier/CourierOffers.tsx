@@ -26,17 +26,16 @@ export default function CourierOffers() {
   const respond = useMutation({
     mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
       setBusyId(id)
-      await respondToOffer(id, accept)
-      return { accept, id }
+      const row = await respondToOffer(id, accept)
+      return { accept, id, orderId: row.order_id }
     },
-    onSuccess: ({ accept, id }) => {
+    onSuccess: ({ accept, orderId }) => {
       setBusyId(null)
       void qc.invalidateQueries({ queryKey: ['courier-offers'] })
       void qc.invalidateQueries({ queryKey: ['courier-active-orders'] })
       void qc.invalidateQueries({ queryKey: ['courier-offers-home'] })
       if (accept) {
-        const offer = offers.data?.find((o) => o.id === id)
-        if (offer) navigate(`/entregador/entrega/${offer.order_id}`)
+        navigate(`/entregador/entrega/${orderId}`)
       } else {
         setFeedback('Oferta recusada. Ela voltou para a central.')
       }

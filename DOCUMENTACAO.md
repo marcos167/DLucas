@@ -105,6 +105,7 @@ supabase/
 | `couriers.availability` | atualizada conforme o status do pedido |
 | `invoices` | subtotal/total/pago/status recalculados a cada item ou pagamento |
 | `profiles` | criado automaticamente pelo trigger `on_auth_user_created` |
+| `delivery_offers` | trigger `offer_response`: aceite vincula o pedido e encerra as outras ofertas; recusa devolve o pedido à fila (atômico, `SECURITY DEFINER`) |
 
 ### Segurança (RLS)
 
@@ -126,6 +127,8 @@ Outras proteções:
 - Cadastro público (`signup`) desabilitado no Auth: usuários são criados pela administração.
 - Comprovantes ficam em bucket privado; acesso apenas por **URL assinada de 10 min**.
 - Leituras de `courier_locations` exigem `location_sharing_enabled = true` **e** pedido em rota.
+- O entregador só consegue alterar pedidos já vinculados a ele (`courier_id = app.current_courier_id()`);
+  o aceite de oferta é resolvido por trigger, não por escrita direta no pedido.
 
 ---
 
@@ -211,7 +214,13 @@ e `order_events`.
 
 ---
 
-## 10. Deploy no Vercel
+## 10. Fluxo validado de ponta a ponta
+
+Testado diretamente no banco com sessão autenticada real:
+`oferta criada → entregador aceita → status ACCEPTED → deslocamento → coleta → rota → entrega`,
+com evento `OFFER_ACCEPTED` gravado na timeline e pedido concluído (`DELIVERED`).
+
+## 11. Deploy no Vercel
 
 1. Importe o repositório no Vercel (framework detectado: **Vite**; `vercel.json` já configura SPA fallback).
 2. Configure as variáveis: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_COMPANY_WHATSAPP`.
@@ -220,7 +229,7 @@ e `order_events`.
 
 ---
 
-## 11. Limitações conhecidas desta primeira versão
+## 12. Limitações conhecidas desta primeira versão
 
 - Exportação de faturas/relatórios em PDF **não** foi implementada (apenas visualização em tela).
 - Criação de usuários depende da Edge Function `admin-users` (já publicada); se ela falhar, use o Painel do Supabase.

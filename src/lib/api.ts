@@ -195,28 +195,25 @@ export async function assignOrder(params: {
   method?: 'MANUAL' | 'AUTO_SUGGESTION' | 'REASSIGNMENT'
   reason?: string
 }) {
-  const { error } = await supabase.from('delivery_offers').insert({
-    order_id: params.orderId,
-    courier_id: params.courierId,
-    status: 'ACCEPTED',
-    method: params.method ?? 'MANUAL',
-    responded_at: new Date().toISOString(),
-    message: params.reason ?? null,
-  })
+  // A atribuição direta vincula o pedido ao entregador.
+  // O histórico de atribuições e a timeline são gerados por trigger no banco.
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      status: 'ASSIGNED',
+      courier_id: params.courierId,
+      assigned_at: new Date().toISOString(),
+      dispatch_notes: params.reason ?? null,
+    })
+    .eq('id', params.orderId)
   wrap(null, error)
 
-  const { error: e2 } = await supabase
-    .from('orders')
-    .update({ status: 'ASSIGNED', courier_id: params.courierId, assigned_at: new Date().toISOString() })
-    .eq('id', params.orderId)
-  wrap(null, e2)
-
-  await supabase.from('order_assignments').insert({
-    order_id: params.orderId,
-    courier_id: params.courierId,
-    method: params.method ?? 'MANUAL',
-    reason: params.reason ?? 'Atribuição pelo painel',
-  })
+  // encerra ofertas pendentes que possam existir para este pedido
+  await supabase
+    .from('delivery_offers')
+    .update({ status: 'CANCELLED', responded_at: new Date().toISOString() })
+    .eq('order_id', params.orderId)
+    .eq('status', 'PENDING')
 }
 
 export async function listOffersForCourier(courierId: string): Promise<DeliveryOffer[]> {
@@ -230,7 +227,9 @@ export async function listOffersForCourier(courierId: string): Promise<DeliveryO
 }
 
 export async function respondToOffer(offerId: string, accept: boolean) {
-  const { data: offer, error } = await supabase
+  // O trigger `offer_response` no banco faz o vínculo do pedido, encerra as
+  // demais ofertas, registra o evento e devolve o pedido à fila em caso de recusa.
+  const { data, error } = await supabase
     .from('delivery_offers')
     .update({
       status: accept ? 'ACCEPTED' : 'DECLINED',
@@ -240,27 +239,9 @@ export async function respondToOffer(offerId: string, accept: boolean) {
     .eq('status', 'PENDING')
     .select('order_id, courier_id')
     .single()
-  const row = wrap(offer, error) as { order_id: string; courier_id: string }
 
-  if (accept) {
-    const { error: e2 } = await supabase
-      .from('orders')
-      .update({
-        status: 'ACCEPTED',
-        courier_id: row.courier_id,
-        assigned_at: new Date().toISOString(),
-        accepted_at: new Date().toISOString(),
-      })
-      .eq('id', row.order_id)
-    wrap(null, e2)
-  } else {
-    const { error: e2 } = await supabase
-      .from('orders')
-      .update({ status: 'PENDING' })
-      .eq('id', row.order_id)
-      .eq('status', 'OFFERED')
-    wrap(null, e2)
-  }
+  const row = wrap(data, error) as { order_id: string; courier_id: string }
+  return row
 }
 
 /* ------------------------------------------------------------- RASTREIO */

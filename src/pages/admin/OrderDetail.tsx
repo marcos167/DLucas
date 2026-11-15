@@ -61,6 +61,7 @@ export default function OrderDetail() {
         status,
         ...(status === 'CANCELLED' ? { cancelled_at: new Date().toISOString(), cancel_reason: reason ?? 'Cancelado pela central' } : {}),
         ...(status === 'FAILED' ? { cancel_reason: reason ?? 'Falha na entrega' } : {}),
+        ...(status === 'PENDING' ? { courier_id: null, assigned_at: null, accepted_at: null } : {}),
       })
       await logAudit('STATUS', 'order', id, `Alterou status para ${ORDER_STATUS_LABEL[status]}`)
     },

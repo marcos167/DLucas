@@ -11,7 +11,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { COURIER_FLOW, brl, formatDateTime, relativeTime } from '@/lib/utils'
 import { OrderStatusBadge, RouteBlock, OrderTimeline, OrderMetaChips } from '@/components/dashboard/OrderBits'
-import { supabase } from '@/lib/supabase'
 import type { OrderStatus } from '@/types'
 
 const STEPS: OrderStatus[] = ['ACCEPTED', 'PICKING_UP', 'COLLECTED', 'IN_TRANSIT', 'DELIVERED']
@@ -65,12 +64,8 @@ export default function CourierDelivery() {
       if (to === 'COLLECTED') patch.collected_at = new Date().toISOString()
       if (to === 'DELIVERED') patch.delivered_at = new Date().toISOString()
       if (to === 'FAILED') patch.cancelled_at = new Date().toISOString()
+      // A timeline é gerada automaticamente por trigger no banco.
       await updateOrder(order.data.id, patch)
-      await supabase.from('order_events').insert({
-        order_id: order.data.id,
-        event: 'STATUS_CHANGED',
-        description: `Entregador atualizou para ${to}`,
-      })
       await refreshProfile()
       void qc.invalidateQueries({ queryKey: ['courier-order', id] })
       void qc.invalidateQueries({ queryKey: ['courier-active-orders'] })
