@@ -11,7 +11,7 @@ import {
 import DeliveryMap from '@/components/dashboard/DeliveryMap'
 import {
   assignOrder, createOccurrence, getOrder, getProofUrl, listLocationsForOrder, listProofs,
-  listCouriers, logAudit, updateOrder, uploadProof,
+  listAvailableCouriers, logAudit, updateOrder, uploadProof,
 } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -47,7 +47,7 @@ export default function OrderDetail() {
   const [message, setMessage] = useState('')
 
   const order = useQuery({ queryKey: ['order', id], queryFn: () => getOrder(id), enabled: !!id })
-  const couriers = useQuery({ queryKey: ['couriers'], queryFn: listCouriers })
+  const couriers = useQuery({ queryKey: ['dispatch-couriers'], queryFn: listAvailableCouriers })
   const locations = useQuery({
     queryKey: ['order-locations', id],
     queryFn: () => listLocationsForOrder(id),
@@ -325,10 +325,10 @@ export default function OrderDetail() {
           <Button variant="secondary" onClick={() => setAssignOpen(false)}>Cancelar</Button>
           <Button onClick={() => assign.mutate()} loading={assign.isPending}>Confirmar atribuição</Button>
         </>}>
-        <Field label="Entregador" required hint="A atribuição direta não exige aceite — use com critério.">
+        <Field label="Entregador" required hint="A atribuição direta exige aceite do entregador vinculado.">
           <Select value={courierId} onChange={(e) => setCourierId(e.target.value)}>
             <option value="">Selecione…</option>
-            {(couriers.data ?? []).filter((c) => c.status === 'ACTIVE').map((c) => (
+            {(couriers.data ?? []).map((c) => (
               <option key={c.id} value={c.id}>{c.full_name} — {c.availability === 'AVAILABLE' ? 'disponível' : c.availability === 'ON_DELIVERY' ? 'em entrega' : 'offline'}</option>
             ))}
           </Select>

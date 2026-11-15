@@ -94,10 +94,15 @@ export async function addOrderEvent(orderId: string, event: string, description?
 /* ------------------------------------------------------------- DESPACHO */
 
 export async function listAvailableCouriers(): Promise<Courier[]> {
+  // Só mostrar no despacho quem pode efetivamente receber/aceitar a oferta.
+  // Há cadastros ACTIVE sem conta vinculada: não são elegíveis para despacho.
+  // O FK explícito evita ambiguidade com approved_by -> profiles.
   const { data, error } = await supabase
     .from('couriers')
-    .select('*')
+    .select('*, profile:profiles!couriers_profile_id_fkey!inner(id)')
     .eq('status', 'ACTIVE')
+    .eq('profile.is_active', true)
+    .eq('profile.role', 'COURIER')
     .order('availability', { ascending: true })
     .order('full_name')
   return wrap(data, error) as Courier[]
@@ -115,7 +120,7 @@ export function suggestCouriers(order: Order, couriers: Courier[], limit = 5) {
       : null
 
   const scored = couriers
-    .filter((c) => c.status === 'ACTIVE' && c.availability !== 'ON_DELIVERY')
+    .filter((c) => c.status === 'ACTIVE' && c.profile_id != null && c.availability !== 'ON_DELIVERY')
     .map((c) => {
       let score = 0
       const reasons: string[] = []
