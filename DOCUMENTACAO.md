@@ -176,6 +176,22 @@ ocorrências, envio de comprovante, histórico e perfil com repasses.
 - Posições acima de 3 minutos são rotuladas como **"última posição conhecida"**, nunca "tempo real".
 - **A plataforma não gera, interpola ou simula coordenadas.**
 
+### Distribuição por CEP e micro-rotas
+Operação por lote diário, separada dos pedidos sob demanda. Referência completa em
+`PROMPT-MESTRE-MICRO-ROTAS.md`.
+
+- **Cobertura** (`/app/cobertura`): regiões, faixas de CEP com responsável, teste de CEP,
+  limite diário por funcionário, por veículo e geral, e parâmetros dos roteiros.
+- **Lote do dia** (`/app/distribuicao`): importação do romaneio (CSV ou colagem) com
+  prévia e erros por linha, distribuição automática por CEP, exceções com motivo,
+  atribuição manual, retenção e cancelamento, carga por funcionário e conflitos.
+- **Roteiros** (por funcionário): geração automática em roteiros curtos, ajuste manual,
+  liberação, recolhimento, transferência total ou parcial e reordenação.
+- **Aplicativo do entregador** (`/entregador/rotas`): conferência de saída e retorno por
+  leitura de etiqueta, navegação por Waze ou Google Maps, baixa por pacote com foto,
+  tentativa sem sucesso com motivo. Funciona sem internet e envia depois.
+- **Rastro**: histórico de responsáveis, tentativas, leituras e eventos por pacote.
+
 ---
 
 ## 7. Distribuição híbrida (implementada em `src/lib/api.ts → suggestCouriers`)
@@ -264,4 +280,8 @@ aceita `NULL`). A migration `20261115000600_auth_users_fix.sql` corrige esse est
 - A geocodificação usa o Nominatim público (limite de uso); sem resultado, o pedido é criado sem coordenadas e
   por isso não aparece no mapa — o comportamento é informado na tela.
 - Notificações por e-mail/SMS não foram configuradas (o painel usa notificações internas + Realtime).
-- Não há app nativo: a área do entregador é web/PWA-ready, mas sem service worker nesta versão.
+- Não há app nativo: a área do entregador é web. Desde o módulo de micro-rotas ela tem service worker
+  (casca offline) e fila de envio no aparelho; as telas antigas de pedidos sob demanda continuam exigindo internet.
+- Módulo de micro-rotas: sem PostGIS (distância calculada no navegador), sem tempo real (consulta periódica) e
+  leitura por câmera só onde o navegador tem leitor de código de barras. Detalhes na seção 10 de
+  `PROMPT-MESTRE-MICRO-ROTAS.md`.

@@ -40,6 +40,7 @@
 18. [Testes e integração contínua](#18-testes-e-integração-contínua)
 19. [Design system](#19-design-system)
 20. [Glossário](#20-glossário)
+21. [Distribuição por CEP e micro-rotas](#21-distribuição-por-cep-e-micro-rotas)
 
 ---
 
@@ -1030,6 +1031,72 @@ as animações, `role="dialog"` no modal e `aria-live` nos toasts.
 | **Ocorrência** | Registro tipificado de um problema na entrega (destinatário ausente, endereço incorreto, recusa, avaria…). |
 | **Repasse** | Valor que a DLucas Express paga ao entregador por entrega realizada. |
 | **Haversine** | Fórmula que calcula a distância em km entre duas coordenadas na superfície da Terra. |
+
+---
+
+## 21. Distribuição por CEP e micro-rotas
+
+Módulo para a operação por lote diário: a central importa o romaneio, o sistema define o
+responsável de cada pacote pelo CEP, divide o dia de cada funcionário em roteiros curtos
+e o funcionário executa pelo celular, com ou sem internet. As regras de negócio, o modelo
+de dados e os critérios de teste estão em **`PROMPT-MESTRE-MICRO-ROTAS.md`**, que é a
+referência do módulo; esta seção só situa as peças.
+
+### Onde está cada coisa
+
+| Peça | Arquivo |
+|---|---|
+| Banco: tabelas, funções, RLS e privilégios | `supabase/migrations/20261115150000_logistics_micro_routes_010.sql` |
+| Acesso aos dados (um wrapper por função do banco) | `src/lib/logistics/api.ts` |
+| CEP, faixas e chave de endereço | `src/lib/logistics/cep.ts`, `address.ts` |
+| Leitura e prévia do romaneio | `src/lib/logistics/import.ts` |
+| Organizador de roteiros e matriz de distâncias | `src/lib/logistics/organizer.ts`, `matrix.ts` |
+| Fila offline, envio e armazenamento no aparelho | `src/lib/logistics/offline/` |
+| Painel da central | `src/pages/admin/Distribution.tsx`, `CourierRoutes.tsx`, `Coverage.tsx`, `distribution/` |
+| Aplicativo do funcionário | `src/pages/courier/RiderRoutes.tsx`, `RiderRoute.tsx`, `RiderCheck.tsx`, `rider/` |
+| Casca offline (service worker) e manifesto | `public/sw.js`, `public/manifest.webmanifest` |
+
+### Rotas novas
+
+| Rota | Perfil | Tela |
+|---|---|---|
+| `/app/distribuicao` | equipe | Lote, importação, distribuição, exceções, conflitos |
+| `/app/distribuicao/:lote/funcionario/:id` | equipe | Roteiros e conferências de um funcionário |
+| `/app/cobertura` | equipe | Regiões, faixas de CEP, limites e parâmetros |
+| `/entregador/rotas` | entregador | Roteiros do dia |
+| `/entregador/rotas/:id` | entregador | Paradas e baixa dos pacotes |
+| `/entregador/conferencia` | entregador | Conferência de saída e de retorno |
+
+### Princípios de implementação
+
+- **O banco é a autoridade.** Situação, responsável e baixa só mudam por função
+  transacional (`security definer`), que verifica o perfil de quem chama. As tabelas
+  operacionais têm apenas `select` para usuários autenticados, filtrado por RLS.
+- **O organizador é código puro no navegador.** O banco não escolhe a ordem das paradas;
+  ele valida o plano recebido (pacote do lote, do funcionário, uma única vez, um endereço
+  por parada) e registra o que foi feito em `route_optimization_logs`.
+- **Offline primeiro.** Todo registro do funcionário entra na fila do aparelho
+  (IndexedDB) com identificador próprio e só depois vai ao servidor. A tela mostra a
+  última cópia do servidor com a fila aplicada por cima (`applyQueueToDay`), usando as
+  mesmas regras do banco.
+- **Conflito não é erro.** O servidor responde `APPLIED`, `DUPLICATE` ou `CONFLICT`. Um
+  registro em conflito fica guardado em `delivery_attempts` para a supervisão decidir.
+- **Reabrir sem rede.** O service worker guarda só a casca e os arquivos estáticos, e é
+  registrado apenas quando um entregador abre a área dele. A identidade do entregador
+  fica no aparelho (`src/lib/offlineIdentity.ts`) para a sessão sobreviver à falta de
+  rede; isso não concede acesso, porque toda leitura e escrita continua autorizada pelo
+  servidor.
+
+### Testes
+
+- `src/lib/logistics/*.test.ts` — CEP, importação, organizador e fila.
+- `src/lib/logistics/backend.test.ts` — critérios de ponta a ponta: o cliente Supabase
+  real fala com um PostgreSQL em memória (PGlite) carregado com as migrações, por meio de
+  `src/test/supabase-emulator.ts`.
+- `scripts/test-postgres17.mjs` — PostgreSQL 17 real com duas conexões: distribuição
+  simultânea, envio repetido e baixa disputando com transferência.
+- `scripts/local-backend.mts` (`npm run local:api`) — a mesma API em memória servida por
+  HTTP, para experimentar as telas com dados fictícios.
 
 ---
 

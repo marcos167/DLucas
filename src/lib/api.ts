@@ -14,7 +14,7 @@ export class ApiError extends Error {
   }
 }
 
-function wrap<T>(data: T | null, error: { message: string; code?: string } | null): T {
+export function wrap<T>(data: T | null, error: { message: string; code?: string } | null): T {
   if (error) {
     // mensagens amigáveis para os erros mais comuns de RLS
     if (error.code === '42501' || /row-level security/i.test(error.message)) {
