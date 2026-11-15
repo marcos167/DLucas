@@ -15,6 +15,7 @@ import { OCCURRENCE_TYPE_LABEL, cn } from '@/lib/utils'
 import type { OccurrenceType } from '@/types'
 import { compressPhoto, currentPosition } from './rider/device'
 import { useRider } from './rider/RiderContext'
+import { Page } from './rider/ui'
 
 const OPEN_STATUSES = ['ROUTED', 'LOADED', 'FAILED']
 const FAILURE_REASONS: OccurrenceType[] = ['RECIPIENT_ABSENT', 'WRONG_ADDRESS', 'REFUSED', 'DAMAGED_PACKAGE', 'OTHER']
@@ -30,12 +31,12 @@ export default function RiderRoute() {
 
   if (!route) {
     return (
-      <div className="space-y-3">
+      <Page className="space-y-3">
         <BackLink />
         <Alert tone={loading ? 'info' : 'warning'} title={loading ? 'Carregando roteiro…' : 'Roteiro indisponível'}>
           {!loading && 'Este roteiro não está mais na sua lista. Ele pode ter sido concluído em outro dia ou passado para outra pessoa.'}
         </Alert>
-      </div>
+      </Page>
     )
   }
 
@@ -59,7 +60,7 @@ export default function RiderRoute() {
   }
 
   return (
-    <div className="space-y-3">
+    <Page className="space-y-3">
       <BackLink />
       <div className="rounded-2xl border border-ink-200 bg-white p-4">
         <div className="flex items-center justify-between gap-3">
@@ -98,14 +99,14 @@ export default function RiderRoute() {
       {target && (
         <AttemptSheet route={route} target={target} online={online} onClose={() => setTarget(null)} />
       )}
-    </div>
+    </Page>
   )
 }
 
 function BackLink() {
   return (
-    <Link to="/entregador/rotas" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-ink-600">
-      <ArrowLeft className="h-4 w-4" /> Minhas rotas
+    <Link to="/entregador" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-ink-600">
+      <ArrowLeft className="h-4 w-4" /> Hoje
     </Link>
   )
 }
@@ -133,7 +134,8 @@ function StopCard({ stop, requireScan, canMoveUp, canMoveDown, onMove, onAct }: 
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold leading-snug text-ink-950">{stop.street}{stop.number ? `, ${stop.number}` : ''}</p>
           <p className="text-[12px] text-ink-500">
-            {[stop.district, stop.city].filter(Boolean).join(' · ')}{stop.zip_code ? ` · CEP ${formatZip(stop.zip_code)}` : ''}
+            {[stop.district, stop.city].filter(Boolean).join(' · ')}
+            {stop.zip_code && <>{' · '}<span className="whitespace-nowrap">CEP {formatZip(stop.zip_code)}</span></>}
           </p>
           {stop.leg_distance_m != null && <p className="text-[11.5px] text-ink-400">{formatDistance(stop.leg_distance_m)} desde a parada anterior</p>}
         </div>

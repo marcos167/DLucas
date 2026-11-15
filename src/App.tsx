@@ -1,8 +1,9 @@
-import { lazy, Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, useLayoutEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import SiteLayout from '@/components/site/SiteLayout'
 import { Protected, FullScreenLoader } from '@/components/layout/Protected'
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary'
+import { applyRiderTheme, isRiderPath } from '@/lib/riderTheme'
 
 /*
  * O site institucional é carregado direto (é a porta de entrada, precisa ser
@@ -67,11 +68,16 @@ const CourierOffers = lazy(() => import('@/pages/courier/CourierOffers'))
 const CourierDelivery = lazy(() => import('@/pages/courier/CourierDelivery'))
 const CourierHistory = lazy(() => import('@/pages/courier/CourierHistory'))
 const CourierProfile = lazy(() => import('@/pages/courier/CourierProfile'))
-const RiderRoutes = lazy(() => import('@/pages/courier/RiderRoutes'))
+const CourierMap = lazy(() => import('@/pages/courier/CourierMap'))
+const CourierUpcoming = lazy(() => import('@/pages/courier/CourierUpcoming'))
 const RiderRoute = lazy(() => import('@/pages/courier/RiderRoute'))
 const RiderCheck = lazy(() => import('@/pages/courier/RiderCheck'))
 
 export default function App() {
+  // o aplicativo dos entregadores tem tema próprio; o resto do sistema, não
+  const riderArea = isRiderPath(useLocation().pathname)
+  useLayoutEffect(() => { applyRiderTheme(riderArea) }, [riderArea])
+
   return (
     <ErrorBoundary>
       <Suspense fallback={<FullScreenLoader />}>
@@ -156,14 +162,20 @@ export default function App() {
               </Protected>
             }
           >
+            {/* As cinco abas, como no aplicativo original: Hoje, Mapa, Próximas, Disponíveis e Perfil */}
             <Route index element={<CourierHome />} />
-            <Route path="rotas" element={<RiderRoutes />} />
+            <Route path="mapa" element={<CourierMap />} />
+            <Route path="proximas" element={<CourierUpcoming />} />
+            <Route path="disponiveis" element={<CourierOffers />} />
+            <Route path="perfil" element={<CourierProfile />} />
+            {/* Telas abertas a partir das abas */}
             <Route path="rotas/:routeId" element={<RiderRoute />} />
             <Route path="conferencia" element={<RiderCheck />} />
-            <Route path="ofertas" element={<CourierOffers />} />
             <Route path="entrega/:id" element={<CourierDelivery />} />
             <Route path="historico" element={<CourierHistory />} />
-            <Route path="perfil" element={<CourierProfile />} />
+            {/* Endereços anteriores, para atalhos salvos e aplicativos já instalados */}
+            <Route path="rotas" element={<Navigate to="/entregador" replace />} />
+            <Route path="ofertas" element={<Navigate to="/entregador/disponiveis" replace />} />
           </Route>
 
           {/* Qualquer outra URL cai no 404 dentro do layout do site */}

@@ -10,6 +10,7 @@ import type { RiderPackage, RiderRoute } from '@/lib/logistics/types'
 import { cn } from '@/lib/utils'
 import { useRider } from './rider/RiderContext'
 import { cameraScanAvailable, ScannerModal } from './rider/Scanner'
+import { Page } from './rider/ui'
 
 interface Row { pkg: RiderPackage; route: RiderRoute }
 interface Feedback { ok: boolean; title: string; detail?: string }
@@ -109,7 +110,7 @@ export default function RiderCheck() {
     if (toLoad.length > 0 && !window.confirm(`Ainda faltam ${toLoad.length} pacote(s) para conferir. Sair mesmo assim?`)) return
     await record({ type: 'DEPART', manifestId: manifest.id, occurredAt: new Date().toISOString() })
     push({ tone: 'success', message: 'Saída registrada. Boa rota!' })
-    navigate('/entregador/rotas')
+    navigate('/entregador')
   }
 
   async function close() {
@@ -135,9 +136,9 @@ export default function RiderCheck() {
   const submit = (event: FormEvent) => { event.preventDefault(); void handleCode(code) }
 
   return (
-    <div className="space-y-3">
-      <Link to="/entregador/rotas" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-ink-600">
-        <ArrowLeft className="h-4 w-4" /> Minhas rotas
+    <Page className="space-y-3">
+      <Link to="/entregador" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-ink-600">
+        <ArrowLeft className="h-4 w-4" /> Hoje
       </Link>
 
       {batches.length > 1 && (
@@ -232,7 +233,7 @@ export default function RiderCheck() {
       )}
 
       <ScannerModal open={camera} onClose={() => setCamera(false)} onCode={(value) => void handleCode(value)} />
-    </div>
+    </Page>
   )
 }
 

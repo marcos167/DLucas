@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle2, Bike, Wallet, CalendarCheck, Smartphone } from 'lucide-react'
+import { CheckCircle2, Bike, WifiOff, CalendarCheck, Smartphone } from 'lucide-react'
 import { Alert, Button, Field, Input, Select, Switch, Textarea } from '@/components/ui'
 import { submitCourierApplication } from '@/lib/api'
 import { courierApplicationSchema, fieldErrors } from '@/lib/validation'
@@ -7,7 +7,7 @@ import { maskCpf, maskPhone } from '@/lib/utils'
 import { PageHeader } from '@/components/site/PageSections'
 
 const perks = [
-  { icon: Wallet, t: 'Repasse por entrega', d: 'Valor definido por entrega, com histórico de repasses na plataforma.' },
+  { icon: WifiOff, t: 'Funciona sem internet', d: 'Conferências e baixas dos roteiros ficam guardadas no aparelho e seguem para a central quando a conexão volta.' },
   { icon: CalendarCheck, t: 'Você escolhe a disponibilidade', d: 'Fique disponível quando puder atender e receba ofertas compatíveis.' },
   { icon: Smartphone, t: 'Tudo pelo celular', d: 'Ofertas, etapas da entrega, ocorrências e comprovantes em uma interface mobile.' },
   { icon: Bike, t: 'Rota organizada', d: 'Endereço de coleta, destino e instruções ficam disponíveis no pedido aceito.' },

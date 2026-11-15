@@ -1,27 +1,44 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Home, Inbox, History, User, LogOut, Bike, BellRing, Route as RouteIcon } from 'lucide-react'
+import { Suspense, useEffect, useState } from 'react'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { MapPin, Repeat, Truck, UserRound } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
-import { cn, AVAILABILITY_LABEL, formatDateTime } from '@/lib/utils'
+import { cn, formatDateTime } from '@/lib/utils'
 import { updateCourier } from '@/lib/api'
 import { ChangePasswordModal } from '@/components/layout/ChangePasswordModal'
+import { Skeleton } from '@/components/ui'
+import { useToast } from '@/components/ui/Toast'
 import type { Courier } from '@/types'
 import { RiderProvider, useRider } from './rider/RiderContext'
 import { enableOfflineShell } from './rider/offlineShell'
+import { ArchiveDown, Page, type CourierOutlet } from './rider/ui'
+
+/**
+ * Casca do aplicativo dos entregadores.
+ *
+ * Segue o aplicativo original da operação: cinco abas embaixo (Hoje, Mapa,
+ * Próximas, Disponíveis, Perfil), sem barra de título, em verde-escuro. O tema
+ * é ligado pelo endereço (ver `@/lib/riderTheme`); aqui ficam as abas, os
+ * dados do dia e o que as telas compartilham.
+ */
 
 const tabs = [
-  { to: '/entregador', label: 'Início', icon: Home, end: true },
-  { to: '/entregador/rotas', label: 'Rotas', icon: RouteIcon },
-  { to: '/entregador/ofertas', label: 'Ofertas', icon: Inbox },
-  { to: '/entregador/historico', label: 'Histórico', icon: History },
-  { to: '/entregador/perfil', label: 'Perfil', icon: User },
+  {
+    to: '/entregador', label: 'Hoje', icon: Truck,
+    // roteiro, conferência e entrega são desdobramentos do trabalho de hoje
+    match: (path: string) => path === '/entregador' || /^\/entregador\/(rotas|conferencia|entrega)(\/|$)/.test(path),
+  },
+  { to: '/entregador/mapa', label: 'Mapa', icon: MapPin, match: (path: string) => path.startsWith('/entregador/mapa') },
+  { to: '/entregador/proximas', label: 'Próximas', icon: Repeat, match: (path: string) => path.startsWith('/entregador/proximas') },
+  { to: '/entregador/disponiveis', label: 'Disponíveis', icon: ArchiveDown, match: (path: string) => path.startsWith('/entregador/disponiveis') },
+  { to: '/entregador/perfil', label: 'Perfil', icon: UserRound, match: (path: string) => /^\/entregador\/(perfil|historico)(\/|$)/.test(path) },
 ]
 
 export default function CourierLayout() {
   const { profile, courier, signOut, updatePassword } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const { push } = useToast()
   const [localCourier, setLocalCourier] = useState<Courier | null>(courier)
   const [offerCount, setOfferCount] = useState(0)
   const [pwOpen, setPwOpen] = useState(false)
@@ -32,10 +49,12 @@ export default function CourierLayout() {
 
   useEffect(() => { setLocalCourier(courier) }, [courier])
 
-  // guarda a casca do aplicativo e as telas de rota para abrir sem internet
+  // guarda a casca do aplicativo e as telas das abas para abrir sem internet
   useEffect(() => {
     void enableOfflineShell([
-      () => import('./RiderRoutes'), () => import('./RiderRoute'), () => import('./RiderCheck'),
+      () => import('./RiderRoute'), () => import('./RiderCheck'), () => import('./CourierDelivery'),
+      () => import('./CourierMap'), () => import('./rider/RiderMap'), () => import('./CourierUpcoming'),
+      () => import('./CourierOffers'), () => import('./CourierProfile'), () => import('./CourierHistory'),
     ])
   }, [])
 
@@ -59,126 +78,90 @@ export default function CourierLayout() {
     return () => { void supabase.removeChannel(channel) }
   }, [courier?.id])
 
-  const title = location.pathname === '/entregador' ? 'Meu dia'
-    : location.pathname.startsWith('/entregador/rotas') ? 'Minhas rotas'
-    : location.pathname.startsWith('/entregador/conferencia') ? 'Conferência'
-    : location.pathname.startsWith('/entregador/ofertas') ? 'Ofertas'
-    : location.pathname.startsWith('/entregador/historico') ? 'Histórico'
-    : location.pathname.startsWith('/entregador/perfil') ? 'Perfil'
-    : location.pathname.startsWith('/entregador/entrega') ? 'Entrega'
-    : 'Entregador'
-
-  async function toggleAvailability(avail: Courier['availability']) {
-    if (!localCourier) return
-    await updateCourier(localCourier.id, { availability: avail })
-    setLocalCourier({ ...localCourier, availability: avail })
+  const outlet: CourierOutlet = {
+    courier: localCourier,
+    setCourier: setLocalCourier,
+    offerCount,
+    openPassword: () => setPwOpen(true),
+    signOut: async () => { await signOut(); navigate('/entrar') },
+    toggleAvailability: async () => {
+      if (!localCourier) return
+      const next: Courier['availability'] = localCourier.availability === 'AVAILABLE' ? 'OFFLINE' : 'AVAILABLE'
+      try {
+        await updateCourier(localCourier.id, { availability: next })
+        setLocalCourier({ ...localCourier, availability: next })
+      } catch (cause) {
+        push({ tone: 'error', message: 'Não foi possível mudar sua disponibilidade.', detail: cause instanceof Error ? cause.message : undefined })
+      }
+    },
   }
 
   return (
     <RiderProvider courierId={localCourier?.id ?? null}>
-    <div className="min-h-screen bg-ink-50 pb-20">
-      <header className="sticky top-0 z-20 border-b border-ink-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-lg items-center gap-3 px-4">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-800 text-[13px] font-extrabold text-brand-200">D</span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-bold text-ink-950">{title}</p>
-            <p className="truncate text-[10.5px] text-ink-500">{profile?.full_name || profile?.email}</p>
+      <div className="min-h-[100dvh] bg-ink-50 pb-[calc(3.75rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] text-ink-900">
+        {!localCourier && (
+          <Page className="pb-0">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-[12.5px] text-amber-900">
+              Seu usuário ainda não possui cadastro de entregador vinculado. Fale com a central.
+              {profile?.created_at && <span className="block text-[11px] text-amber-700">Conta criada em {formatDateTime(profile.created_at)}</span>}
+            </div>
+          </Page>
+        )}
+
+        {/* a aba que ainda está carregando não derruba a casca (nem o tema) */}
+        <Suspense fallback={<Page className="space-y-3"><Skeleton className="h-24 w-full rounded-2xl" /><Skeleton className="h-20 w-full rounded-2xl" /></Page>}>
+          <Outlet context={outlet} />
+        </Suspense>
+
+        <nav
+          aria-label="Seções do aplicativo"
+          className="fixed inset-x-0 bottom-0 z-20 border-t border-ink-200 bg-white pb-[env(safe-area-inset-bottom)]"
+        >
+          <div className="mx-auto flex max-w-lg items-stretch">
+            {tabs.map((tab) => {
+              const active = tab.match(location.pathname)
+              return (
+                <Link
+                  key={tab.to} to={tab.to} aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'relative flex h-[3.75rem] min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10.5px] leading-none transition-colors',
+                    active ? 'font-semibold text-ink-950' : 'font-medium text-ink-700',
+                  )}
+                >
+                  {active && <span className="absolute top-0 h-[3px] w-7 rounded-b-full bg-brand-700" aria-hidden="true" />}
+                  <span className="relative">
+                    <tab.icon className={cn('h-6 w-6', active && 'text-brand-700')} strokeWidth={2} aria-hidden="true" />
+                    {tab.to === '/entregador' && <UnsentBadge />}
+                    {tab.to === '/entregador/disponiveis' && offerCount > 0 && (
+                      <TabBadge className="bg-red-500" label={`${offerCount} retirada(s) disponível(is)`}>{offerCount}</TabBadge>
+                    )}
+                  </span>
+                  <span className="max-w-full truncate px-0.5 pb-px">{tab.label}</span>
+                </Link>
+              )
+            })}
           </div>
-          {localCourier && (
-            <button
-              onClick={() => toggleAvailability(localCourier.availability === 'AVAILABLE' ? 'OFFLINE' : 'AVAILABLE')}
-              className={cn(
-                'rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide',
-                localCourier.availability === 'AVAILABLE' ? 'bg-emerald-100 text-emerald-800'
-                  : localCourier.availability === 'ON_DELIVERY' ? 'bg-blue-100 text-blue-800'
-                  : 'bg-ink-200 text-ink-600',
-              )}
-            >
-              {AVAILABILITY_LABEL[localCourier.availability]}
-            </button>
-          )}
-          <button
-            onClick={async () => { await signOut(); navigate('/entrar') }}
-            className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100" aria-label="Sair"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-      </header>
+        </nav>
 
-      <main className="mx-auto max-w-lg px-4 py-4">
-        {location.pathname === '/entregador' && <RoutesShortcut />}
-        <Outlet context={{ courier: localCourier, setCourier: setLocalCourier }} />
-      </main>
-
-      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-ink-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-        <div className="mx-auto flex max-w-lg items-stretch">
-          {tabs.map((t) => (
-            <NavLink
-              key={t.to} to={t.to} end={t.end}
-              className={({ isActive }) => cn(
-                'relative flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10.5px] font-medium transition',
-                isActive ? 'text-brand-800' : 'text-ink-500',
-              )}
-            >
-              <t.icon className="h-5 w-5" />
-              {t.label}
-              {t.to === '/entregador/rotas' && <UnsentBadge />}
-              {t.to === '/entregador/ofertas' && offerCount > 0 && (
-                <span className="absolute right-[26%] top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
-                  {offerCount}
-                </span>
-              )}
-            </NavLink>
-          ))}
-        </div>
-      </nav>
-
-      {!localCourier && (
-        <div className="mx-auto max-w-lg px-4 pb-6">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-[12.5px] text-amber-900">
-            Seu usuário ainda não possui cadastro de entregador vinculado. Fale com a central.
-            {profile?.created_at && <span className="block text-[11px] text-amber-700">Conta criada em {formatDateTime(profile.created_at)}</span>}
-          </div>
-        </div>
-      )}
-
-      {offerCount > 0 && location.pathname === '/entregador' && (
-        <div className="fixed bottom-16 left-0 right-0 z-10 flex justify-center">
-          <NavLink to="/entregador/ofertas" className="flex items-center gap-2 rounded-full bg-ink-950 px-4 py-2 text-[12px] font-semibold text-white shadow-lift">
-            <BellRing className="h-4 w-4 text-brand-300" /> {offerCount} nova(s) oferta(s)
-          </NavLink>
-        </div>
-      )}
-
-      <div className="fixed bottom-16 right-3 z-0 opacity-[0.03]">
-        <Bike className="h-24 w-24" />
+        <ChangePasswordModal
+          open={pwOpen}
+          onClose={() => setPwOpen(false)}
+          onSubmit={updatePassword}
+          forced={!!profile?.must_change_password}
+        />
       </div>
-
-      <ChangePasswordModal
-        open={pwOpen}
-        onClose={() => setPwOpen(false)}
-        onSubmit={updatePassword}
-        forced={!!profile?.must_change_password}
-      />
-    </div>
     </RiderProvider>
   )
 }
 
-/** Atalho na tela inicial quando há roteiros liberados para o dia. */
-function RoutesShortcut() {
-  const { day } = useRider()
-  const open = day?.routes.filter((route) => route.status !== 'COMPLETED').length ?? 0
-  if (open === 0) return null
+function TabBadge({ className, label, children }: { className: string; label: string; children: number }) {
   return (
-    <NavLink to="/entregador/rotas" className="mb-4 flex items-center gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3">
-      <RouteIcon className="h-5 w-5 shrink-0 text-brand-800" />
-      <span className="min-w-0 flex-1 text-[13px] font-semibold text-ink-950">
-        {open} roteiro(s) liberado(s) para você
-        <span className="block text-[12px] font-normal text-ink-600">Toque para ver as paradas e conferir os pacotes.</span>
-      </span>
-    </NavLink>
+    <span
+      aria-label={label}
+      className={cn('absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white', className)}
+    >
+      {children}
+    </span>
   )
 }
 
@@ -187,11 +170,11 @@ function UnsentBadge() {
   const { pending, attention } = useRider()
   if (pending + attention === 0) return null
   return (
-    <span className={cn(
-      'absolute right-[24%] top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white',
-      attention > 0 ? 'bg-red-500' : 'bg-amber-500',
-    )}>
+    <TabBadge
+      className={attention > 0 ? 'bg-red-500' : 'bg-amber-500'}
+      label={attention > 0 ? `${attention} registro(s) precisam de atenção` : `${pending} registro(s) aguardando envio`}
+    >
       {pending + attention}
-    </span>
+    </TabBadge>
   )
 }

@@ -3,12 +3,12 @@
   "short_name": "DLucas",
   "description": "Roteiros, conferência de pacotes e registro de entregas dos entregadores da DLucas Express.",
   "lang": "pt-BR",
-  "start_url": "/entregador/rotas",
+  "start_url": "/entregador",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F5F2EC",
-  "theme_color": "#F5F2EC",
+  "background_color": "#0E1F19",
+  "theme_color": "#0E1F19",
   "icons": [
     { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]

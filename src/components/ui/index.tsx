@@ -288,7 +288,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   const width = { sm: 'max-w-md', md: 'max-w-xl', lg: 'max-w-3xl', xl: 'max-w-5xl' }[size]
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/55 p-0 backdrop-blur-[3px] animate-fade-in sm:items-center sm:p-4">
+    <div className="modal-veil fixed inset-0 z-50 flex items-end justify-center bg-ink-950/55 p-0 backdrop-blur-[3px] animate-fade-in sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"

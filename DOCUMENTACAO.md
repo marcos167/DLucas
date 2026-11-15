@@ -166,9 +166,25 @@ item sensível à temperatura e exigência de comprovante; cálculo de valor pel
 gestão de unidades e funcionários conforme permissão. **Uma farmácia nunca vê dados de outra** (RLS).
 
 ### Área do entregador (mobile-first)
-Disponibilidade (disponível / offline), recebimento de ofertas em tempo real (Supabase Realtime), aceite/recusa,
-tela de entrega com etapas (iniciar deslocamento → confirmar coleta → iniciar rota → confirmar entrega),
-ocorrências, envio de comprovante, histórico e perfil com repasses.
+Aplicativo em verde-escuro, no modelo do aplicativo original da operação, com cinco abas embaixo:
+
+- **Hoje** (`/entregador`): saudação, disponibilidade, busca por protocolo, endereço ou farmácia, roteiros do dia,
+  conferência de pacotes e entregas avulsas em andamento.
+- **Mapa** (`/entregador/mapa`): paradas e entregas no mapa, por período (Hoje, Amanhã, 7 dias, Todas), com
+  atalho para Waze e Google Maps.
+- **Próximas** (`/entregador/proximas`): o que já está programado para os próximos dias.
+- **Disponíveis** (`/entregador/disponiveis`): retiradas lançadas pela central para o entregador, em tempo real
+  (Supabase Realtime), com aceite e recusa.
+- **Perfil** (`/entregador/perfil`): dados cadastrais, disponibilidade, telefone, histórico de entregas, troca de
+  senha e saída.
+
+A tela de entrega mantém as etapas (iniciar deslocamento → confirmar coleta → iniciar rota → confirmar entrega),
+ocorrências e envio de comprovante.
+
+**O aplicativo do entregador não mostra valores.** Os entregadores têm salário fixo: não há preço de entrega,
+repasse nem histórico financeiro em nenhuma tela, e as consultas do aplicativo não pedem essas colunas ao
+servidor (`COURIER_ORDER_COLUMNS` em `src/lib/api.ts`). Os testes `src/pages/courier/no-values.test.ts` e
+`src/lib/courier-api.test.ts` falham se um valor voltar a aparecer.
 
 ### GPS — regra de honestidade de dados
 - O switch de localização é **opt-in por entrega** e o pedido de permissão é feito ao navegador (`watchPosition`).
@@ -187,7 +203,7 @@ Operação por lote diário, separada dos pedidos sob demanda. Referência compl
   atribuição manual, retenção e cancelamento, carga por funcionário e conflitos.
 - **Roteiros** (por funcionário): geração automática em roteiros curtos, ajuste manual,
   liberação, recolhimento, transferência total ou parcial e reordenação.
-- **Aplicativo do entregador** (`/entregador/rotas`): conferência de saída e retorno por
+- **Aplicativo do entregador** (aba Hoje, `/entregador`): conferência de saída e retorno por
   leitura de etiqueta, navegação por Waze ou Google Maps, baixa por pacote com foto,
   tentativa sem sucesso com motivo. Funciona sem internet e envia depois.
 - **Rastro**: histórico de responsáveis, tentativas, leituras e eventos por pacote.
