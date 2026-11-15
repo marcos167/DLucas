@@ -37,6 +37,9 @@ jobs:
       - name: Testes
         run: npm run test:run
 
+      - name: Conferir migrações já aplicadas em produção
+        run: npm run test:migrations
+
       - name: Concorrência e migrações no PostgreSQL 17 isolado
         run: npm run test:postgres
 

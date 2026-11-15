@@ -33,9 +33,9 @@ async function asUser<T>(id: string, action: () => Promise<T>): Promise<T> {
 }
 
 async function migration(filename: string) {
-  let sql = readFileSync(resolve(`supabase/migrations/202611150${filename}.sql`), 'utf8')
+  let sql = readFileSync(resolve('supabase/migrations', filename), 'utf8')
   // As extensões não fazem parte do runtime WASM; gen_random_uuid já é nativa.
-  if (filename.startsWith('00100_')) sql = sql.replace(/^create extension if not exists .*?;\s*$/gm, '')
+  if (filename.includes('_core.sql')) sql = sql.replace(/^create extension if not exists .*?;\s*$/gm, '')
   await db.exec(sql)
 }
 
@@ -62,7 +62,9 @@ beforeAll(async () => {
     create publication supabase_realtime;
   `)
   for (const file of [
-    '00100_core', '00200_operations', '00300_finance', '00400_security', '00500_offers',
+    '20261115000100_core.sql', '20261115000200_operations.sql',
+    '20261115000300_finance.sql', '20261115000400_security.sql',
+    '20261115000500_offers.sql',
   ]) await migration(file)
   // A instância efetiva protege também pharmacy_id na policy self (o arquivo
   // 004 não o faz). Reconstrói apenas essa divergência conhecida, sem tocar na
@@ -76,10 +78,10 @@ beforeAll(async () => {
     grant usage on all sequences in schema public to authenticated;
     grant execute on all functions in schema auth to authenticated;
   `)
-  await migration('00700_authorization_hardening')
-  await migration('00700_authorization_hardening') // reinstalação idempotente
-  await migration('00800_direct_assignment_acceptance')
-  await migration('00900_offer_acceptance_contention')
+  await migration('20261115123622_authorization_hardening_007.sql')
+  await migration('20261115123622_authorization_hardening_007.sql') // reinstalação idempotente
+  await migration('20261115123630_direct_assignment_acceptance_008.sql')
+  await migration('20261115123637_offer_acceptance_contention_009.sql')
   await db.exec(`
     insert into auth.users(id,email,encrypted_password) values
       ('${PHARMACY_USER}','farmacia@teste','old'),

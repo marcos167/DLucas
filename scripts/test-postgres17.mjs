@@ -112,12 +112,13 @@ try {
     grant usage on all sequences in schema public to authenticated;
     grant execute on all functions in schema auth to authenticated;
   `)
-  for (const name of [
-    '00700_authorization_hardening', '00800_direct_assignment_acceptance',
-    '00900_offer_acceptance_contention',
+  for (const file of [
+    '20261115123622_authorization_hardening_007.sql',
+    '20261115123630_direct_assignment_acceptance_008.sql',
+    '20261115123637_offer_acceptance_contention_009.sql',
   ]) {
-    await main.query(readFileSync(resolve(`supabase/migrations/202611150${name}.sql`), 'utf8'))
-    log(`${name} aplicada no cluster local`)
+    await main.query(readFileSync(resolve('supabase/migrations', file), 'utf8'))
+    log(`${file} aplicada no cluster local`)
   }
   await main.query(`
     insert into auth.users(id,email,encrypted_password) values
