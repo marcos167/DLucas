@@ -216,16 +216,44 @@ e `order_events`.
 
 ## 10. Fluxo validado de ponta a ponta
 
-Testado diretamente no banco com sessão autenticada real:
-`oferta criada → entregador aceita → status ACCEPTED → deslocamento → coleta → rota → entrega`,
-com evento `OFFER_ACCEPTED` gravado na timeline e pedido concluído (`DELIVERED`).
+Testado com sessões autenticadas reais, contra o banco de produção:
+
+| Verificação | Resultado |
+|---|---|
+| Login dos 6 perfis (super admin, despacho, financeiro, gestor e operador de farmácia, entregador) | ✅ todos autenticam |
+| Isolamento por farmácia (pedidos, farmácias, faturas) | ✅ farmácia vê 6 pedidos, 1 farmácia, 1 fatura |
+| Farmacêutico cria pedido na própria unidade | ✅ `201` |
+| Farmacêutico tenta criar pedido em farmácia alheia | ✅ bloqueado (`403`) |
+| Farmacêutico tenta ler pedidos de outra farmácia | ✅ 0 linhas |
+| Farmacêutico tenta se promover a `SUPER_ADMIN` | ✅ bloqueado (`403`), papel inalterado |
+| Entregador tenta ler faturas / leads | ✅ 0 linhas em ambas |
+| Entregador tenta gravar GPS de outro entregador | ✅ bloqueado |
+| Entregador aceita oferta → coleta → rota → entrega | ✅ `ACCEPTED → PICKING_UP → COLLECTED → IN_TRANSIT → DELIVERED` |
+| Formulário público de orçamento e de candidatura (visitante anônimo) | ✅ `201` nos dois |
+| Visitante anônimo tenta ler farmácias, pedidos, leads | ✅ 0 linhas |
 
 ## 11. Deploy no Vercel
 
-1. Importe o repositório no Vercel (framework detectado: **Vite**; `vercel.json` já configura SPA fallback).
-2. Configure as variáveis: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_COMPANY_WHATSAPP`.
-3. Publique.
-4. No Supabase → Authentication → URL Configuration, adicione a URL do deploy em **Site URL** e **Redirect URLs**.
+**Endereço publicado:** https://dluca-connect.vercel.app
+
+Projeto `dluca-connect` (team `bloco3-jaccob`), framework **Vite**, build `npm run build`, saída `dist`.
+Deploy conectado ao repositório GitHub `marcos167/DLucas`: cada push na branch publica uma nova versão.
+
+1. O `vercel.json` já configura o SPA fallback e os cabeçalhos de segurança
+   (`X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` com geolocalização e câmera liberadas só para o próprio domínio).
+2. Variáveis de ambiente configuradas em produção, preview e desenvolvimento:
+   `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
+3. No Supabase → Authentication → **URL Configuration**:
+   - Site URL: `https://dluca-connect.vercel.app`
+   - Redirect URLs: `https://dluca-connect.vercel.app/**` e `http://localhost:5173/**`
+4. O domínio não tem proteção de SSO — o link abre direto para qualquer pessoa com a URL.
+
+### Atenção: usuários criados por SQL direto
+
+Se você criar usuários com `INSERT` em `auth.users` em vez de usar a Edge Function `admin-users`
+ou o painel do Supabase, **preencha as colunas de token com string vazia**. Caso contrário o login
+devolve HTTP 500 `Database error querying schema` (o GoTrue lê essas colunas como `string` e não
+aceita `NULL`). A migration `20261115000600_auth_users_fix.sql` corrige esse estado de forma idempotente.
 
 ---
 
