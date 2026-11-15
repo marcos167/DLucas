@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import {
   ArrowLeft, Bike, Clock, FileCheck2, History, MapPin, Package, Phone, RefreshCcw,
@@ -19,6 +19,7 @@ import {
 } from '@/lib/utils'
 import { OrderStatusBadge, PriorityBadge, RouteBlock, OrderMetaChips, OrderTimeline } from '@/components/dashboard/OrderBits'
 import type { OrderStatus } from '@/types'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 const NEXT_STEPS: Record<string, { next: OrderStatus; label: string }[]> = {
   PENDING: [{ next: 'CANCELLED', label: 'Cancelar pedido' }],
@@ -55,7 +56,7 @@ export default function OrderDetail() {
   })
   const proofs = useQuery({ queryKey: ['order-proofs', id], queryFn: () => listProofs(id), enabled: !!id })
 
-  const setStatus = useMutation({
+  const setStatus = useApiMutation({
     mutationFn: async ({ status, reason }: { status: OrderStatus; reason?: string }) => {
       await updateOrder(id, {
         status,
@@ -70,9 +71,10 @@ export default function OrderDetail() {
       void qc.invalidateQueries({ queryKey: ['order', id] })
       void qc.invalidateQueries({ queryKey: ['orders-list'] })
     },
+    successMessage: 'Status atualizado.',
   })
 
-  const assign = useMutation({
+  const assign = useApiMutation({
     mutationFn: async () => {
       if (!courierId) throw new Error('Selecione o entregador')
       await assignOrder({ orderId: id, courierId, method: 'REASSIGNMENT', reason: 'Atribuição pelo detalhe do pedido' })
@@ -82,6 +84,7 @@ export default function OrderDetail() {
       setAssignOpen(false); setMessage('Entregador atribuído.')
       void qc.invalidateQueries({ queryKey: ['order', id] })
     },
+    successMessage: 'Entregador atribuído.',
   })
 
   async function submitOccurrence() {

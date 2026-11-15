@@ -16,6 +16,10 @@ interface AuthState {
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   updatePassword: (password: string) => Promise<void>
+  /** Envia o e-mail de redefinição de senha. Não revela se o e-mail existe. */
+  requestPasswordReset: (email: string) => Promise<void>
+  /** Define a senha durante a recuperação (sessão temporária do link). */
+  completePasswordReset: (password: string) => Promise<void>
   homeRoute: string
 }
 
@@ -103,10 +107,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null); setCourier(null); setSession(null)
   }, [])
 
+  /**
+   * Pede o link de redefinição. O Supabase não informa se o e-mail existe —
+   * e isso é proposital: responder "e-mail não cadastrado" permitiria a
+   * qualquer pessoa descobrir quem tem conta na plataforma.
+   */
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/nova-senha`,
+    })
+    // erro de limite de envio é útil saber; "usuário não encontrado" é ignorado
+    if (error && !/user not found/i.test(error.message)) {
+      const msg = /rate limit|too many/i.test(error.message)
+        ? 'Muitos pedidos em pouco tempo. Aguarde alguns minutos e tente novamente.'
+        : error.message
+      throw new Error(msg)
+    }
+  }, [])
+
   const refreshProfile = useCallback(async () => {
     const { data } = await supabase.auth.getSession()
     await loadContext(data.session)
   }, [loadContext])
+
+  /**
+   * Conclui a recuperação. O link do e-mail cria uma sessão temporária, então
+   * `updateUser` funciona aqui sem precisar da senha antiga.
+   */
+  const completePasswordReset = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) throw new Error(error.message)
+    // se a senha era temporária, libera o acesso obrigatório
+    const { data } = await supabase.auth.getSession()
+    const id = data.session?.user.id
+    if (id) {
+      await supabase.from('profiles').update({ must_change_password: false }).eq('id', id)
+    }
+    await refreshProfile()
+  }, [refreshProfile])
+
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password })
@@ -128,8 +167,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     refreshProfile,
     updatePassword,
+    requestPasswordReset,
+    completePasswordReset,
     homeRoute: homeRouteFor(profile?.role),
-  }), [session, profile, courier, loading, signIn, signOut, refreshProfile, updatePassword])
+  }), [
+    session, profile, courier, loading, signIn, signOut, refreshProfile, updatePassword,
+    requestPasswordReset, completePasswordReset,
+  ])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

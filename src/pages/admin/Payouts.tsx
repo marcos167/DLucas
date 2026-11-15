@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Wallet, Plus } from 'lucide-react'
 import {
   Button, Card, CardHeader, EmptyState, Field, Input, Modal, Select, Skeleton, Textarea,
 } from '@/components/ui'
 import { createPayout, listCouriers, listPayouts, listOrders, logAudit } from '@/lib/api'
 import { brl, formatDate } from '@/lib/utils'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 export default function Payouts() {
   const qc = useQueryClient()
@@ -20,7 +21,7 @@ export default function Payouts() {
     queryFn: () => listOrders({ status: ['DELIVERED'], limit: 100 }),
   })
 
-  const create = useMutation({
+  const create = useApiMutation({
     mutationFn: async () => {
       await createPayout({
         courier_id: form.courier_id,
@@ -36,6 +37,7 @@ export default function Payouts() {
       setForm({ courier_id: '', order_id: '', amount_cents: '', notes: '' })
       void qc.invalidateQueries({ queryKey: ['payouts'] })
     },
+    successMessage: 'Repasse lançado.',
   })
 
   const rows = (payouts.data ?? []).filter((p) => (tab === 'PENDING' ? p.status !== 'PAID' : p.status === 'PAID'))

@@ -18,7 +18,7 @@ export default function CourierHistory() {
     enabled: !!courier?.id,
   })
 
-  const orders = data ?? []
+  const orders = useMemo(() => data ?? [], [data])
   const total = useMemo(
     () => orders.filter((o) => o.status === 'DELIVERED').reduce((s, o) => s + o.courier_payout_cents, 0),
     [orders],

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import {
   Button, Card, CardHeader, EmptyState, Field, Modal, SearchInput, Skeleton, Tabs, Textarea,
@@ -7,6 +7,7 @@ import {
 import { listOccurrences, logAudit, resolveOccurrence } from '@/lib/api'
 import { formatDateTime, OCCURRENCE_STATUS_LABEL, OCCURRENCE_TYPE_LABEL, relativeTime } from '@/lib/utils'
 import type { Occurrence } from '@/types'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 const STATUS_CLASS: Record<string, string> = {
   OPEN: 'bg-red-100 text-red-700', IN_REVIEW: 'bg-amber-100 text-amber-800',
@@ -22,7 +23,7 @@ export default function Occurrences() {
 
   const { data, isLoading } = useQuery({ queryKey: ['occurrences'], queryFn: listOccurrences })
 
-  const resolve = useMutation({
+  const resolve = useApiMutation({
     mutationFn: async () => {
       if (!resolving) return
       await resolveOccurrence(resolving.id, resolution)
@@ -32,6 +33,7 @@ export default function Occurrences() {
       setResolving(null); setResolution('')
       void qc.invalidateQueries({ queryKey: ['occurrences'] })
     },
+    successMessage: 'Ocorrência resolvida.',
   })
 
   const filtered = (data ?? []).filter((o) => {

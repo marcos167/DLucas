@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, Button, Card, CardHeader, Field, Input, Skeleton } from '@/components/ui'
 import { listSettings, logAudit, upsertSetting } from '@/lib/api'
 import { formatDateTime } from '@/lib/utils'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 const DEFAULT_KEYS = [
   { key: 'operation.hours', label: 'Horário de operação', desc: 'Texto exibido na central de despacho', value: 'Segunda a sábado, 08h–20h' },
@@ -27,7 +28,7 @@ export default function Settings() {
     setValues(map)
   }, [settings.data])
 
-  const save = useMutation({
+  const save = useApiMutation({
     mutationFn: async () => {
       for (const def of DEFAULT_KEYS) {
         await upsertSetting(def.key, { content: values[def.key] ?? '' }, def.desc)

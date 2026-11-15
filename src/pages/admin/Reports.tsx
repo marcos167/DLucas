@@ -23,7 +23,7 @@ export default function Reports() {
     }),
   })
 
-  const orders = data ?? []
+  const orders = useMemo(() => data ?? [], [data])
 
   const byDay = useMemo(() => {
     const map = new Map<string, { day: string; entregues: number; falhas: number }>()

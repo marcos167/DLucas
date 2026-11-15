@@ -46,6 +46,22 @@ export const loginSchema = z.object({
 })
 export type LoginInput = z.infer<typeof loginSchema>
 
+export const forgotPasswordSchema = z.object({
+  email,
+})
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+
+export const newPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'A senha precisa ter ao menos 8 caracteres'),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, {
+    message: 'As senhas não conferem',
+    path: ['confirm'],
+  })
+export type NewPasswordInput = z.infer<typeof newPasswordSchema>
+
 export const orderSchema = z.object({
   unit_id: z.string().uuid('Selecione a unidade de origem'),
   priority: z.enum(['NORMAL', 'HIGH', 'URGENT']),

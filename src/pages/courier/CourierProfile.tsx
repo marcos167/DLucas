@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
 import { Bike, ShieldCheck, ShieldOff, Wallet } from 'lucide-react'
 import { Alert, Button, Card, Input, Skeleton } from '@/components/ui'
@@ -9,6 +9,7 @@ import {
   AVAILABILITY_LABEL, brl, formatDate, formatDateTime, maskPhone, ROLE_LABEL,
 } from '@/lib/utils'
 import type { Courier } from '@/types'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Em análise', ACTIVE: 'Ativo', SUSPENDED: 'Suspenso', REJECTED: 'Não aprovado', INACTIVE: 'Inativo',
@@ -27,7 +28,7 @@ export default function CourierProfile() {
     enabled: !!courier?.id,
   })
 
-  const save = useMutation({
+  const save = useApiMutation({
     mutationFn: async () => {
       if (!courier) return
       await updateCourier(courier.id, { phone })
