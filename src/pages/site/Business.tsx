@@ -14,7 +14,7 @@ export default function Business() {
     <div>
       <PageHeader
         eyebrow="Novas empresas"
-        title="Cadastre sua empresa na D'Luca Connect"
+        title="Cadastre sua empresa na DLucas Express"
         description="Atendemos farmácias de manipulação e empresas que precisam de transporte de medicamentos e itens sensíveis com processo registrado. Preencha o formulário para iniciar a análise."
       />
 

@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 /**
- * Sistema visual D'Luca Connect.
+ * Sistema visual DLucas Express.
  *
  * Princípios que guiam os valores abaixo:
  * - Elevação em camadas (nunca uma sombra só): borda + sombra próxima + difusa.

@@ -43,7 +43,7 @@ export default function HowItWorks() {
       <PageHeader
         eyebrow="Como funciona"
         title="Seis etapas, tudo registrado"
-        description="O fluxo abaixo é o caminho padrão de um pedido dentro da D'Luca Connect, do cadastro ao financeiro."
+        description="O fluxo abaixo é o caminho padrão de um pedido dentro da DLucas Express, do cadastro ao financeiro."
       />
 
       <section className="container-page py-14">

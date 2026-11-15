@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Gera o deck comercial da D'Luca Connect em PPTX (16:9), editável no
+Gera o deck comercial da DLucas Express em PPTX (16:9), editável no
 PowerPoint / Google Slides / Keynote.
 
 Uso:  python3 scripts/build_apresentacao.py
-Saída: apresentacao/DLuca-Connect-Apresentacao.pptx
+Saída: apresentacao/DLucas-Express-Apresentacao.pptx
 """
 import os
 from pptx import Presentation
@@ -311,10 +311,10 @@ def brandmark(slide, y=Inches(0.55), dark=True, size=13):
     tf2 = box.text_frame
     tf2.margin_left = tf2.margin_right = tf2.margin_top = tf2.margin_bottom = 0
     p2 = tf2.paragraphs[0]
-    r1 = p2.add_run(); r1.text = "D'Luca "
+    r1 = p2.add_run(); r1.text = "DLucas "
     r1.font.size = Pt(size); r1.font.bold = True; r1.font.name = FONT_D
     r1.font.color.rgb = WHITE if dark else INK_950
-    r2 = p2.add_run(); r2.text = "Connect"
+    r2 = p2.add_run(); r2.text = "Express"
     r2.font.size = Pt(size); r2.font.bold = True; r2.font.name = FONT_D
     r2.font.color.rgb = BRAND_300
     return sq
@@ -351,7 +351,7 @@ brandmark(s, Inches(0.85), size=14)
 eyebrow(s, "Logística de medicamentos", dark=True, y=Inches(2.05))
 title(s, "Do pedido da farmácia\nao comprovante na mão\ndo paciente.", dark=True,
       y=Inches(2.42), size=40, w=Inches(9.6))
-lead(s, "Uma plataforma para a D'Luca operar o transporte de medicamentos com registro, "
+lead(s, "Uma plataforma para a DLucas Express operar o transporte de medicamentos com registro, "
         "controle e prestação de contas — em vez de WhatsApp, planilha e memória.",
      dark=True, y=Inches(4.72), w=Inches(8.2), size=14)
 
@@ -415,7 +415,7 @@ title(s, "Um sistema só, três portas de entrada —\ncada perfil vê somente o
 
 tri = [
     ("01", "Central de despacho",
-     "A D'Luca recebe o pedido, decide quem entrega, acompanha a rota e trata ocorrências.", "D'Luca"),
+     "A DLucas Express recebe o pedido, decide quem entrega, acompanha a rota e trata ocorrências.", "DLucas Express"),
     ("02", "Portal da farmácia",
      "A farmácia cria o pedido, acompanha o status e baixa comprovantes e faturas. Sem ligar para ninguém.", "Farmácia"),
     ("03", "Área do entregador",
@@ -624,7 +624,7 @@ tb(s, xr + Inches(0.26), Inches(2.5), rw - Inches(0.52), Inches(0.9),
    size=12, color=RGBColor(0xD8, 0xEC, 0xE7), spacing=1.4)
 
 card_content(s, xr, Inches(3.76), rw, Inches(1.93), "O que isso protege",
-             "O entregador não é monitorado fora do horário de trabalho, e a D'Luca não assume o risco "
+             "O entregador não é monitorado fora do horário de trabalho, e a DLucas Express não assume o risco "
              "de afirmar uma posição que não tem. Quem olha o mapa sabe exatamente o que está vendo.",
              dark=True, tsize=12.5, bsize=9.8)
 page_num(s, dark=True)
@@ -783,13 +783,13 @@ s = new_slide()
 eyebrow(s, "Próximos passos")
 title(s, "O que falta é decisão de negócio,\nnão falta de base.", y=Inches(0.95), size=26)
 lead(s, "A plataforma está funcional. As evoluções abaixo dependem de prioridade e de escolhas "
-        "operacionais da D'Luca.", y=Inches(2.0), w=Inches(10.4))
+        "operacionais da DLucas Express.", y=Inches(2.0), w=Inches(10.4))
 
 table(s, M, Inches(2.72), CONTENT_W,
       ["Frente", "O que envolve", "Depende de"],
       [["Cadastro real das farmácias",
         "Substituir os dados de demonstração pelos clientes reais, com contratos e tabelas de preço definitivas.",
-        "Dados da D'Luca"],
+        "Dados da DLucas Express"],
        ["Notificações por e-mail e SMS",
         "Avisar a farmácia e o paciente sobre status. Hoje o aviso é interno, dentro da plataforma.",
         "Provedor de envio"],
@@ -800,7 +800,7 @@ table(s, M, Inches(2.72), CONTENT_W,
         "App dedicado com notificação em segundo plano. Hoje roda no navegador do celular.",
         "Escopo futuro"],
        ["Domínio próprio",
-        "Publicar em endereço da D'Luca, em vez do endereço padrão de produção.",
+        "Publicar em endereço da DLucas Express, em vez do endereço padrão de produção.",
         "Domínio"],
        ["Meio de pagamento",
         "Integração para cobrança automática. Nesta versão o controle é manual, por decisão de escopo.",
@@ -841,6 +841,6 @@ page_num(s, dark=True)
 # ------------------------------------------------------------------ exporta
 out_dir = "apresentacao"
 os.makedirs(out_dir, exist_ok=True)
-out = os.path.join(out_dir, "DLuca-Connect-Apresentacao.pptx")
+out = os.path.join(out_dir, "DLucas-Express-Apresentacao.pptx")
 prs.save(out)
 print(f"OK · {len(prs.slides.__iter__.__self__._sldIdLst)} slides → {out}")

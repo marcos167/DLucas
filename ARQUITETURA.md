@@ -1,11 +1,11 @@
-# D'Luca Connect — Documentação Técnica Completa
+# DLucas Express — Documentação Técnica Completa
 
 > Documento único explicando **o que é** o sistema, **para que serve cada parte** e **o que faz cada função**.
 > Gerado a partir do código-fonte real em `marcos167/DLucas` (branch `arena/9e8b8662-dlucas`) e do banco em produção.
 
 | Item | Valor |
 |---|---|
-| Produto | D'Luca Connect — logística e transporte de medicamentos |
+| Produto | DLucas Express — logística e transporte de medicamentos |
 | Endereço em produção | https://dluca-connect.vercel.app |
 | Frontend | React 18 + TypeScript + Vite 5 + TailwindCSS 3 |
 | Backend | Supabase (PostgreSQL + Auth + Storage + Realtime + Edge Functions) |
@@ -45,7 +45,7 @@
 
 ## 1. O que é a plataforma
 
-A D'Luca Connect é um sistema web que organiza o **transporte de medicamentos** entre farmácias de manipulação e pacientes. Ela resolve um problema operacional concreto: hoje esse transporte costuma ser controlado por WhatsApp, planilha e memória — sem registro de quem coletou, quando entregou, nem comprovante vinculado ao pedido.
+A DLucas Express é um sistema web que organiza o **transporte de medicamentos** entre farmácias de manipulação e pacientes. Ela resolve um problema operacional concreto: hoje esse transporte costuma ser controlado por WhatsApp, planilha e memória — sem registro de quem coletou, quando entregou, nem comprovante vinculado ao pedido.
 
 A plataforma junta, num único sistema:
 
@@ -87,7 +87,7 @@ O papel mora em `public.profiles.role`. Depois do login, a função `homeRouteFo
 │  main.tsx → Router → AuthProvider → App.tsx (rotas)         │
 │       │                                                     │
 │       ├── Site institucional  (Visitante)                   │
-│       ├── /app/*      (staff D'Luca)                        │
+│       ├── /app/*      (staff DLucas Express)                        │
 │       ├── /portal/*   (farmácia)                            │
 │       └── /entregador/* (motoboy)                           │
 │                                                             │
@@ -1028,7 +1028,7 @@ as animações, `role="dialog"` no modal e `aria-live` nos toasts.
 | **Oferta** | Proposta de entrega enviada a um entregador específico, com prazo de 15 minutos. |
 | **Comprovante** | Foto ou PDF que prova a entrega, vinculada ao pedido e guardada em bucket privado. |
 | **Ocorrência** | Registro tipificado de um problema na entrega (destinatário ausente, endereço incorreto, recusa, avaria…). |
-| **Repasse** | Valor que a D'Luca paga ao entregador por entrega realizada. |
+| **Repasse** | Valor que a DLucas Express paga ao entregador por entrega realizada. |
 | **Haversine** | Fórmula que calcula a distância em km entre duas coordenadas na superfície da Terra. |
 
 ---

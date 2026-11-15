@@ -74,7 +74,7 @@ export default function Login() {
             ))}
           </ul>
         </div>
-        <p className="relative text-xs text-ink-600">© {new Date().getFullYear()} D'Luca Transportes</p>
+        <p className="relative text-xs text-ink-600">© {new Date().getFullYear()} DLucas Express</p>
       </div>
 
       <div className="flex flex-col justify-center bg-ink-50/60 px-5 py-12 sm:px-10">
@@ -85,7 +85,7 @@ export default function Login() {
           </Link>
           <h2 className="mt-6 font-display text-display-sm text-ink-950">Entrar na plataforma</h2>
           <p className="mt-2 text-[13.5px] text-ink-600">
-            Use o e-mail corporativo cadastrado pela D'Luca.
+            Use o e-mail corporativo cadastrado pela DLucas Express.
           </p>
 
           {!configured && (

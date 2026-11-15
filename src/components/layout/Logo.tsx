@@ -36,15 +36,15 @@ export function Logo({
 }) {
   const title = { sm: 'text-[13px]', md: 'text-[15px]', lg: 'text-[18px]' }[size]
   return (
-    <Link to="/" aria-label="D'Luca Connect — início" className={cn('group inline-flex items-center gap-3 transition-opacity hover:opacity-80', className)}>
+    <Link to="/" aria-label="DLucas Express — início" className={cn('group inline-flex items-center gap-3 transition-opacity hover:opacity-80', className)}>
       <LogoMark size={size} variant={variant} />
       {!compact && (
         <span className="leading-none">
           <span className={cn('block font-display font-bold uppercase tracking-[0.14em]', title, variant === 'light' ? 'text-ink-50' : 'text-ink-950')}>
-            D'Luca <span className={variant === 'light' ? 'text-brand-300' : 'text-brand-700'}>Connect</span>
+            DLucas <span className={variant === 'light' ? 'text-brand-300' : 'text-brand-700'}>Express</span>
           </span>
           <span className={cn('mt-1.5 block text-[9px] font-semibold uppercase tracking-[0.29em]', variant === 'light' ? 'text-ink-300' : 'text-ink-600')}>
-            Transportes
+            Logística em saúde
           </span>
         </span>
       )}

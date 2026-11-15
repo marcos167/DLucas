@@ -133,7 +133,7 @@ export default function SiteLayout() {
               <li><Link to="/contato" className="transition hover:text-brand-300">Fale com a equipe</Link></li>
               {WHATSAPP_NUMBER && (
                 <li>
-                  <a href={whatsappLink("Olá! Gostaria de informações sobre o transporte de medicamentos D'Luca.")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 transition hover:text-brand-300">
+                  <a href={whatsappLink("Olá! Gostaria de informações sobre o transporte de medicamentos DLucas Express.")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 transition hover:text-brand-300">
                     <MessageCircle className="h-4 w-4" /> WhatsApp
                   </a>
                 </li>
@@ -143,7 +143,7 @@ export default function SiteLayout() {
         </div>
         <div className="border-t border-white/10">
           <div className="container-page flex flex-col gap-3 py-6 text-[11px] tracking-[0.04em] text-ink-300 sm:flex-row sm:items-center sm:justify-between">
-            <p>© {new Date().getFullYear()} D'Luca Transportes. Todos os direitos reservados.</p>
+            <p>© {new Date().getFullYear()} DLucas Express. Todos os direitos reservados.</p>
             <p>Precisão na operação. Cuidado na entrega.</p>
           </div>
         </div>

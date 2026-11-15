@@ -57,7 +57,7 @@ export default function Home() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-50/95 via-transparent to-white/15" aria-hidden="true" />
         <div className="container-page relative flex flex-1 flex-col justify-center pb-12 pt-20 sm:pt-24 lg:pb-20">
           <p className="site-reveal flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-700">
-            <span className="h-px w-9 bg-brand-400" aria-hidden="true" /> D'Luca Connect / Logística em saúde
+            <span className="h-px w-9 bg-brand-400" aria-hidden="true" /> DLucas Express / Logística em saúde
           </p>
           <h1 className="site-reveal mt-9 max-w-[930px] font-display text-[clamp(2.75rem,6.2vw,6.15rem)] font-medium leading-[1.07] tracking-[-0.055em] text-ink-950 [animation-delay:90ms]">
             Cada entrega carrega <span className="font-editorial italic font-normal tracking-[-0.04em] text-brand-700">algo essencial.</span>
@@ -93,7 +93,7 @@ export default function Home() {
             Em saúde, uma entrega não é apenas um trajeto. É a continuidade de um cuidado que começou muito antes da coleta.
           </p>
           <p className="mt-6 max-w-xl text-[15px] leading-8 text-ink-600">
-            Por isso, a D'Luca Connect reúne pessoas, processos e informação numa experiência operacional mais clara para cada parte envolvida.
+            Por isso, a DLucas Express reúne pessoas, processos e informação numa experiência operacional mais clara para cada parte envolvida.
           </p>
           <Link to="/como-funciona" className="site-text-link mt-8 inline-flex w-fit items-center gap-3 text-xs font-bold uppercase tracking-[0.12em]">
             Entenda nosso processo <ArrowUpRight className="h-4 w-4" />
@@ -185,7 +185,7 @@ export default function Home() {
             <p className="max-w-lg text-[15px] leading-8 text-ink-600">Conte como funciona a logística da sua farmácia. Nossa equipe prepara uma proposta de acordo com volume, regiões e necessidades da sua operação.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/orcamento" className="site-button-ink inline-flex items-center gap-4 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Solicitar orçamento <ArrowUpRight className="h-4 w-4" /></Link>
-              {whatsappLink('') && <a href={whatsappLink("Olá! Quero saber mais sobre a D'Luca Connect.")} target="_blank" rel="noreferrer" className="site-button-outline inline-flex items-center px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Falar no WhatsApp</a>}
+              {whatsappLink('') && <a href={whatsappLink("Olá! Quero saber mais sobre a DLucas Express.")} target="_blank" rel="noreferrer" className="site-button-outline inline-flex items-center px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Falar no WhatsApp</a>}
               <Link to="/empresas" className="site-button-outline inline-flex items-center gap-2 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]"><Users className="h-4 w-4" /> Nova empresa</Link>
             </div>
           </div>

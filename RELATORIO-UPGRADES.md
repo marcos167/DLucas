@@ -1,4 +1,4 @@
-# Relatório de upgrades — D'Luca Connect
+# Relatório de upgrades — DLucas Express
 
 Registro do que foi evoluído, por que e o que falta. Escrito para ser lido
 tanto por quem vai manter o código quanto por quem toma decisão de negócio.
@@ -196,7 +196,7 @@ Em ordem de retorno sobre esforço.
 |---|---|
 | App nativo do entregador | escopo e orçamento |
 | Integração com gateway de pagamento | definição comercial |
-| Domínio próprio | registro do domínio pela D'Luca |
+| Domínio próprio | registro do domínio pela DLucas Express |
 
 ---
 

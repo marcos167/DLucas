@@ -1,4 +1,4 @@
-# D'Luca Connect
+# DLucas Express
 
 Plataforma de logística e transporte de medicamentos para farmácias de manipulação.
 

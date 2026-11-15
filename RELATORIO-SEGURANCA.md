@@ -1,4 +1,4 @@
-# Avaliação de segurança — D'Luca Connect
+# Avaliação de segurança — DLucas Express
 
 **Data:** 15/11/2026
 **Escopo:** branch `arena/2c3cd1f1-dlucas`, Supabase `euwonmpgwwoublajfvip` e configurações versionadas do site.

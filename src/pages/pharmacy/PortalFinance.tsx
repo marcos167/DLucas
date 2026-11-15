@@ -46,7 +46,7 @@ export default function PortalFinance() {
         {invoices.isLoading ? (
           <div className="space-y-2 p-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
         ) : rows.length === 0 ? (
-          <EmptyState title="Nenhuma fatura" description="As faturas emitidas pela D'Luca aparecerão aqui." icon={<Receipt className="h-6 w-6" />} />
+          <EmptyState title="Nenhuma fatura" description="As faturas emitidas pela DLucas Express aparecerão aqui." icon={<Receipt className="h-6 w-6" />} />
         ) : (
           <div className="table-wrap">
             <table className="table-base">
@@ -70,7 +70,7 @@ export default function PortalFinance() {
         )}
       </Card>
       <p className="flex items-center gap-1.5 px-1 text-[11px] text-ink-400">
-        <Wallet className="h-3 w-3" /> Os pagamentos são registrados manualmente pela equipe financeira da D'Luca.
+        <Wallet className="h-3 w-3" /> Os pagamentos são registrados manualmente pela equipe financeira da DLucas Express.
       </p>
 
       <Modal open={!!openId} onClose={() => setOpenId(null)} size="lg"
