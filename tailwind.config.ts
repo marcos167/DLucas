@@ -5,53 +5,54 @@ import type { Config } from 'tailwindcss'
  *
  * Princípios que guiam os valores abaixo:
  * - Elevação em camadas (nunca uma sombra só): borda + sombra próxima + difusa.
- * - Verde da marca como acento, não como preenchimento em tudo.
+ * - Champagne gold como acento preciso sobre superfícies marfim e grafite.
  * - Tipografia com tracking negativo nos títulos grandes (óptico, não mecânico).
- * - Movimento discreto: 150–250 ms, sempre com curva de saída.
+ * - Movimento discreto com alternativa para quem prefere movimento reduzido.
  */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
+        /** Champagne gold: subtle accents, dark shades maintain contrast on light surfaces. */
         brand: {
-          50: '#ecfdf7',
-          100: '#d1fae9',
-          200: '#a6f3d5',
-          300: '#6ee7be',
-          400: '#34d3a4',
-          500: '#12b98c',
-          600: '#069574',
-          700: '#07785f',
-          800: '#095f4d',
-          900: '#0a4e41',
-          950: '#032c25',
+          50: '#f8f5ee',
+          100: '#f0e8d9',
+          200: '#e3d3b4',
+          300: '#d8bf91',
+          400: '#c6a66b',
+          500: '#a9854d',
+          600: '#826337',
+          700: '#654b29',
+          800: '#49371f',
+          900: '#302519',
+          950: '#17130f',
         },
         ink: {
-          50: '#f7f8fa',
-          100: '#eef0f4',
-          200: '#dde1e9',
-          300: '#c1c8d4',
-          400: '#96a1b3',
-          500: '#6c7a90',
-          600: '#505d73',
-          700: '#3d4859',
-          800: '#2f3847',
-          900: '#1a2231',
-          950: '#0b111c',
+          50: '#f5f2ec',
+          100: '#eae6df',
+          200: '#d5d0c7',
+          300: '#a6a6a6',
+          400: '#737373',
+          500: '#686868',
+          600: '#525252',
+          700: '#3c3c3c',
+          800: '#242424',
+          900: '#151515',
+          950: '#090909',
         },
         accent: {
-          DEFAULT: '#e8a33d',
-          50: '#fdf6e9',
-          100: '#faecd0',
-          200: '#f4d79e',
-          300: '#eebc66',
-          400: '#e8a33d',
-          500: '#d98a22',
-          600: '#bb6c18',
-          700: '#955015',
-          800: '#7a4117',
-          900: '#663716',
+          DEFAULT: '#c6a66b',
+          50: '#f8f5ee',
+          100: '#f0e8d9',
+          200: '#e3d3b4',
+          300: '#d8bf91',
+          400: '#c6a66b',
+          500: '#a9854d',
+          600: '#826337',
+          700: '#654b29',
+          800: '#49371f',
+          900: '#302519',
         },
         /** Verde de sinalização (sucesso, disponível) — distinto do verde de marca. */
         signal: {
@@ -63,7 +64,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Manrope', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        editorial: ['"Playfair Display"', 'Georgia', 'serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
       fontSize: {
@@ -88,8 +90,8 @@ export default {
         modal: '0 4px 8px -2px rgb(11 17 28 / 0.08), 0 32px 64px -24px rgb(11 17 28 / 0.32)',
         /** Anel interno que dá profundidade a superfícies escuras. */
         'inner-light': 'inset 0 1px 0 0 rgb(255 255 255 / 0.08)',
-        'glow-brand': '0 8px 24px -8px rgb(18 185 140 / 0.45)',
-        'glow-accent': '0 8px 24px -8px rgb(232 163 61 / 0.4)',
+        'glow-brand': '0 8px 24px -8px rgb(198 166 107 / 0.45)',
+        'glow-accent': '0 8px 24px -8px rgb(198 166 107 / 0.4)',
       },
       borderRadius: {
         xl2: '1.125rem',
@@ -100,7 +102,7 @@ export default {
       backgroundImage: {
         /** Textura sutil para heros escuros. */
         'grid-fade': 'linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px)',
-        'radial-brand': 'radial-gradient(circle at 50% 0%, rgb(18 185 140 / 0.16), transparent 62%)',
+        'radial-brand': 'radial-gradient(circle at 50% 0%, rgb(198 166 107 / 0.12), transparent 62%)',
         'sheen': 'linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.14) 50%, transparent 60%)',
       },
       backgroundSize: {
@@ -145,9 +147,9 @@ export default {
           '50%': { transform: 'translateY(-6px)' },
         },
         'ring-pulse': {
-          '0%': { boxShadow: '0 0 0 0 rgb(18 185 140 / 0.35)' },
-          '70%': { boxShadow: '0 0 0 8px rgb(18 185 140 / 0)' },
-          '100%': { boxShadow: '0 0 0 0 rgb(18 185 140 / 0)' },
+          '0%': { boxShadow: '0 0 0 0 rgb(198 166 107 / 0.35)' },
+          '70%': { boxShadow: '0 0 0 8px rgb(198 166 107 / 0)' },
+          '100%': { boxShadow: '0 0 0 0 rgb(198 166 107 / 0)' },
         },
       },
       animation: {

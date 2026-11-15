@@ -46,11 +46,10 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-ink-950 via-ink-950 to-brand-950 p-10 text-white lg:flex">
-        {/* malha técnica que esvanece — dá textura sem competir com o texto */}
-        <div className="bg-grid-subtle pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="pointer-events-none absolute -left-24 top-10 h-96 w-96 rounded-full bg-brand-500/20 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-accent-400/10 blur-[90px]" />
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-ink-950 p-10 text-white lg:flex">
+        <img src="/images/hero-architecture.jpg" alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_center] opacity-45" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/80 to-ink-950/40" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/60" aria-hidden="true" />
         <div className="relative"><Logo variant="light" /></div>
         <div className="relative max-w-md">
           <h1 className="font-display text-display-sm leading-[1.15] text-white">
@@ -75,7 +74,7 @@ export default function Login() {
             ))}
           </ul>
         </div>
-        <p className="text-xs text-ink-500">© {new Date().getFullYear()} D'Luca Transportes</p>
+        <p className="relative text-xs text-ink-300">© {new Date().getFullYear()} D'Luca Transportes</p>
       </div>
 
       <div className="flex flex-col justify-center bg-ink-50/60 px-5 py-12 sm:px-10">

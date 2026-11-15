@@ -6,7 +6,7 @@
   :root {
     color-scheme: light;
     /* tokens de elevação reutilizados abaixo */
-    --ring-brand: 18 185 140;
+    --ring-brand: 198 166 107;
   }
 
   html {
@@ -72,7 +72,7 @@
 @layer components {
   /* ------------------------------------------------------------ LAYOUT */
   .container-page {
-    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-12 xl:px-16;
   }
 
   /* ------------------------------------------------------------ SUPERFÍCIES */
@@ -81,10 +81,10 @@
    * Uma sombra só achata a interface; três camadas dão profundidade real.
    */
   .card {
-    @apply rounded-2xl border border-ink-200/70 bg-white shadow-card;
+    @apply rounded-xl border border-ink-200/70 bg-white shadow-card;
   }
   .card-flat {
-    @apply rounded-2xl border border-ink-200/70 bg-white;
+    @apply rounded-xl border border-ink-200/70 bg-white;
   }
   /** Card que reage ao ponteiro — use apenas quando o card é clicável. */
   .card-interactive {
@@ -119,7 +119,7 @@
 
   /* ------------------------------------------------------------ CAMPOS */
   .input {
-    @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900
+    @apply w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900
            shadow-xs transition duration-150 ease-out placeholder:text-ink-400
            hover:border-ink-300
            focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10
@@ -131,7 +131,7 @@
 
   /* ------------------------------------------------------------ BOTÕES */
   .btn {
-    @apply relative inline-flex select-none items-center justify-center gap-2 overflow-hidden rounded-xl
+    @apply relative inline-flex select-none items-center justify-center gap-2 overflow-hidden rounded-md
            px-4 py-2.5 text-sm font-semibold transition-all duration-150 ease-out
            active:scale-[.985] disabled:pointer-events-none disabled:opacity-50;
   }
@@ -271,4 +271,45 @@
 /* Marcador do mapa com pulso, usado no acompanhamento autorizado */
 .leaflet-marker-pulse {
   animation: ring-pulse 1.8s ease-out infinite;
+}
+
+/* Luxury corporate system: institutional presentation without changing app flows. */
+@layer components {
+  .site-kicker {
+    @apply flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-700;
+  }
+  .site-kicker::before {
+    content: '';
+    @apply h-px w-8 shrink-0 bg-brand-400;
+  }
+  .site-heading {
+    @apply font-display text-[clamp(2.3rem,4.5vw,4.65rem)] font-medium leading-[1.12] tracking-[-0.055em] text-ink-950;
+  }
+  .site-heading em {
+    @apply font-editorial font-normal text-brand-700;
+  }
+  .site-button-gold {
+    @apply border border-brand-300 bg-brand-300 text-ink-950 transition-all duration-300 ease-out hover:border-brand-200 hover:bg-brand-200 hover:shadow-[0_10px_30px_-12px_rgb(198_166_107/0.5)] active:scale-[0.985];
+  }
+  .site-button-outline {
+    @apply border border-white/40 bg-ink-950/20 text-ink-50 transition-all duration-300 ease-out hover:border-brand-300 hover:bg-white/10 hover:text-brand-200 active:scale-[0.985];
+  }
+  .site-text-link {
+    @apply border-b border-brand-600 pb-2 text-brand-700 transition-colors hover:border-ink-950 hover:text-ink-950;
+  }
+  .site-reveal {
+    animation: site-reveal 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .skip-link {
+    @apply fixed left-4 top-4 z-[100] -translate-y-24 bg-brand-300 px-4 py-3 text-sm font-bold text-ink-950 focus:translate-y-0;
+  }
+}
+
+@keyframes site-reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-reveal { animation: none; }
 }
