@@ -118,18 +118,23 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   CANCELLED: 'Cancelado',
 }
 
+/**
+ * Cores de status em estilo "tinta + anel": fundo muito claro, texto saturado
+ * e anel de 1px. Lê melhor em tabela densa do que preenchimento chapado, e não
+ * compete com o conteúdo ao redor.
+ */
 export const ORDER_STATUS_CLASS: Record<OrderStatus, string> = {
-  DRAFT: 'bg-ink-100 text-ink-600',
-  PENDING: 'bg-amber-100 text-amber-800',
-  OFFERED: 'bg-sky-100 text-sky-800',
-  ASSIGNED: 'bg-indigo-100 text-indigo-800',
-  ACCEPTED: 'bg-indigo-100 text-indigo-800',
-  PICKING_UP: 'bg-violet-100 text-violet-800',
-  COLLECTED: 'bg-cyan-100 text-cyan-800',
-  IN_TRANSIT: 'bg-blue-100 text-blue-800',
-  DELIVERED: 'bg-emerald-100 text-emerald-800',
-  FAILED: 'bg-red-100 text-red-700',
-  CANCELLED: 'bg-ink-200 text-ink-600',
+  DRAFT: 'bg-ink-50 text-ink-600 ring-1 ring-inset ring-ink-200',
+  PENDING: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
+  OFFERED: 'bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200',
+  ASSIGNED: 'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-200',
+  ACCEPTED: 'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-200',
+  PICKING_UP: 'bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200',
+  COLLECTED: 'bg-cyan-50 text-cyan-700 ring-1 ring-inset ring-cyan-200',
+  IN_TRANSIT: 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200',
+  DELIVERED: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200',
+  FAILED: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-200',
+  CANCELLED: 'bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200',
 }
 
 export const ORDER_PRIORITY_LABEL: Record<OrderPriority, string> = {
@@ -139,9 +144,9 @@ export const ORDER_PRIORITY_LABEL: Record<OrderPriority, string> = {
 }
 
 export const ORDER_PRIORITY_CLASS: Record<OrderPriority, string> = {
-  NORMAL: 'bg-ink-100 text-ink-600',
-  HIGH: 'bg-amber-100 text-amber-800',
-  URGENT: 'bg-red-100 text-red-700',
+  NORMAL: 'bg-ink-50 text-ink-600 ring-1 ring-inset ring-ink-200',
+  HIGH: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
+  URGENT: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-200',
 }
 
 export const AVAILABILITY_LABEL: Record<CourierAvailability, string> = {
@@ -151,9 +156,9 @@ export const AVAILABILITY_LABEL: Record<CourierAvailability, string> = {
 }
 
 export const AVAILABILITY_CLASS: Record<CourierAvailability, string> = {
-  AVAILABLE: 'bg-emerald-100 text-emerald-800',
-  ON_DELIVERY: 'bg-blue-100 text-blue-800',
-  OFFLINE: 'bg-ink-200 text-ink-600',
+  AVAILABLE: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200',
+  ON_DELIVERY: 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200',
+  OFFLINE: 'bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200',
 }
 
 export const INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
@@ -166,12 +171,12 @@ export const INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
 }
 
 export const INVOICE_STATUS_CLASS: Record<InvoiceStatus, string> = {
-  DRAFT: 'bg-ink-100 text-ink-600',
-  OPEN: 'bg-sky-100 text-sky-800',
-  PARTIALLY_PAID: 'bg-amber-100 text-amber-800',
-  PAID: 'bg-emerald-100 text-emerald-800',
-  OVERDUE: 'bg-red-100 text-red-700',
-  CANCELLED: 'bg-ink-200 text-ink-600',
+  DRAFT: 'bg-ink-50 text-ink-600 ring-1 ring-inset ring-ink-200',
+  OPEN: 'bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200',
+  PARTIALLY_PAID: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
+  PAID: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200',
+  OVERDUE: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-200',
+  CANCELLED: 'bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200',
 }
 
 export const OCCURRENCE_TYPE_LABEL: Record<OccurrenceType, string> = {

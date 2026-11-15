@@ -100,23 +100,53 @@ export function DashboardShell({
                     to={item.to}
                     end={item.end}
                     className={({ isActive }) => cn(
-                      'group flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] font-medium transition',
+                      'group relative flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] font-medium',
+                      'transition-all duration-150 ease-out',
                       accent === 'ink'
                         ? isActive
-                          ? 'bg-white/10 text-white'
-                          : 'text-white/70 hover:bg-white/5 hover:text-white'
+                          ? 'bg-white/[0.09] text-white shadow-inner-light'
+                          : 'text-white/60 hover:bg-white/[0.05] hover:text-white'
                         : isActive
-                          ? 'bg-brand-50 text-brand-800'
-                          : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
+                          ? 'bg-brand-50 text-brand-800 shadow-[inset_0_0_0_1px_rgb(18_185_140/0.12)]'
+                          : 'text-ink-600 hover:bg-ink-100/70 hover:text-ink-900',
                     )}
                   >
-                    <span className="shrink-0 opacity-80">{item.icon}</span>
-                    <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge ? (
-                      <span className="rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        {item.badge}
-                      </span>
-                    ) : null}
+                    {({ isActive }) => (
+                      <>
+                        {/* barra vertical: marca a seção atual sem pesar */}
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            'absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-200 ease-out',
+                            isActive ? 'h-4 w-[3px] opacity-100' : 'h-2 w-[3px] opacity-0',
+                            accent === 'ink' ? 'bg-brand-400' : 'bg-brand-600',
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            'shrink-0 transition-colors',
+                            isActive
+                              ? accent === 'ink' ? 'text-brand-300' : 'text-brand-700'
+                              : 'opacity-70 group-hover:opacity-100',
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {item.badge ? (
+                          <span
+                            className={cn(
+                              'rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular',
+                              accent === 'ink'
+                                ? 'bg-brand-500 text-ink-950'
+                                : 'bg-brand-600 text-white',
+                            )}
+                          >
+                            {item.badge}
+                          </span>
+                        ) : null}
+                      </>
+                    )}
                   </NavLink>
                 </li>
               ))}
@@ -143,7 +173,9 @@ export function DashboardShell({
       {/* sidebar desktop */}
       <aside className={cn(
         'fixed inset-y-0 left-0 z-30 hidden w-60 border-r lg:block',
-        accent === 'ink' ? 'border-white/10 bg-ink-950' : 'border-ink-200 bg-white',
+        accent === 'ink'
+          ? 'border-white/[0.08] bg-gradient-to-b from-ink-950 to-ink-900'
+          : 'border-ink-200/70 bg-white shadow-[1px_0_0_0_rgb(11_17_28/0.02)]',
       )}>
         {sidebar}
       </aside>
@@ -162,14 +194,14 @@ export function DashboardShell({
       )}
 
       <div className="lg:pl-60">
-        <header className="sticky top-0 z-20 border-b border-ink-200 bg-white/85 backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-ink-200/70 bg-white/80 backdrop-blur-md">
           <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
             <button className="rounded-lg p-2 text-ink-600 hover:bg-ink-100 lg:hidden" onClick={() => setOpen(true)} aria-label="Abrir menu">
               <Menu className="h-5 w-5" />
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate font-display text-[15px] font-bold text-ink-950">{title}</h1>
-              {subtitle && <p className="truncate text-[11.5px] text-ink-500">{subtitle}</p>}
+              <h1 className="truncate font-display text-[15px] font-bold tracking-[-0.01em] text-ink-950">{title}</h1>
+              {subtitle && <p className="truncate text-[11.5px] leading-tight text-ink-500">{subtitle}</p>}
             </div>
 
             <div className="relative">

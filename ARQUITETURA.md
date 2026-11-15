@@ -38,7 +38,8 @@
     - [17.2 Recuperação de senha](#172-recuperação-de-senha)
     - [17.3 Lint e desempenho do bundle](#173-lint-e-desempenho-do-bundle)
 18. [Testes e integração contínua](#18-testes-e-integração-contínua)
-19. [Glossário](#19-glossário)
+19. [Design system](#19-design-system)
+20. [Glossário](#20-glossário)
 
 ---
 
@@ -966,7 +967,53 @@ demonstração.
 
 ---
 
-## 19. Glossário
+## 19. Design system
+
+O sistema visual está documentado em detalhe em **`DESIGN-SYSTEM.md`**. Resumo
+das decisões que afetam o código:
+
+### Tokens (`tailwind.config.ts`)
+
+| Grupo | O que define |
+|---|---|
+| `brand` | Verde da marca, recalibrado um tom acima (`#12b98c` no 500) |
+| `accent` | Âmbar — única cor quente, reservada para CTA comercial |
+| `ink` | Neutros, 90% da interface |
+| `signal` | Verde de sinalização, distinto do verde de marca |
+| `shadow-*` | Escala de elevação em 4 camadas |
+| `text-display-*` | Escala tipográfica com tracking óptico |
+| `ease-out` / `spring` | Curvas de movimento |
+
+### Camada de componentes (`index.css`)
+
+Classes reutilizáveis: `card`, `card-interactive`, `surface-dark`, `btn-primary`,
+`btn-accent`, `btn-sheen`, `badge-ring`, `tabular`, `eyebrow`, `skeleton-shimmer`,
+`bg-grid-subtle`, `divider-fade`, `card-gradient-border`.
+
+### Componentes novos
+
+- **`StatCard`** — cartão de indicador com ícone tonal, variação e halo no hover.
+  Substituiu o `KpiCard` local do dashboard.
+- **`LogoMark`** — símbolo da marca isolado, para uso em contextos compactos.
+- **`Badge`** ganhou prop `tone` (neutral, brand, success, warning, danger, info).
+
+### Mudanças de comportamento visual
+
+- Badges de status passaram de preenchimento saturado para tinta + anel.
+  Isso altera `ORDER_STATUS_CLASS`, `ORDER_PRIORITY_CLASS`,
+  `AVAILABILITY_CLASS` e `INVOICE_STATUS_CLASS` em `lib/utils.ts`.
+- Sidebar do painel marca a seção ativa com barra vertical que desliza.
+- Hero do site e painel do login ganharam textura de grade com máscara radial.
+- Modal passou a usar `shadow-modal` e `animate-scale-in`.
+
+### Acessibilidade
+
+Foco visível global (anel de 2 px), `prefers-reduced-motion` respeitado em todas
+as animações, `role="dialog"` no modal e `aria-live` nos toasts.
+
+---
+
+## 20. Glossário
 
 | Termo | Significado |
 |---|---|
