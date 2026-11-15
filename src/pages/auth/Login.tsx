@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ChevronDown, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { Alert, Button, Field, Input } from '@/components/ui'
 import { Logo } from '@/components/layout/Logo'
 import { useAuth } from '@/contexts/AuthContext'
@@ -134,8 +134,60 @@ export default function Login() {
             Não tem acesso? <Link to="/orcamento" className="link-quiet font-medium">Solicite o cadastro</Link> da sua farmácia
             ou <Link to="/entregadores" className="link-quiet font-medium">candidate-se como entregador</Link>.
           </p>
+
+          <DemoAccess onPick={(em, pw) => { setEmail(em); setPassword(pw); setError('') }} configured={configured} />
         </div>
       </div>
+    </div>
+  )
+}
+
+const DEMO_ACCOUNTS = [
+  { email: 'marco.lp12@hotmail.com', password: 'Dlc-p6xldi#RM7K!24', label: 'Super admin', note: 'exige troca de senha' },
+  { email: 'despacho@dluca.com.br', password: 'Dluca@2026', label: 'Despacho' },
+  { email: 'financeiro@dluca.com.br', password: 'Dluca@2026', label: 'Financeiro' },
+  { email: 'farmacia@alquimia.com.br', password: 'Dluca@2026', label: 'Farmácia (gestor)' },
+  { email: 'entregador@dluca.com.br', password: 'Dluca@2026', label: 'Entregador' },
+]
+
+function DemoAccess({ onPick, configured }: { onPick: (email: string, password: string) => void; configured: boolean }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="mt-6 rounded-xl border border-dashed border-ink-300 bg-ink-50/60 p-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <span className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-600">
+          Acesso rápido (demonstração)
+        </span>
+        <ChevronDown className={`h-4 w-4 text-ink-500 transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="mt-2.5 space-y-1.5">
+          {DEMO_ACCOUNTS.map((a) => (
+            <button
+              key={a.email}
+              type="button"
+              disabled={!configured}
+              onClick={() => onPick(a.email, a.password)}
+              className="flex w-full items-center justify-between gap-2 rounded-lg bg-white px-2.5 py-2 text-left ring-1 ring-ink-200 transition hover:ring-brand-400 disabled:opacity-50"
+            >
+              <span className="min-w-0">
+                <span className="block text-[12px] font-semibold text-ink-900">{a.label}</span>
+                <span className="block truncate text-[10.5px] text-ink-500">{a.email}</span>
+              </span>
+              <span className="shrink-0 text-[10px] font-medium text-brand-700">
+                {a.note ?? 'usar'}
+              </span>
+            </button>
+          ))}
+          <p className="pt-1 text-[10.5px] leading-relaxed text-ink-500">
+            Contas e dados fictícios de demonstração. Clique para preencher e depois em <strong>Entrar</strong>.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
