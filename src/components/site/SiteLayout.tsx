@@ -33,9 +33,9 @@ export default function SiteLayout() {
   return (
     <div className="site-luxury flex min-h-screen flex-col bg-ink-50">
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-950/95 text-ink-50 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-white/95 text-ink-950 backdrop-blur-xl">
         <div className="container-page flex h-[76px] items-center justify-between gap-5">
-          <Logo variant="light" size="md" />
+          <Logo size="md" />
           <nav className="hidden items-center gap-1 xl:flex" aria-label="Navegação principal">
             {links.map((link) => (
               <NavLink
@@ -44,7 +44,7 @@ export default function SiteLayout() {
                 end={link.end}
                 className={({ isActive }) => cn(
                   'relative px-3 py-3 text-[12px] font-semibold tracking-[0.04em] transition-colors duration-200',
-                  isActive ? 'text-brand-300 after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:bg-brand-400' : 'text-ink-200 hover:text-brand-300',
+                  isActive ? 'text-brand-700 after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:bg-brand-500' : 'text-ink-700 hover:text-brand-700',
                 )}
               >
                 {link.label}
@@ -52,16 +52,16 @@ export default function SiteLayout() {
             ))}
           </nav>
           <div className="hidden items-center gap-5 xl:flex">
-            <Link to={profile ? homeRoute : '/entrar'} className="text-[12px] font-semibold text-ink-200 transition hover:text-brand-300">
+            <Link to={profile ? homeRoute : '/entrar'} className="text-[12px] font-semibold text-ink-800 transition hover:text-brand-700">
               {profile ? 'Meu painel' : 'Acessar plataforma'}
             </Link>
-            <Link to="/orcamento" className="site-button-gold inline-flex items-center gap-2 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.12em]">
+            <Link to="/orcamento" className="site-button-ink inline-flex items-center gap-2 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.12em]">
               Solicitar proposta <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <button
             type="button"
-            className="flex h-11 w-11 items-center justify-center border border-white/20 text-ink-50 transition hover:border-brand-400 hover:text-brand-300 xl:hidden"
+            className="flex h-11 w-11 items-center justify-center border border-ink-200 text-ink-900 transition hover:border-brand-500 hover:text-brand-700 xl:hidden"
             onClick={() => setOpen((value) => !value)}
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={open}
@@ -71,7 +71,7 @@ export default function SiteLayout() {
           </button>
         </div>
         {open && (
-          <nav id="site-mobile-nav" className="border-t border-white/10 bg-ink-950 xl:hidden" aria-label="Navegação móvel">
+          <nav id="site-mobile-nav" className="border-t border-ink-200 bg-white xl:hidden" aria-label="Navegação móvel">
             <div className="container-page grid gap-1 py-5">
               {links.map((link) => (
                 <NavLink
@@ -79,15 +79,15 @@ export default function SiteLayout() {
                   to={link.to}
                   end={link.end}
                   className={({ isActive }) => cn(
-                    'border-b border-white/10 px-1 py-3 text-sm transition-colors',
-                    isActive ? 'text-brand-300' : 'text-ink-100 hover:text-brand-300',
+                    'border-b border-ink-200 px-1 py-3 text-sm transition-colors',
+                    isActive ? 'text-brand-700' : 'text-ink-800 hover:text-brand-700',
                   )}
                 >
                   {link.label}
                 </NavLink>
               ))}
-              <Link to="/entregadores" className="px-1 py-3 text-sm text-ink-100 hover:text-brand-300">Seja entregador</Link>
-              <Link to={profile ? homeRoute : '/entrar'} className="site-button-gold mt-3 inline-flex justify-center px-5 py-3 text-sm font-semibold">
+              <Link to="/entregadores" className="px-1 py-3 text-sm text-ink-800 hover:text-brand-700">Seja entregador</Link>
+              <Link to={profile ? homeRoute : '/entrar'} className="site-button-ink mt-3 inline-flex justify-center px-5 py-3 text-sm font-semibold">
                 {profile ? 'Meu painel' : 'Acessar plataforma'}
               </Link>
             </div>

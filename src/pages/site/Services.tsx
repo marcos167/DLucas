@@ -93,7 +93,7 @@ export default function Services() {
             </Link>
             <Link
               to="/como-funciona"
-              className="btn border border-white/15 bg-white/[0.06] text-white shadow-inner-light backdrop-blur-sm transition hover:border-white/25 hover:bg-white/10"
+              className="btn-secondary"
             >
               Ver como funciona
             </Link>

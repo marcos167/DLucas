@@ -45,28 +45,28 @@ const capabilities = [
 export default function Home() {
   return (
     <div>
-      <section className="site-hero relative isolate flex min-h-[690px] flex-col justify-end overflow-hidden bg-ink-950 text-ink-50 sm:min-h-[720px] lg:min-h-[760px]">
+      <section className="site-hero relative isolate flex min-h-[690px] flex-col justify-end overflow-hidden bg-ink-50 text-ink-950 sm:min-h-[720px] lg:min-h-[760px]">
         <img
-          src="/images/hero-architecture.jpg"
+          src="/images/hero-daylight.jpg"
           alt=""
           aria-hidden="true"
           loading="eager"
-          className="absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center] brightness-[.55] sm:brightness-100"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center] opacity-60 sm:opacity-100"
         />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink-950 via-ink-950/90 to-ink-950/25" aria-hidden="true" />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-950/85 via-transparent to-ink-950/25" aria-hidden="true" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink-50 via-ink-50/95 to-ink-50/20" aria-hidden="true" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-50/95 via-transparent to-white/15" aria-hidden="true" />
         <div className="container-page relative flex flex-1 flex-col justify-center pb-12 pt-20 sm:pt-24 lg:pb-20">
-          <p className="site-reveal flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-300">
+          <p className="site-reveal flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-700">
             <span className="h-px w-9 bg-brand-400" aria-hidden="true" /> D'Luca Connect / Logística em saúde
           </p>
-          <h1 className="site-reveal mt-9 max-w-[930px] font-display text-[clamp(2.75rem,6.2vw,6.15rem)] font-medium leading-[1.07] tracking-[-0.055em] text-ink-50 [animation-delay:90ms]">
-            Cada entrega carrega <span className="font-editorial italic font-normal tracking-[-0.04em] text-brand-300">algo essencial.</span>
+          <h1 className="site-reveal mt-9 max-w-[930px] font-display text-[clamp(2.75rem,6.2vw,6.15rem)] font-medium leading-[1.07] tracking-[-0.055em] text-ink-950 [animation-delay:90ms]">
+            Cada entrega carrega <span className="font-editorial italic font-normal tracking-[-0.04em] text-brand-700">algo essencial.</span>
           </h1>
-          <p className="site-reveal mt-8 max-w-[590px] text-[15px] leading-[1.85] text-ink-100 sm:text-[17px] [animation-delay:180ms]">
+          <p className="site-reveal mt-8 max-w-[590px] text-[15px] leading-[1.85] text-ink-700 sm:text-[17px] [animation-delay:180ms]">
             Tecnologia e operação para o transporte de medicamentos. Da solicitação ao comprovante, conectamos farmácias, despacho e entregadores com precisão e cuidado.
           </p>
           <div className="site-reveal mt-10 flex flex-wrap gap-3 [animation-delay:270ms]">
-            <Link to="/orcamento" className="site-button-gold group inline-flex min-h-12 items-center gap-6 px-7 py-3.5 text-[12px] font-bold uppercase tracking-[0.12em]">
+            <Link to="/orcamento" className="site-button-ink group inline-flex min-h-12 items-center gap-6 px-7 py-3.5 text-[12px] font-bold uppercase tracking-[0.12em]">
               Solicitar proposta <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
             <Link to="/servicos" className="site-button-outline inline-flex min-h-12 items-center gap-6 px-7 py-3.5 text-[12px] font-bold uppercase tracking-[0.12em]">
@@ -74,11 +74,11 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        <div className="border-t border-white/15 bg-ink-950/40 backdrop-blur-sm">
-          <div className="container-page grid gap-4 py-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-200 sm:grid-cols-3 sm:gap-8">
-            <span><span className="mr-3 text-brand-300">01 /</span> Pedidos centralizados</span>
-            <span><span className="mr-3 text-brand-300">02 /</span> Despacho coordenado</span>
-            <span><span className="mr-3 text-brand-300">03 /</span> Acompanhamento autorizado</span>
+        <div className="border-t border-ink-200/70 bg-white/85 backdrop-blur-sm">
+          <div className="container-page grid gap-4 py-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-700 sm:grid-cols-3 sm:gap-8">
+            <span><span className="mr-3 text-brand-700">01 /</span> Pedidos centralizados</span>
+            <span><span className="mr-3 text-brand-700">02 /</span> Despacho coordenado</span>
+            <span><span className="mr-3 text-brand-700">03 /</span> Acompanhamento autorizado</span>
           </div>
         </div>
       </section>
@@ -125,17 +125,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-ink-900 py-20 text-ink-50 sm:py-28">
+      <section className="border-y border-ink-200 bg-brand-50 py-20 text-ink-950 sm:py-28">
         <div className="container-page grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
-          <div className="relative overflow-hidden border border-white/10 bg-ink-950">
-            <img src="/images/editorial-operation.jpg" alt="Entrega cuidadosa de uma encomenda na recepção de uma farmácia" loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
-            <span className="absolute bottom-0 left-0 border-r border-t border-brand-400/30 bg-ink-950/90 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-300 backdrop-blur">O cuidado em movimento</span>
+          <div className="relative overflow-hidden border border-ink-200 bg-white">
+            <img src="/images/editorial-care.jpg" alt="Entrega cuidadosa de uma encomenda na recepção de uma farmácia" loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+            <span className="absolute bottom-0 left-0 border-r border-t border-brand-400/30 bg-white/95 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-700 backdrop-blur">O cuidado em movimento</span>
           </div>
           <div>
-            <p className="site-kicker !text-brand-300">Processo com propósito</p>
-            <h2 className="mt-6 max-w-xl font-display text-[clamp(2.4rem,4vw,4.5rem)] font-medium leading-[1.12] tracking-[-0.05em]">Do pedido à entrega, <span className="font-editorial italic text-brand-300">sem perder o fio.</span></h2>
-            <p className="mt-6 max-w-lg text-[15px] leading-8 text-ink-200">Cada etapa ganha contexto, responsável e registro. O resultado é uma operação mais organizada para a farmácia e mais clara para quem realiza a entrega.</p>
-            <Link to="/servicos" className="mt-9 inline-flex items-center gap-3 border-b border-brand-400 pb-2 text-xs font-bold uppercase tracking-[0.12em] text-brand-300 transition hover:border-white hover:text-white">Conhecer os serviços <ArrowUpRight className="h-4 w-4" /></Link>
+            <p className="site-kicker">Processo com propósito</p>
+            <h2 className="mt-6 max-w-xl font-display text-[clamp(2.4rem,4vw,4.5rem)] font-medium leading-[1.12] tracking-[-0.05em]">Do pedido à entrega, <span className="font-editorial italic text-brand-700">sem perder o fio.</span></h2>
+            <p className="mt-6 max-w-lg text-[15px] leading-8 text-ink-600">Cada etapa ganha contexto, responsável e registro. O resultado é uma operação mais organizada para a farmácia e mais clara para quem realiza a entrega.</p>
+            <Link to="/servicos" className="site-text-link mt-9 inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.12em]">Conhecer os serviços <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
         </div>
       </section>
@@ -175,16 +175,16 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-ink-950 py-20 text-white sm:py-28">
+      <section className="border-t border-brand-400/30 bg-gradient-to-r from-[#f0e9dc] via-ink-50 to-white py-20 text-ink-950 sm:py-28">
         <div className="container-page grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
           <div>
-            <p className="site-kicker !text-brand-300">O próximo passo</p>
-            <h2 className="mt-5 max-w-2xl font-display text-[clamp(2.4rem,4.2vw,4.8rem)] font-medium leading-[1.12] tracking-[-0.05em]">Uma nova referência para a <span className="font-editorial italic text-brand-300">sua operação.</span></h2>
+            <p className="site-kicker">O próximo passo</p>
+            <h2 className="mt-5 max-w-2xl font-display text-[clamp(2.4rem,4.2vw,4.8rem)] font-medium leading-[1.12] tracking-[-0.05em]">Uma nova referência para a <span className="font-editorial italic text-brand-700">sua operação.</span></h2>
           </div>
           <div className="lg:pl-16">
-            <p className="max-w-lg text-[15px] leading-8 text-ink-200">Conte como funciona a logística da sua farmácia. Nossa equipe prepara uma proposta de acordo com volume, regiões e necessidades da sua operação.</p>
+            <p className="max-w-lg text-[15px] leading-8 text-ink-600">Conte como funciona a logística da sua farmácia. Nossa equipe prepara uma proposta de acordo com volume, regiões e necessidades da sua operação.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/orcamento" className="site-button-gold inline-flex items-center gap-4 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Solicitar orçamento <ArrowUpRight className="h-4 w-4" /></Link>
+              <Link to="/orcamento" className="site-button-ink inline-flex items-center gap-4 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Solicitar orçamento <ArrowUpRight className="h-4 w-4" /></Link>
               {whatsappLink('') && <a href={whatsappLink("Olá! Quero saber mais sobre a D'Luca Connect.")} target="_blank" rel="noreferrer" className="site-button-outline inline-flex items-center px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]">Falar no WhatsApp</a>}
               <Link to="/empresas" className="site-button-outline inline-flex items-center gap-2 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em]"><Users className="h-4 w-4" /> Nova empresa</Link>
             </div>
