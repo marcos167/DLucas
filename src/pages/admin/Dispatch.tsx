@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import {
   Bike, MapPin, Radio, Sparkles, Send, UserCheck, XCircle, AlertTriangle,
@@ -15,6 +15,7 @@ import {
 } from '@/lib/utils'
 import { OrderStatusBadge, PriorityBadge, RouteBlock } from '@/components/dashboard/OrderBits'
 import type { Order, Courier } from '@/types'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 export default function Dispatch() {
   const qc = useQueryClient()
@@ -42,7 +43,7 @@ export default function Dispatch() {
     return suggestCouriers(selected, couriers.data ?? [], 6)
   }, [selected, couriers.data])
 
-  const offer = useMutation({
+  const offer = useApiMutation({
     mutationFn: async () => {
       if (!selected || !chosenCourier) throw new Error('Selecione um entregador.')
       const suggestion = suggestions.find((s) => s.courier.id === chosenCourier.id)
@@ -63,9 +64,10 @@ export default function Dispatch() {
       void qc.invalidateQueries({ queryKey: ['dispatch-queue'] })
       void qc.invalidateQueries({ queryKey: ['orders-list'] })
     },
+    successMessage: (name) => `Oferta enviada para ${name}.`,
   })
 
-  const assign = useMutation({
+  const assign = useApiMutation({
     mutationFn: async () => {
       if (!selected || !chosenCourier) throw new Error('Selecione um entregador.')
       await assignOrder({ orderId: selected.id, courierId: chosenCourier.id, method: 'MANUAL', reason: note || undefined })
@@ -78,6 +80,7 @@ export default function Dispatch() {
       void qc.invalidateQueries({ queryKey: ['dispatch-queue'] })
       void qc.invalidateQueries({ queryKey: ['orders-list'] })
     },
+    successMessage: (name) => `Pedido atribuído a ${name}.`,
   })
 
   function openOrder(order: Order) {

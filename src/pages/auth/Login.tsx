@@ -125,6 +125,11 @@ export default function Login() {
                 </button>
               </div>
             </Field>
+            <div className="flex justify-end">
+              <Link to="/recuperar-senha" className="link-quiet text-[13px] font-medium">
+                Esqueci minha senha
+              </Link>
+            </div>
             <Button type="submit" className="w-full" size="lg" loading={busy} disabled={!configured}>
               Entrar
             </Button>

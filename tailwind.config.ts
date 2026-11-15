@@ -53,10 +53,15 @@ export default {
           '0%,100%': { opacity: '1' },
           '50%': { opacity: '.45' },
         },
+        'toast-in': {
+          '0%': { opacity: '0', transform: 'translateY(8px) scale(.98)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up .45s ease-out both',
         'pulse-soft': 'pulse-soft 2s ease-in-out infinite',
+        'toast-in': 'toast-in .2s ease-out both',
       },
     },
   },

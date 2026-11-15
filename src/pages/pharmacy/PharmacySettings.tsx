@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, Button, Card, CardHeader, Field, Input, Skeleton, Textarea } from '@/components/ui'
 import { getPharmacy, upsertPharmacy } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { maskCnpj, maskPhone } from '@/lib/utils'
+import { useApiMutation } from '@/hooks/useApiMutation'
 
 export default function PharmacySettings() {
   const { profile } = useAuth()
@@ -29,7 +30,7 @@ export default function PharmacySettings() {
     })
   }, [data])
 
-  const save = useMutation({
+  const save = useApiMutation({
     mutationFn: async () => {
       await upsertPharmacy({
         trade_name: form.trade_name, legal_name: form.legal_name, cnpj: form.cnpj || null,

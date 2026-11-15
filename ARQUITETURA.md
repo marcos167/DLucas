@@ -34,6 +34,9 @@
 15. [Ambiente, deploy e operação](#15-ambiente-deploy-e-operação)
 16. [Testes realizados em produção](#16-testes-realizados-em-produção)
 17. [Limitações conhecidas](#17-limitações-conhecidas)
+    - [17.1 Tratamento de erros e feedback](#171-tratamento-de-erros-e-feedback-ao-usuário)
+    - [17.2 Recuperação de senha](#172-recuperação-de-senha)
+    - [17.3 Lint e desempenho do bundle](#173-lint-e-desempenho-do-bundle)
 18. [Glossário](#18-glossário)
 
 ---
@@ -543,6 +546,9 @@ Toda ação grava em `audit_logs` com autor, e-mail, papel e descrição.
 | `/empresas` | Público | Cadastro de nova empresa |
 | `/contato` | Público | Contato / WhatsApp |
 | `/entregadores` | Público | Candidatura de entregador |
+| `/recuperar-senha` | Público | Pedido de link para redefinir senha |
+| `/nova-senha` | Público (link do e-mail) | Definição da nova senha |
+| `*` (qualquer outra) | Público | Página 404 dentro do layout do site |
 | `/entrar` | Público | Login |
 | `/app` | Staff | Dashboard operacional |
 | `/app/pedidos`, `/app/pedidos/:id` | Staff | Lista e detalhe do pedido |
@@ -780,9 +786,123 @@ Um **bug real** foi encontrado nessa etapa: usuários criados por `INSERT` diret
 - **Deploy automático por push está desligado** na conexão Git da Vercel — publicar exige disparar o deploy.
 - **O bloco "Acesso rápido" da tela de login expõe credenciais de demonstração no código** e precisa ser removido antes de qualquer uso real.
 - **Não há integração com gateway de pagamento** por decisão de escopo: o controle financeiro é manual (registro de pagamentos, sem cobrança automática).
-- **Sem teste automatizado** (unitário/E2E): a validação é por `typecheck`, build e testes manuais de integração contra o banco.
+- **Sem teste automatizado** (unitário/E2E): a validação é por `typecheck`, `lint`, build e testes manuais de integração contra o banco.
+- **Recuperação de senha depende de SMTP**: o código está pronto, mas o envio usa o serviço padrão do Supabase, com cota baixa no plano gratuito. Para uso real é preciso configurar um provedor de e-mail (Resend, SendGrid, Amazon SES) em *Authentication → SMTP*.
 
 ---
+
+## 17.1. Tratamento de erros e feedback ao usuário
+
+O projeto tinha um problema silencioso: das 25 chamadas `useMutation`, 14 não
+tratavam falha nenhuma. O usuário clicava, a operação quebrava e nada aparecia
+na tela.
+
+### `src/components/ui/Toast.tsx`
+
+Sistema de notificação efêmera montado no topo da árvore (`main.tsx`), fora do
+`AuthProvider`. Usa portal para `document.body`, então fica acima de qualquer
+modal.
+
+| Recurso | Como funciona |
+|---|---|
+| `useToast()` | Devolve `push()` e `dismiss()` |
+| Tempo na tela | 4 s para sucesso/informação, 6 s para erro |
+| Limite | 4 toasts simultâneos; o mais antigo sai |
+| Acessibilidade | `role="alert"` + `aria-live="assertive"` em erros |
+| Limpeza | Timers cancelados no desmonte do provider |
+
+### `src/hooks/useApiMutation.ts`
+
+Substitui `useMutation` quando a tela quer feedback automático.
+
+```ts
+const salvar = useApiMutation({
+  mutationFn: () => updateOrder(id, { status }),
+  onSuccess: () => qc.invalidateQueries({ queryKey: ['order', id] }),
+  successMessage: 'Status atualizado.',
+})
+```
+
+- **`successMessage`** — texto fixo ou função `(data, vars) => string`.
+- **`silentError`** — desliga o toast de erro quando a tela já mostra o erro.
+- `onSuccess` e `onError` originais continuam funcionando; são chamados depois.
+
+### `errorMessage()` — tradução de erro técnico
+
+O Supabase devolve mensagens em inglês sobre detalhes de banco. A função
+converte os casos comuns:
+
+| Erro bruto | O que o usuário lê |
+|---|---|
+| `violates row-level security policy` | "Ação não permitida para o seu perfil." |
+| `duplicate key value` | "Este registro já existe." |
+| `Failed to fetch` | "Sem conexão com o servidor." |
+| `JWT expired` | "Sua sessão expirou." |
+| `null value in column` | "Preencha todos os campos obrigatórios." |
+
+Para regras de negócio, use `throw new AppError('mensagem', 'explicação')`.
+
+### Onde foi aplicado
+
+`Dispatch.tsx`, `OrderDetail.tsx`, `Occurrences.tsx`, `Payouts.tsx`,
+`Settings.tsx`, `PharmacySettings.tsx`, `CourierProfile.tsx` — os sete arquivos
+que não tinham nenhum tratamento. Os demais já tinham `onError` próprio.
+
+### `src/components/layout/ErrorBoundary.tsx`
+
+Envolve todas as rotas. Um erro de render mostra uma tela com a mensagem,
+botão de recarregar e caminho de volta — em vez de página branca.
+
+## 17.2. Recuperação de senha
+
+Três peças:
+
+| Arquivo | Papel |
+|---|---|
+| `AuthContext.requestPasswordReset(email)` | Chama `resetPasswordForEmail` com `redirectTo` para `/nova-senha` |
+| `pages/auth/ForgotPassword.tsx` | Tela `/recuperar-senha`, acessível pelo link no login |
+| `pages/auth/NewPassword.tsx` | Tela `/nova-senha`, destino do link do e-mail |
+
+**Decisão de segurança:** a tela confirma o envio mesmo quando o e-mail não
+existe. Responder "e-mail não cadastrado" permitiria descobrir quem tem conta.
+
+**Sessão temporária:** o link cria uma sessão curta, então `updateUser` troca a
+senha sem pedir a antiga. Se o link estiver vencido, a tela informa e oferece
+pedir outro.
+
+**Configuração obrigatória no Supabase** (*Authentication → URL Configuration*):
+
+- `Site URL`: `https://dluca-connect.vercel.app`
+- `Redirect URLs`: `https://dluca-connect.vercel.app/nova-senha`
+
+Sem isso, o link do e-mail cai na home e a recuperação não funciona.
+
+## 17.3. Lint e desempenho do bundle
+
+**ESLint** (`eslint.config.js`) com `@eslint/js`, `typescript-eslint`,
+`react-hooks` e `react-refresh`. Scripts:
+
+| Script | O que faz |
+|---|---|
+| `npm run lint` | Analisa o código |
+| `npm run lint:fix` | Corrige o que é automático |
+| `npm run typecheck` | `tsc -b --noEmit` (separado do lint) |
+
+Estado atual: **0 erros, 0 avisos**.
+
+**Code splitting** — as rotas de `/app`, `/portal` e `/entregador` usam
+`React.lazy`. O site institucional continua no bundle principal, porque é a
+porta de entrada.
+
+| | Antes | Depois |
+|---|---|---|
+| Bundle principal | 1.435 kB | 252 kB (70 kB gzip) |
+| Mapa (Leaflet) | no principal | chunk próprio, 155 kB |
+| Gráficos (Recharts) | no principal | chunk próprio, 577 kB (só dashboard/relatórios) |
+| Supabase | no principal | chunk próprio, 229 kB |
+
+Os chunks de biblioteca mudam pouco entre deploys, então o navegador mantém o
+cache deles mesmo quando o código do sistema é atualizado.
 
 ## 18. Glossário
 

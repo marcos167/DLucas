@@ -26,7 +26,8 @@ export default function History() {
     enabled: tab !== 'changes',
   })
 
-  const rows = orders.data ?? []
+  // memoizado: sem isso, cada render cria um array novo e invalida os useMemo abaixo
+  const rows = useMemo(() => orders.data ?? [], [orders.data])
   const totalValue = useMemo(() => rows.reduce((s, o) => s + o.quoted_price_cents, 0), [rows])
   const totalPayout = useMemo(() => rows.reduce((s, o) => s + o.courier_payout_cents, 0), [rows])
 
