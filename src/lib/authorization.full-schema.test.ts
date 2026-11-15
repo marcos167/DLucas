@@ -79,6 +79,7 @@ beforeAll(async () => {
   await migration('00700_authorization_hardening')
   await migration('00700_authorization_hardening') // reinstalação idempotente
   await migration('00800_direct_assignment_acceptance')
+  await migration('00900_offer_acceptance_contention')
   await db.exec(`
     insert into auth.users(id,email,encrypted_password) values
       ('${PHARMACY_USER}','farmacia@teste','old'),
