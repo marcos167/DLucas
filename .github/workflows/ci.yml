@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# um push novo cancela a execução anterior da mesma branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Verificação de tipos
+        run: npm run typecheck
+
+      - name: Testes
+        run: npm run test:run
+
+      - name: Build de produção
+        run: npm run build
+
+      # Falha o job se sobrar senha ou chave no bundle publicado.
+      # Já aconteceu: a senha do super admin ia compilada no JavaScript.
+      - name: Verificar segredos no bundle
+        run: |
+          echo "Procurando credenciais no artefato de produção…"
+          if grep -rInE "(password|senha)\s*[:=]\s*['\"][^'\"]{6,}" dist/assets/*.js; then
+            echo "::error::Credencial embutida no bundle de produção."
+            exit 1
+          fi
+          echo "Nenhuma credencial encontrada."

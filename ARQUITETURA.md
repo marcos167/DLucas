@@ -37,7 +37,8 @@
     - [17.1 Tratamento de erros e feedback](#171-tratamento-de-erros-e-feedback-ao-usuário)
     - [17.2 Recuperação de senha](#172-recuperação-de-senha)
     - [17.3 Lint e desempenho do bundle](#173-lint-e-desempenho-do-bundle)
-18. [Glossário](#18-glossário)
+18. [Testes e integração contínua](#18-testes-e-integração-contínua)
+19. [Glossário](#19-glossário)
 
 ---
 
@@ -786,7 +787,7 @@ Um **bug real** foi encontrado nessa etapa: usuários criados por `INSERT` diret
 - **Deploy automático por push está desligado** na conexão Git da Vercel — publicar exige disparar o deploy.
 - **O bloco "Acesso rápido" da tela de login expõe credenciais de demonstração no código** e precisa ser removido antes de qualquer uso real.
 - **Não há integração com gateway de pagamento** por decisão de escopo: o controle financeiro é manual (registro de pagamentos, sem cobrança automática).
-- **Sem teste automatizado** (unitário/E2E): a validação é por `typecheck`, `lint`, build e testes manuais de integração contra o banco.
+- **Sem teste de integração contra o banco**: os 57 testes automatizados cobrem regra de negócio (ranking, validação, formatação, erros), mas as 54 políticas RLS ainda dependem de verificação manual. Cobrir RLS com teste automatizado é o próximo passo natural.
 - **Recuperação de senha depende de SMTP**: o código está pronto, mas o envio usa o serviço padrão do Supabase, com cota baixa no plano gratuito. Para uso real é preciso configurar um provedor de e-mail (Resend, SendGrid, Amazon SES) em *Authentication → SMTP*.
 
 ---
@@ -904,7 +905,68 @@ porta de entrada.
 Os chunks de biblioteca mudam pouco entre deploys, então o navegador mantém o
 cache deles mesmo quando o código do sistema é atualizado.
 
-## 18. Glossário
+## 18. Testes e integração contínua
+
+### Stack
+
+Vitest 2 + Testing Library, ambiente `jsdom`. Configuração em `vitest.config.ts`,
+setup em `src/test/setup.ts`.
+
+```bash
+npm run test           # watch
+npm run test:run       # execução única (CI)
+npm run test:coverage  # relatório HTML de cobertura
+```
+
+### O que está coberto
+
+| Arquivo | Testes | Alvo |
+|---|---|---|
+| `src/lib/dispatch.test.ts` | 11 | Ranking de entregadores |
+| `src/lib/validation.test.ts` | 21 | Todos os schemas zod |
+| `src/lib/utils.test.ts` | 16 | Formatação, máscaras, distância, frescor de GPS |
+| `src/hooks/useApiMutation.test.ts` | 9 | Tradução de erros |
+
+**Total: 57 testes.**
+
+A escolha foi testar regra de negócio, não interface. O ranking de despacho é o
+caso mais importante: os pesos (+40 disponível, +20 mesma cidade, +10 bairro,
+até +30 distância) estão no deck apresentado ao cliente, então precisam ser
+imutáveis sem decisão explícita.
+
+Casos fixados que já pegaram regressão:
+
+- Entregador `ON_DELIVERY` nunca entra na sugestão.
+- Pontuação de distância tem piso em zero.
+- `distanceKm` é simétrica.
+- Localização com mais de 3 minutos não é "agora".
+- `brl()` usa espaço não separável (U+00A0) do `Intl` — testes normalizam.
+- `km()` usa vírgula decimal (pt-BR), não ponto.
+
+### Integração contínua
+
+`.github/workflows/ci.yml` roda em push na `main` e em todo PR:
+
+```
+npm ci → lint → typecheck → test:run → build → varredura de segredos
+```
+
+**A varredura de segredos** é um `grep` por `password`/`senha` seguido de literal
+de 6+ caracteres dentro de `dist/assets/*.js`. Foi adicionada porque uma senha de
+super administrador chegou a ser publicada no bundle (ver `RELATORIO-UPGRADES.md`).
+
+### Bloco de demonstração da tela de login
+
+Controlado por `VITE_DEMO_LOGINS`. Sem a variável, o bloco "Acesso rápido" não é
+renderizado e as contas fictícias não entram no bundle. Para demonstração,
+defina `VITE_DEMO_LOGINS=1` no ambiente de preview.
+
+**Regra:** nunca incluir conta real nesse bloco. Apenas contas fictícias de
+demonstração.
+
+---
+
+## 19. Glossário
 
 | Termo | Significado |
 |---|---|
