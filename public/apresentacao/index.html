@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>D'Luca Connect — Apresentação</title>
+<style>
+  /* ============ BASE ============ */
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --brand-950:#042924; --brand-900:#12453f; --brand-800:#13534b; --brand-700:#14685c;
+    --brand-600:#178271; --brand-500:#22a289; --brand-400:#41bea3; --brand-300:#78d8c0;
+    --brand-100:#d5f5eb; --brand-50:#eefbf7;
+    --ink-950:#0d1626; --ink-900:#233043; --ink-700:#424e60; --ink-600:#516076;
+    --ink-500:#67788f; --ink-300:#b1bac9; --ink-200:#d5dae3; --ink-100:#eceef2; --ink-50:#f6f7f9;
+    --amber:#f59e0b; --red:#dc2626; --green:#16a34a;
+    --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --display:"Plus Jakarta Sans",var(--font);
+  }
+  html,body{height:100%}
+  body{
+    font-family:var(--font); background:#0b1219; color:var(--ink-900);
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:relative;width:100vw;height:100vh;display:grid;place-items:center}
+  .slide{
+    position:absolute; inset:0; margin:auto;
+    width:min(100vw, calc(100vh * 16 / 9));
+    height:min(100vh, calc(100vw * 9 / 16));
+    background:#fff; display:none; overflow:hidden;
+    padding:clamp(24px,4.2vh,58px) clamp(28px,4.6vw,74px);
+    flex-direction:column; justify-content:center;
+  }
+  .slide.active{display:flex}
+  .slide.dark{background:var(--brand-950); color:#fff}
+  .slide.tint{background:linear-gradient(160deg,#fff 0%,var(--brand-50) 100%)}
+
+  /* ============ TIPOGRAFIA ============ */
+  .eyebrow{
+    font-size:clamp(9px,1.25vh,13px); font-weight:700; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--brand-700); margin-bottom:clamp(8px,1.6vh,18px);
+  }
+  .dark .eyebrow{color:var(--brand-300)}
+  h1{font-family:var(--display); font-size:clamp(30px,6.4vh,64px); line-height:1.06; font-weight:800; letter-spacing:-.022em}
+  h2{font-family:var(--display); font-size:clamp(22px,4.4vh,43px); line-height:1.12; font-weight:800; letter-spacing:-.018em}
+  h3{font-size:clamp(13px,2vh,19px); font-weight:700; line-height:1.3}
+  p{font-size:clamp(11px,1.85vh,17px); line-height:1.6; color:var(--ink-600)}
+  .dark p{color:#c9dcd7}
+  .lead{font-size:clamp(13px,2.25vh,21px); line-height:1.55; color:var(--ink-600); max-width:62ch}
+  .dark .lead{color:#bfd6d1}
+  .muted{color:var(--ink-500)}
+  .small{font-size:clamp(9.5px,1.5vh,13px); line-height:1.5}
+  strong{font-weight:700; color:var(--ink-900)}
+  .dark strong{color:#fff}
+  .accent{color:var(--brand-400)}
+
+  /* ============ LAYOUT ============ */
+  .head{margin-bottom:clamp(14px,2.8vh,32px); flex-shrink:0}
+  .head h2 + .lead{margin-top:clamp(7px,1.3vh,14px)}
+  .grid{display:grid; gap:clamp(10px,1.7vh,20px)}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .row{display:flex; gap:clamp(10px,1.6vw,22px)}
+  .center{align-items:center}
+  .between{justify-content:space-between}
+  .fill{flex:1}
+  .stack{display:flex; flex-direction:column; gap:clamp(9px,1.5vh,17px)}
+
+  /* ============ COMPONENTES ============ */
+  .card{
+    background:#fff; border:1px solid var(--ink-200); border-radius:14px;
+    padding:clamp(13px,2.3vh,24px); display:flex; flex-direction:column; gap:clamp(5px,.9vh,10px);
+  }
+  .card.soft{background:var(--ink-50)}
+  .card.brand{background:var(--brand-50); border-color:var(--brand-100)}
+  .dark .card{background:rgba(255,255,255,.055); border-color:rgba(255,255,255,.13)}
+  .dark .card.brand{background:rgba(65,190,163,.13); border-color:rgba(65,190,163,.32)}
+  .card h3{color:var(--ink-900)}
+  .dark .card h3{color:#fff}
+
+  .icon{
+    width:clamp(26px,4vh,38px); height:clamp(26px,4vh,38px); border-radius:10px;
+    display:grid; place-items:center; background:var(--brand-100); color:var(--brand-700);
+    font-size:clamp(12px,1.9vh,17px); font-weight:800; flex-shrink:0;
+  }
+  .dark .icon{background:rgba(65,190,163,.2); color:var(--brand-300)}
+
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; border-radius:999px;
+    padding:.34em .82em; font-size:clamp(8.5px,1.32vh,12px); font-weight:700;
+    background:var(--brand-100); color:var(--brand-800); white-space:nowrap;
+  }
+  .pill.amber{background:#fef3c7; color:#92400e}
+  .pill.red{background:#fee2e2; color:#991b1b}
+  .pill.green{background:#dcfce7; color:#166534}
+  .pill.ink{background:var(--ink-100); color:var(--ink-700)}
+  .dark .pill{background:rgba(65,190,163,.16); color:var(--brand-300)}
+
+  .num{
+    font-family:var(--display); font-weight:800; letter-spacing:-.03em;
+    font-size:clamp(26px,5.6vh,52px); color:var(--brand-700); line-height:1;
+  }
+  .dark .num{color:var(--brand-300)}
+  .num-label{font-size:clamp(9px,1.42vh,12.5px); font-weight:600; color:var(--ink-500); line-height:1.35; text-transform:uppercase; letter-spacing:.07em}
+  .dark .num-label{color:#89a8a1}
+
+  ul.checks{list-style:none; display:flex; flex-direction:column; gap:clamp(6px,1.05vh,11px)}
+  ul.checks li{
+    display:flex; gap:9px; align-items:flex-start;
+    font-size:clamp(10.5px,1.72vh,15.5px); line-height:1.45; color:var(--ink-600);
+  }
+  .dark ul.checks li{color:#c9dcd7}
+  ul.checks li::before{
+    content:"✓"; color:var(--brand-500); font-weight:800; flex-shrink:0;
+    font-size:1.05em; line-height:1.35;
+  }
+  ul.checks.x li::before{content:"✕"; color:var(--red)}
+
+  .flow{display:flex; align-items:stretch; gap:clamp(5px,.7vw,10px)}
+  .step{
+    flex:1; background:#fff; border:1px solid var(--ink-200); border-radius:11px;
+    padding:clamp(9px,1.6vh,16px); display:flex; flex-direction:column; gap:5px; position:relative;
+  }
+  .step .n{
+    font-family:var(--display); font-weight:800; font-size:clamp(10px,1.5vh,13px);
+    color:var(--brand-500); letter-spacing:.06em;
+  }
+  .step .t{font-size:clamp(9.5px,1.5vh,13.5px); font-weight:700; line-height:1.28}
+  .step .d{font-size:clamp(8.5px,1.28vh,11.5px); color:var(--ink-500); line-height:1.4}
+  .arrow{align-self:center; color:var(--ink-300); font-size:clamp(11px,1.7vh,16px); flex-shrink:0}
+
+  table{width:100%; border-collapse:collapse; font-size:clamp(9.5px,1.52vh,13.5px)}
+  th{
+    text-align:left; font-size:clamp(8px,1.22vh,10.5px); text-transform:uppercase;
+    letter-spacing:.09em; color:var(--ink-500); font-weight:700;
+    padding:.62em .7em; border-bottom:2px solid var(--ink-200);
+  }
+  td{padding:.62em .7em; border-bottom:1px solid var(--ink-100); color:var(--ink-600); line-height:1.4; vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  td strong{color:var(--ink-900)}
+  .dark th{color:#89a8a1; border-color:rgba(255,255,255,.2)}
+  .dark td{color:#c9dcd7; border-color:rgba(255,255,255,.1)}
+  .dark td strong{color:#fff}
+
+  .quote{
+    border-left:4px solid var(--brand-400); padding:clamp(10px,1.7vh,18px) clamp(13px,1.8vw,22px);
+    background:var(--brand-50); border-radius:0 12px 12px 0;
+    font-size:clamp(11px,1.9vh,17px); line-height:1.55; color:var(--brand-900); font-weight:500;
+  }
+  .dark .quote{background:rgba(65,190,163,.11); color:#d8ece7}
+
+  /* ============ UI DO DECK ============ */
+  #bar{position:fixed; top:0; left:0; height:3px; background:var(--brand-400); z-index:50; transition:width .28s ease; width:0}
+  #hud{
+    position:fixed; bottom:14px; right:18px; z-index:50; display:flex; align-items:center; gap:12px;
+    font-family:var(--font); font-size:12px; color:#8fa3b0; user-select:none;
+  }
+  #dots{display:flex; gap:5px}
+  .dot{width:6px; height:6px; border-radius:99px; background:#2f3f4b; cursor:pointer; transition:.2s}
+  .dot.on{background:var(--brand-400); width:18px}
+  #nav{display:flex; gap:6px}
+  #nav button{
+    width:28px; height:28px; border-radius:8px; border:1px solid #2a3843; background:#16222c;
+    color:#a9bcc7; cursor:pointer; font-size:13px; line-height:1; display:grid; place-items:center;
+  }
+  #nav button:hover{background:#1d2c37; color:#fff}
+  #num{font-variant-numeric:tabular-nums; min-width:46px; text-align:right}
+  .hint{
+    position:fixed; bottom:16px; left:18px; z-index:50; font-size:11px; color:#5d7280;
+    font-family:var(--font); user-select:none;
+  }
+  body.clean #hud, body.clean .hint, body.clean #bar{display:none}
+
+  /* ============ CAPA ============ */
+  .cover{position:relative; overflow:hidden}
+  .cover::after{
+    content:""; position:absolute; right:-14%; top:-22%; width:62%; height:150%;
+    background:radial-gradient(circle at 50% 40%, rgba(65,190,163,.30), transparent 62%);
+    pointer-events:none;
+  }
+  .cover .inner{position:relative; z-index:2; display:flex; flex-direction:column; gap:clamp(12px,2.3vh,26px); max-width:78%}
+  .brandmark{display:flex; align-items:center; gap:10px; margin-bottom:clamp(6px,1.4vh,16px)}
+  .brandmark .sq{
+    width:clamp(28px,4.6vh,42px); height:clamp(28px,4.6vh,42px); border-radius:11px;
+    background:linear-gradient(140deg,var(--brand-400),var(--brand-600));
+    display:grid; place-items:center; color:#042924; font-family:var(--display);
+    font-weight:800; font-size:clamp(13px,2.1vh,19px); letter-spacing:-.02em;
+  }
+  .brandmark .nm{font-family:var(--display); font-weight:800; letter-spacing:-.01em; font-size:clamp(13px,2.1vh,19px)}
+  .brandmark .nm span{color:var(--brand-300)}
+  .ticker{
+    display:flex; gap:clamp(14px,2vw,30px); flex-wrap:wrap; padding-top:clamp(10px,1.8vh,20px);
+    border-top:1px solid rgba(255,255,255,.13); margin-top:clamp(4px,1vh,10px);
+  }
+  .ticker div{font-size:clamp(9px,1.42vh,12.5px); color:#9fbdb6; font-weight:600}
+  .ticker strong{color:#fff; font-family:var(--display); font-size:clamp(12px,1.9vh,17px); display:block; letter-spacing:-.01em}
+
+  /* ============ FECHAMENTO ============ */
+  .endmark{
+    display:inline-flex; align-items:center; gap:9px; font-size:clamp(10px,1.5vh,13px);
+    font-weight:700; color:var(--brand-300); letter-spacing:.04em;
+  }
+
+  /* ============ IMPRESSÃO / PDF ============ */
+  @page{size:1280px 720px; margin:0}
+  @media print{
+    html,body{overflow:visible; background:#fff; height:auto}
+    #stage{display:block; height:auto}
+    #hud,#bar,.hint{display:none !important}
+    .slide{
+      display:flex !important; position:relative; inset:auto; margin:0;
+      width:1280px; height:720px; page-break-after:always; break-after:page;
+      box-shadow:none;
+    }
+    .slide:last-child{page-break-after:auto}
+  }
+</style>
+</head>
+<body>
+<div id="bar"></div>
+
+<div id="stage">
+
+  <!-- 1 · CAPA -->
+  <section class="slide dark cover active">
+    <div class="inner">
+      <div class="brandmark">
+        <div class="sq">D</div>
+        <div class="nm">D'Luca <span>Connect</span></div>
+      </div>
+      <div>
+        <div class="eyebrow">Logística de medicamentos</div>
+        <h1>Do pedido da farmácia<br />ao comprovante na mão<br />do paciente.</h1>
+      </div>
+      <p class="lead" style="max-width:56ch">
+        Uma plataforma para a D'Luca operar o transporte de medicamentos com registro,
+        controle e prestação de contas — em vez de WhatsApp, planilha e memória.
+      </p>
+      <div class="ticker">
+        <div><strong>3 acessos</strong>Central, farmácia e entregador</div>
+        <div><strong>Rastreio autorizado</strong>Só com permissão do entregador</div>
+        <div><strong>Publicado</strong>Plataforma já em ambiente de produção</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · PROBLEMA -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">O ponto de partida</div>
+      <h2>Quando a entrega depende de mensagem solta,<br />a operação não tem como se defender.</h2>
+    </div>
+    <div class="grid g2" style="gap:clamp(12px,2vh,24px)">
+      <div class="stack">
+        <div class="card soft">
+          <h3>“Já saiu?”</h3>
+          <p class="small">A farmácia não sabe o status real. Liga para a central, que liga para o motoboy.</p>
+        </div>
+        <div class="card soft">
+          <h3>“Entregou mesmo?”</h3>
+          <p class="small">Sem comprovante vinculado ao pedido, a discussão vira palavra contra palavra.</p>
+        </div>
+        <div class="card soft">
+          <h3>“Quanto ficou o mês?”</h3>
+          <p class="small">Fechamento feito à mão, sujeito a erro, sem rastro de quem cobrou o quê.</p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card" style="border-color:#fecaca;background:#fef2f2">
+          <h3 style="color:#991b1b">O que se perde na prática</h3>
+          <ul class="checks x">
+            <li>Histórico do pedido — quem coletou, quando, com qual instrução</li>
+            <li>Prova da entrega anexada ao pedido, não no celular de alguém</li>
+            <li>Critério para escolher o entregador, em vez de “quem tá mais perto do zap”</li>
+            <li>Visibilidade para a farmácia sem precisar pedir informação</li>
+            <li>Rastro de auditoria quando algo dá errado</li>
+          </ul>
+        </div>
+        <div class="quote">
+          Medicamento não é encomenda comum: exige identificação, instrução de manuseio e
+          responsabilidade sobre quem recebeu.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · A SOLUÇÃO -->
+  <section class="slide tint">
+    <div class="head">
+      <div class="eyebrow">A proposta</div>
+      <h2>Um sistema só, três portas de entrada —<br />cada perfil vê somente o que lhe compete.</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <div class="icon">01</div>
+        <h3>Central de despacho</h3>
+        <p class="small">A D'Luca recebe o pedido, decide quem entrega, acompanha a rota e trata ocorrências.</p>
+        <div class="pill">D'Luca</div>
+      </div>
+      <div class="card">
+        <div class="icon">02</div>
+        <h3>Portal da farmácia</h3>
+        <p class="small">A farmácia cria o pedido, acompanha o status e baixa comprovantes e faturas. Sem ligar para ninguém.</p>
+        <div class="pill">Farmácia</div>
+      </div>
+      <div class="card">
+        <div class="icon">03</div>
+        <h3>Área do entregador</h3>
+        <p class="small">O motoboy recebe a oferta no celular, aceita, avança cada etapa e envia a foto do comprovante.</p>
+        <div class="pill">Entregador</div>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:clamp(12px,2vh,24px)">
+      <div class="card brand">
+        <h3>Nada depende de mensagem solta</h3>
+        <p class="small">Cada mudança de status é registrada com autor e horário.</p>
+      </div>
+      <div class="card brand">
+        <h3>Farmácia não precisa cobrar informação</h3>
+        <p class="small">Ela entra e vê. O sistema mostra, não a central.</p>
+      </div>
+      <div class="card brand">
+        <h3>Fechamento deixa de ser arqueologia</h3>
+        <p class="small">Faturas saem das entregas efetivamente concluídas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · JORNADA -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">Como funciona na prática</div>
+      <h2>Seis etapas, todas registradas.</h2>
+    </div>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><div class="t">Farmácia cria</div><div class="d">Unidade de origem, destinatário, instruções, prioridade</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">02</div><div class="t">Central despacha</div><div class="d">Escolha manual ou sugestão automática com critério</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">03</div><div class="t">Entregador aceita</div><div class="d">Recebe a oferta, aceita ou recusa, e assume a rota</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">04</div><div class="t">Coleta e rota</div><div class="d">Cada etapa confirmada no celular, com horário</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">05</div><div class="t">Comprovante</div><div class="d">Foto anexada ao pedido, guardada em área restrita</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">06</div><div class="t">Faturamento</div><div class="d">Entregas do período viram fatura; pagamentos registrados</div></div>
+    </div>
+    <div class="grid g4" style="margin-top:clamp(14px,2.4vh,28px)">
+      <div class="card soft"><div class="num">11</div><div class="num-label">status possíveis por pedido</div></div>
+      <div class="card soft"><div class="num">3</div><div class="num-label">níveis de prioridade — normal, alta, urgente</div></div>
+      <div class="card soft"><div class="num">15 min</div><div class="num-label">validade de cada oferta ao entregador</div></div>
+      <div class="card soft"><div class="num">0</div><div class="num-label">etapas que passam sem registro</div></div>
+    </div>
+  </section>
+
+  <!-- 5 · DESPACHO -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">Diferencial · Central de despacho</div>
+      <h2>A escolha do entregador deixa de ser “no olho”.</h2>
+      <p class="lead">
+        O sistema sugere os melhores nomes para cada pedido e mostra <strong>por que</strong> —
+        o despachante decide, mas com critério visível.
+      </p>
+    </div>
+    <div class="row" style="gap:clamp(14px,2.2vw,30px)">
+      <div class="fill">
+        <table>
+          <thead><tr><th>Critério</th><th>Pontos</th><th>Por quê</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Disponível agora</strong></td><td>+40</td><td>Quem está livre atende mais rápido</td></tr>
+            <tr><td><strong>Mesma cidade da coleta</strong></td><td>+20</td><td>Menos deslocamento, menos atraso</td></tr>
+            <tr><td><strong>Atua no bairro</strong></td><td>+10</td><td>Conhece a região e o acesso</td></tr>
+            <tr><td><strong>Distância até a coleta</strong></td><td>até +30</td><td>Quanto mais perto, mais pontos</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:clamp(8px,1.4vh,14px)">
+          Entregadores já em rota saem da lista automaticamente. Sem localização compartilhada,
+          o sistema diz isso na tela em vez de supor uma posição.
+        </p>
+      </div>
+      <div class="fill stack">
+        <div class="card brand">
+          <h3>O que o despachante vê</h3>
+          <ul class="checks">
+            <li>Fila de pedidos pendentes e urgentes</li>
+            <li>Ranking com pontuação e motivo de cada sugestão</li>
+            <li>Mapa com coletas, entregas e posições autorizadas</li>
+            <li>Atribuição direta quando o critério é outro</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>O que fica registrado</h3>
+          <p class="small">Quem ofertou, para quem, quando, se aceitou e com qual justificativa — inclusive trocas de entregador no meio do caminho.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · PORTAL DA FARMÁCIA -->
+  <section class="slide tint">
+    <div class="head">
+      <div class="eyebrow">Diferencial · Portal da farmácia</div>
+      <h2>A farmácia deixa de perguntar e passa a consultar.</h2>
+    </div>
+    <div class="grid g2" style="gap:clamp(14px,2.2vw,28px)">
+      <div class="stack">
+        <div class="card">
+          <h3>Pedir é simples e rastreável</h3>
+          <p class="small">
+            Formulário em blocos: coleta, destino, carga e prioridade. A unidade já vem preenchida
+            do cadastro, então a farmácia não redigita endereço toda vez.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Preço transparente antes de enviar</h3>
+          <p class="small">
+            O valor é calculado a partir do contrato daquela farmácia e mostrado discriminado:
+            base, quilômetros excedentes, taxa de urgência e de refrigerado.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Documento e histórico no lugar</h3>
+          <p class="small">
+            Comprovantes de cada entrega e faturas com status de pagamento, tudo dentro do portal —
+            sem pedir foto no WhatsApp.
+          </p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card brand">
+          <h3>Isolamento é regra, não configuração</h3>
+          <ul class="checks">
+            <li>Cada farmácia vê apenas os próprios pedidos</li>
+            <li>Não vê valores nem pedidos de concorrentes</li>
+            <li>Não consegue criar pedido em nome de outra farmácia</li>
+            <li>Funcionários têm acesso limitado ao que o gestor liberar</li>
+          </ul>
+          <p class="small" style="margin-top:.4em">
+            Essa separação é imposta pelo banco de dados, não apenas escondida na tela.
+          </p>
+        </div>
+        <div class="quote">
+          “Cada farmácia vê somente o que lhe compete” — inclusive se alguém tentar burlar a interface.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · ENTREGADOR -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">Diferencial · Área do entregador</div>
+      <h2>Feita para o celular, na mão, no meio da rua.</h2>
+    </div>
+    <div class="grid g2" style="gap:clamp(14px,2.2vw,28px)">
+      <div class="stack">
+        <div class="card">
+          <h3>Oferta que chega na hora</h3>
+          <p class="small">
+            O entregador vê a oferta com farmácia, rota, distância e prazo, e responde
+            <strong>aceitar</strong> ou <strong>recusar</strong>. Se recusar, o pedido volta para a fila
+            e a central decide de novo.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Etapas na ordem certa</h3>
+          <p class="small">
+            Deslocamento → coleta → rota → entrega. O botão da tela é sempre o próximo passo válido:
+            não tem como “pular” uma etapa nem marcar entrega sem ter coletado.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Comprovante e ocorrência</h3>
+          <p class="small">
+            Na entrega, envia a foto. Se algo impedir — destinatário ausente, endereço errado,
+            recusa — registra a ocorrência com tipo e descrição para a central tratar.
+          </p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card brand">
+          <h3>Disponibilidade sem telefonema</h3>
+          <p class="small">
+            O entregador marca se está disponível, e o próprio sistema ajusta isso conforme ele
+            aceita e conclui entregas. A central enxerga a situação real, não a presumida.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Repasse visível</h3>
+          <p class="small">
+            O valor de repasse por entrega vem do contrato e fica registrado no pedido. O entregador
+            consulta o histórico — sem conferência manual no fim do mês.
+          </p>
+        </div>
+        <div class="card soft">
+          <h3 style="font-size:clamp(11px,1.7vh,15px)">Sem app para instalar nesta primeira versão</h3>
+          <p class="small">Abre no navegador do celular. Um aplicativo dedicado é um passo possível, não um pré-requisito.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · GPS / PRIVACIDADE -->
+  <section class="slide dark">
+    <div class="head">
+      <div class="eyebrow">Princípio · Privacidade</div>
+      <h2>A localização é do entregador.<br />A plataforma só mostra se ele autorizar.</h2>
+    </div>
+    <div class="grid g2" style="gap:clamp(14px,2.2vw,30px)">
+      <div class="stack">
+        <div class="card">
+          <h3>Como funciona</h3>
+          <ul class="checks">
+            <li>Nada é solicitado ao entregador sem ele acionar</li>
+            <li>Se ele negar, a tela não mostra posição nenhuma</li>
+            <li>A posição nunca é inventada ou estimada</li>
+            <li>Outro entregador não consegue gravar em nome dele</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Honestidade temporal</h3>
+          <p class="small">
+            Posição com menos de 3 minutos aparece como atual. Mais antiga que isso, a plataforma
+            informa <strong>“última posição conhecida”</strong> com o horário exato — em vez de fingir
+            que é tempo real.
+          </p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="quote" style="background:rgba(65,190,163,.14)">
+          Quando não há autorização, o portal mostra o <strong>status</strong> da entrega —
+          nunca um ponto no mapa que não corresponde à realidade.
+        </div>
+        <div class="card">
+          <h3>O que isso protege</h3>
+          <p class="small">
+            O entregador não é monitorado fora do horário de trabalho, e a D'Luca não assume
+            o risco de afirmar uma posição que não tem. Quem olha o mapa sabe exatamente o que está vendo.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · SEGURANÇA -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">Segurança</div>
+      <h2>A regra vive no banco de dados,<br />não na boa vontade da interface.</h2>
+      <p class="lead">
+        Cada perfil enxerga apenas o que lhe compete por política do próprio banco. Mesmo com acesso
+        técnico à aplicação, uma farmácia não lê os dados de outra.
+      </p>
+    </div>
+    <div class="grid g3" style="margin-bottom:clamp(12px,2vh,22px)">
+      <div class="card soft"><div class="num">54</div><div class="num-label">regras de acesso aplicadas no banco</div></div>
+      <div class="card soft"><div class="num">21</div><div class="num-label">tabelas com controle de acesso por linha</div></div>
+      <div class="card soft"><div class="num">100%</div><div class="num-label">das mudanças de status registradas com autor e horário</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Tentativa</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td>Farmácia tenta criar pedido em nome de outra farmácia</td><td><span class="pill red">Bloqueado</span></td></tr>
+        <tr><td>Farmácia tenta ler pedidos de outra farmácia</td><td><span class="pill red">Bloqueado</span></td></tr>
+        <tr><td>Usuário tenta se promover a administrador</td><td><span class="pill red">Bloqueado</span></td></tr>
+        <tr><td>Entregador tenta ler faturas e dados comerciais</td><td><span class="pill red">Bloqueado</span></td></tr>
+        <tr><td>Entregador tenta gravar localização de outro entregador</td><td><span class="pill red">Bloqueado</span></td></tr>
+        <tr><td>Visitante tenta ler qualquer dado interno pelo site</td><td><span class="pill red">Bloqueado</span></td></tr>
+        <tr><td>Comprovantes e recibos acessados por link público</td><td><span class="pill red">Bloqueado</span> — só link temporário</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 10 · FINANCEIRO -->
+  <section class="slide tint">
+    <div class="head">
+      <div class="eyebrow">Financeiro</div>
+      <h2>Faturamento que nasce da entrega feita — não da planilha.</h2>
+    </div>
+    <div class="grid g2" style="gap:clamp(14px,2.2vw,28px)">
+      <div class="stack">
+        <div class="card">
+          <h3>Contrato define o preço</h3>
+          <p class="small">
+            Cada farmácia tem sua tabela: valor base, quilômetros incluídos, preço por km excedente,
+            taxa de urgência e de item refrigerado, ciclo e prazo de pagamento.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Fatura por período</h3>
+          <p class="small">
+            O sistema lista apenas as entregas <strong>ainda não faturadas</strong> do período —
+            nada é cobrado duas vezes, e nada fica de fora por esquecimento.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Pagamento parcial é normal</h3>
+          <p class="small">
+            Cada recebimento é registrado e o saldo e o status da fatura se atualizam sozinhos:
+            aberta, parcial, paga ou vencida.
+          </p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card brand">
+          <h3>O que o financeiro enxerga</h3>
+          <ul class="checks">
+            <li>A receber e vencido, consolidados</li>
+            <li>Entregas por farmácia e por período</li>
+            <li>Repasses devidos a cada entregador</li>
+            <li>Indicadores para relatório mensal</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Decisão de escopo desta versão</h3>
+          <p class="small">
+            O controle é <strong>manual</strong>: a plataforma registra e organiza, mas não processa
+            cobrança nem integra meio de pagamento. Isso evita dependência de terceiros logo na largada
+            e mantém a operação no controle.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · GESTÃO -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">Gestão</div>
+      <h2>Quem fez, o quê, quando — sem depender de lembrar.</h2>
+    </div>
+    <div class="grid g2" style="gap:clamp(14px,2.2vw,28px)">
+      <div class="stack">
+        <div class="card">
+          <h3>Auditoria de atividades</h3>
+          <p class="small">Toda ação relevante fica registrada: usuário, papel, o que mudou e em qual registro.</p>
+        </div>
+        <div class="card">
+          <h3>Usuários e permissões</h3>
+          <p class="small">Sete perfis distintos, do administrador ao entregador. Novo usuário entra com senha temporária e é obrigado a trocá-la no primeiro acesso.</p>
+        </div>
+        <div class="card">
+          <h3>Ocorrências com tratamento</h3>
+          <p class="small">Problema reportado em campo vira item com tipo, responsável e resolução registrada.</p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <h3>Indicadores do dia</h3>
+          <ul class="checks">
+            <li>Pedidos criados e entregues hoje</li>
+            <li>Pedidos em andamento e entregadores ativos</li>
+            <li>Valor a receber e valor vencido</li>
+            <li>Distribuição por status e entregas dos últimos 7 dias</li>
+          </ul>
+        </div>
+        <div class="card brand">
+          <h3>Captação comercial no mesmo lugar</h3>
+          <p class="small">
+            Pedidos de orçamento e candidaturas de entregadores que chegam pelo site entram direto
+            na fila de análise da central — sem planilha paralela.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 · STATUS DA ENTREGA -->
+  <section class="slide dark">
+    <div class="head">
+      <div class="eyebrow">Situação atual</div>
+      <h2>O que já está pronto e funcionando.</h2>
+      <p class="lead">Plataforma publicada em ambiente de produção, com dados de demonstração para validação.</p>
+    </div>
+    <div class="grid g3" style="gap:clamp(11px,1.9vh,20px)">
+      <div class="card"><div class="icon">✓</div><h3>Site institucional</h3><p class="small">8 páginas, orçamento e candidatura de entregador captando direto na plataforma.</p></div>
+      <div class="card"><div class="icon">✓</div><h3>Central de despacho</h3><p class="small">Fila, sugestão com critério, atribuição, mapa, histórico e ocorrências.</p></div>
+      <div class="card"><div class="icon">✓</div><h3>Portal da farmácia</h3><p class="small">Pedido, acompanhamento, comprovantes, unidades, equipe e financeiro.</p></div>
+      <div class="card"><div class="icon">✓</div><h3>Área do entregador</h3><p class="small">Ofertas, etapas da entrega, comprovante, ocorrência e repasses.</p></div>
+      <div class="card"><div class="icon">✓</div><h3>Financeiro</h3><p class="small">Contratos, faturas por período, pagamentos parciais e repasses.</p></div>
+      <div class="card"><div class="icon">✓</div><h3>Segurança e auditoria</h3><p class="small">Isolamento por farmácia, permissões por perfil e trilha de atividades.</p></div>
+    </div>
+    <div class="ticker" style="margin-top:clamp(14px,2.4vh,28px)">
+      <div><strong>Testado ponta a ponta</strong>Pedido → despacho → aceite → coleta → rota → entrega → comprovante</div>
+      <div><strong>Isolamento verificado</strong>Tentativas de acesso cruzado bloqueadas</div>
+      <div><strong>Acesso imediato</strong>Login por perfil, sem instalação</div>
+    </div>
+  </section>
+
+  <!-- 13 · PRÓXIMOS PASSOS -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">Próximos passos</div>
+      <h2>O que falta é decisão de negócio, não falta de base.</h2>
+      <p class="lead">A plataforma está funcional. As evoluções abaixo dependem de prioridade e de escolhas operacionais da D'Luca.</p>
+    </div>
+    <table>
+      <thead><tr><th style="width:34%">Frente</th><th>O que envolve</th><th style="width:20%">Depende de</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Cadastro real das farmácias</strong></td>
+          <td>Substituir os dados de demonstração pelos clientes reais, com contratos e tabelas de preço definitivas.</td>
+          <td><span class="pill ink">Dados da D'Luca</span></td>
+        </tr>
+        <tr>
+          <td><strong>Notificações por e-mail e SMS</strong></td>
+          <td>Avisar a farmácia e o paciente sobre status. Hoje o aviso é interno, dentro da plataforma.</td>
+          <td><span class="pill ink">Provedor de envio</span></td>
+        </tr>
+        <tr>
+          <td><strong>Exportação em PDF</strong></td>
+          <td>Fatura e relatório em arquivo para envio ao cliente e arquivo contábil.</td>
+          <td><span class="pill ink">Prioridade</span></td>
+        </tr>
+        <tr>
+          <td><strong>Aplicativo do entregador</strong></td>
+          <td>App dedicado com notificação em segundo plano. Hoje roda no navegador do celular.</td>
+          <td><span class="pill ink">Escopo futuro</span></td>
+        </tr>
+        <tr>
+          <td><strong>Domínio próprio</strong></td>
+          <td>Publicar em endereço da D'Luca, em vez do endereço padrão de produção.</td>
+          <td><span class="pill ink">Domínio</span></td>
+        </tr>
+        <tr>
+          <td><strong>Meio de pagamento</strong></td>
+          <td>Integração para cobrança automática. Nesta versão o controle é manual, por decisão de escopo.</td>
+          <td><span class="pill ink">Definição comercial</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 14 · FECHAMENTO -->
+  <section class="slide dark cover">
+    <div class="inner" style="max-width:86%">
+      <div class="brandmark">
+        <div class="sq">D</div>
+        <div class="nm">D'Luca <span>Connect</span></div>
+      </div>
+      <h1 style="font-size:clamp(26px,5.4vh,54px)">A operação deixa de depender<br />de quem lembra. Passa a depender<br />do que está registrado.</h1>
+      <p class="lead" style="max-width:60ch">
+        Pedido, despacho, entrega, comprovante e fatura no mesmo lugar — com o acesso
+        de cada perfil respeitado pelo próprio banco de dados.
+      </p>
+      <div class="ticker">
+        <div><strong>Plataforma no ar</strong>Pronta para validação</div>
+        <div><strong>Sem instalação</strong>Abre no navegador</div>
+        <div><strong>Próximo passo</strong>Definir dados reais e prioridades</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hint">← → navegar · F tela cheia · P imprimir/PDF · H ocultar controles</div>
+<div id="hud">
+  <div id="dots"></div>
+  <div id="nav">
+    <button id="prev" title="Anterior (←)">‹</button>
+    <button id="next" title="Próximo (→)">›</button>
+  </div>
+  <div id="num">1 / 14</div>
+</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const dots = document.getElementById('dots');
+  const num = document.getElementById('num');
+  const bar = document.getElementById('bar');
+  let i = 0;
+
+  slides.forEach((_, idx) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (idx === 0 ? ' on' : '');
+    d.addEventListener('click', () => go(idx));
+    dots.appendChild(d);
+  });
+  const dotEls = [...dots.children];
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    dotEls.forEach((d, idx) => d.classList.toggle('on', idx === i));
+    num.textContent = (i + 1) + ' / ' + slides.length;
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+  }
+
+  document.getElementById('next').addEventListener('click', () => go(i + 1));
+  document.getElementById('prev').addEventListener('click', () => go(i - 1));
+
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); go(i + 1); }
+    else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(i - 1); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    } else if (e.key.toLowerCase() === 'p') { window.print(); }
+    else if (e.key.toLowerCase() === 'h') { document.body.classList.toggle('clean'); }
+  });
+
+  // clique na metade direita/esquerda avança/volta
+  document.getElementById('stage').addEventListener('click', (e) => {
+    if (e.target.closest('#hud')) return;
+    (e.clientX > innerWidth / 2) ? go(i + 1) : go(i - 1);
+  });
+
+  // swipe em telas de toque
+  let x0 = null;
+  addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  addEventListener('touchend', (e) => {
+    if (x0 == null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 55) go(dx < 0 ? i + 1 : i - 1);
+    x0 = null;
+  });
+
+  go(0);
+</script>
+</body>
+</html>
