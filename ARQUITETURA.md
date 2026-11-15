@@ -398,7 +398,7 @@ Entregadores em `ON_DELIVERY` são **excluídos** da lista. O score aparece na t
 
 ## 7. Banco de dados: tabelas e colunas
 
-7 migrations, aplicadas em produção (`euwonmpgwwoublajfvip`):
+10 migrations, aplicadas em produção (`euwonmpgwwoublajfvip`):
 
 | Migration | Conteúdo |
 |---|---|
@@ -408,6 +408,14 @@ Entregadores em `ON_DELIVERY` são **excluídos** da lista. O score aparece na t
 | `20261115000400_security.sql` | Helpers `app.*`, as 54 políticas RLS, buckets e políticas de storage, publicação de Realtime, grants. |
 | `20261115000500_offers.sql` | Trigger `offer_response` + endurecimento da política `orders_update`. |
 | `20261115000600_auth_users_fix.sql` | Corrige `NULL` nas colunas de token de `auth.users` (que causava erro 500 no login). |
+| `20261115123622_authorization_hardening_007.sql` | Endurecimento de autorização: conta inativa perde o acesso na hora; colunas protegidas por trigger. |
+| `20261115123630_direct_assignment_acceptance_008.sql` | Complemento da 007: o entregador aceita o pedido atribuído à mão antes de iniciar a coleta. |
+| `20261115123637_offer_acceptance_contention_009.sql` | Complemento da 007: dois aceites simultâneos do mesmo pedido não travam um ao outro. |
+| `20261115150000_logistics_micro_routes_010.sql` | Distribuição por CEP e micro-rotas (§21): 14 tabelas, funções transacionais, RLS e privilégios. |
+
+As migrations 007–010 estão registradas em `supabase_migrations.schema_migrations`, e
+`npm run test:migrations` confere que os arquivos continuam iguais ao que foi aplicado.
+Migration aplicada não é editada: a correção entra em uma migration nova.
 
 ### Tabelas e campos principais
 

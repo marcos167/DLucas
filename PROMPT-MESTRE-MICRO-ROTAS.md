@@ -94,6 +94,9 @@ identidade, mesmo login, mesmas permissões do restante da plataforma.
 ## 3. Modelo de dados
 
 Migração: `supabase/migrations/20261115150000_logistics_micro_routes_010.sql` (aditiva).
+Aplicada em produção em 15/11/2026 e registrada no histórico com a versão
+`20261115150000`. O arquivo não muda mais (`npm run test:migrations` confere);
+qualquer ajuste de banco entra em uma migração nova.
 
 | Tabela | O que guarda |
 |---|---|
