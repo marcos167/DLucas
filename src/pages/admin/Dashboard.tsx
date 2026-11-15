@@ -6,7 +6,7 @@ import {
 import {
   Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
-import { Card, CardHeader, EmptyState, Skeleton, StatCard } from '@/components/ui'
+import { Alert, Card, CardHeader, EmptyState, Skeleton, StatCard } from '@/components/ui'
 import { dashboardMetrics, deliveriesLast7Days, listOrders, ordersByStatus } from '@/lib/api'
 import {
   brl, formatDateTime, ORDER_STATUS_CLASS, ORDER_STATUS_LABEL, relativeTime,
@@ -47,9 +47,16 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
+      {(metrics.isError || status.isError || week.isError || active.isError) && (
+        <Alert tone="danger" title="Indicadores indisponíveis">
+          Não foi possível carregar todos os dados. Atualize a página ou tente novamente mais tarde.
+        </Alert>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.isLoading ? (
           Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[104px]" />)
+        ) : metrics.isError ? (
+          <p className="col-span-full text-sm text-red-700">Indicadores indisponíveis.</p>
         ) : (
           <>
             <KpiCard icon={<Package className="h-4 w-4" />} label="Pedidos hoje" value={metrics.data?.ordersToday ?? 0} hint="Criados desde 00:00" />
@@ -64,7 +71,7 @@ export default function Dashboard() {
         <div className="card flex items-center justify-between gap-3 p-5">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">A receber (faturas abertas)</p>
-            <p className="kpi-value mt-1">{brl(metrics.data?.outstandingCents ?? 0)}</p>
+            <p className="kpi-value mt-1">{metrics.isError ? "—" : brl(metrics.data?.outstandingCents ?? 0)}</p>
             <p className="mt-0.5 text-[11.5px] text-ink-500">Somatório de saldos em aberto</p>
           </div>
           <Link to="/app/faturas" className="btn-secondary btn-sm">
@@ -74,7 +81,7 @@ export default function Dashboard() {
         <div className="card flex items-center justify-between gap-3 p-5">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Vencido</p>
-            <p className="kpi-value mt-1 text-red-600">{brl(metrics.data?.overdueCents ?? 0)}</p>
+            <p className="kpi-value mt-1 text-red-600">{metrics.isError ? "—" : brl(metrics.data?.overdueCents ?? 0)}</p>
             <p className="mt-0.5 text-[11.5px] text-ink-500">Faturas com vencimento ultrapassado</p>
           </div>
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600">
@@ -91,7 +98,9 @@ export default function Dashboard() {
             action={<span className="badge bg-brand-50 text-brand-700"><TrendingUp className="h-3 w-3" /> Operação</span>}
           />
           <div className="h-64 px-2 pb-3 pt-4">
-            {week.isLoading ? <Skeleton className="h-full" /> : (
+            {week.isLoading ? <Skeleton className="h-full" /> : week.isError ? (
+              <p className="text-sm text-red-700">Dados de entregas indisponíveis.</p>
+            ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={week.data ?? []} margin={{ top: 4, right: 16, left: -18, bottom: 0 }}>
                   <defs>
@@ -117,7 +126,9 @@ export default function Dashboard() {
         <Card>
           <CardHeader title="Pedidos por status" description="Criados nos últimos 30 dias" />
           <div className="h-64 px-2 py-2">
-            {status.isLoading ? <Skeleton className="h-full" /> : pieData.length === 0 ? (
+            {status.isLoading ? <Skeleton className="h-full" /> : status.isError ? (
+              <p className="text-sm text-red-700">Status indisponíveis.</p>
+            ) : pieData.length === 0 ? (
               <EmptyState title="Sem pedidos" description="Nenhum pedido criado no período." />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -149,6 +160,8 @@ export default function Dashboard() {
         />
         {active.isLoading ? (
           <div className="space-y-2 p-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
+        ) : active.isError ? (
+          <p className="p-4 text-sm text-red-700">Fila indisponível.</p>
         ) : (active.data ?? []).length === 0 ? (
           <EmptyState
             title="Nenhum pedido em andamento"

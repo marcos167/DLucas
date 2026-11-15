@@ -169,11 +169,12 @@ export async function offerOrderToCourier(params: {
   message?: string
 }) {
   // encerra ofertas pendentes anteriores do mesmo pedido (uma oferta ativa por vez)
-  await supabase
+  const { error: cancelError } = await supabase
     .from('delivery_offers')
     .update({ status: 'CANCELLED', responded_at: new Date().toISOString() })
     .eq('order_id', params.orderId)
     .eq('status', 'PENDING')
+  wrap(null, cancelError)
 
   const { error } = await supabase.from('delivery_offers').insert({
     order_id: params.orderId,
@@ -214,11 +215,12 @@ export async function assignOrder(params: {
   wrap(null, error)
 
   // encerra ofertas pendentes que possam existir para este pedido
-  await supabase
+  const { error: cancelError } = await supabase
     .from('delivery_offers')
     .update({ status: 'CANCELLED', responded_at: new Date().toISOString() })
     .eq('order_id', params.orderId)
     .eq('status', 'PENDING')
+  wrap(null, cancelError)
 }
 
 export async function listOffersForCourier(courierId: string): Promise<DeliveryOffer[]> {
@@ -266,7 +268,7 @@ export async function pushLocation(params: {
     accuracy_m: params.accuracy ?? null,
   })
   wrap(null, error)
-  await supabase
+  const { error: courierError } = await supabase
     .from('couriers')
     .update({
       current_latitude: params.latitude,
@@ -274,19 +276,22 @@ export async function pushLocation(params: {
       current_location_at: new Date().toISOString(),
     })
     .eq('id', params.courierId)
+  wrap(null, courierError)
 }
 
 export async function latestLocations(courierIds: string[]): Promise<CourierLocation[]> {
-  if (!courierIds.length) return []
-  const { data, error } = await supabase
-    .from('courier_locations')
-    .select('*')
-    .in('courier_id', courierIds)
-    .order('recorded_at', { ascending: false })
-    .limit(200)
-  const rows = wrap(data, error) as CourierLocation[]
-  const seen = new Set<string>()
-  return rows.filter((r) => (seen.has(r.courier_id) ? false : (seen.add(r.courier_id), true)))
+  // A limit on the whole table can hide a courier after another one reports >200 positions.
+  const uniqueIds = [...new Set(courierIds)]
+  const locations = await Promise.all(uniqueIds.map(async (courierId) => {
+    const { data, error } = await supabase
+      .from('courier_locations')
+      .select('*')
+      .eq('courier_id', courierId)
+      .order('recorded_at', { ascending: false })
+      .limit(1)
+    return (wrap(data, error) as CourierLocation[])[0]
+  }))
+  return locations.filter((location): location is CourierLocation => location != null)
 }
 
 export async function listLocationsForOrder(orderId: string): Promise<CourierLocation[]> {
@@ -498,22 +503,39 @@ export async function listPayments(invoiceId: string): Promise<Payment[]> {
   return wrap(data, error) as Payment[]
 }
 
+/** Supabase/PostgREST limits results per request; paginate financial and chart reports. */
+const REPORT_PAGE_SIZE = 500
+
 /** Gera itens de fatura a partir dos pedidos entregues no período (ainda não faturados) */
 export async function billableOrders(pharmacyId: string, from: string, to: string) {
-  const { data: billed } = await supabase
-    .from('invoice_items').select('order_id').not('order_id', 'is', null)
-  const billedIds = new Set((billed ?? []).map((r) => (r as { order_id: string }).order_id))
+  const orders: Order[] = []
+  for (let offset = 0; ; offset += REPORT_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('pharmacy_id', pharmacyId)
+      .eq('status', 'DELIVERED')
+      .gte('delivered_at', from)
+      .lte('delivered_at', to)
+      .order('delivered_at')
+      .order('id')
+      .range(offset, offset + REPORT_PAGE_SIZE - 1)
+    const page = wrap(data, error) as Order[]
+    orders.push(...page)
+    if (page.length < REPORT_PAGE_SIZE) break
+  }
 
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('pharmacy_id', pharmacyId)
-    .eq('status', 'DELIVERED')
-    .gte('delivered_at', from)
-    .lte('delivered_at', to)
-    .order('delivered_at')
-  const rows = wrap(data, error) as Order[]
-  return rows.filter((o) => !billedIds.has(o.id))
+  // Only compare this pharmacy's candidate orders; an unrelated pharmacy can
+  // otherwise exhaust the default 1000-row PostgREST response limit.
+  const billedIds = new Set<string>()
+  // Keep the IN filter below typical proxy URL limits (UUIDs are ~36 chars each).
+  const lookupBatchSize = 100
+  for (let offset = 0; offset < orders.length; offset += lookupBatchSize) {
+    const ids = orders.slice(offset, offset + lookupBatchSize).map((order) => order.id)
+    const { data, error } = await supabase.from('invoice_items').select('order_id').in('order_id', ids)
+    for (const row of wrap(data, error) as { order_id: string }[]) billedIds.add(row.order_id)
+  }
+  return orders.filter((order) => !billedIds.has(order.id))
 }
 
 /* ------------------------------------------------------------- AUDITORIA */
@@ -549,17 +571,30 @@ export async function dashboardMetrics() {
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
   const iso = todayStart.toISOString()
 
-  const [ordersToday, active, deliveredToday, couriersActive, pendingInvoices] = await Promise.all([
+  const [ordersToday, active, deliveredToday, couriersActive] = await Promise.all([
     supabase.from('orders').select('id', { count: 'exact', head: true }).gte('created_at', iso),
     supabase.from('orders').select('id', { count: 'exact', head: true })
       .in('status', ['PENDING', 'OFFERED', 'ASSIGNED', 'ACCEPTED', 'PICKING_UP', 'COLLECTED', 'IN_TRANSIT']),
     supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'DELIVERED').gte('delivered_at', iso),
     supabase.from('couriers').select('id', { count: 'exact', head: true })
       .eq('status', 'ACTIVE').in('availability', ['AVAILABLE', 'ON_DELIVERY']),
-    supabase.from('invoices').select('id, total_cents, paid_cents, due_date').in('status', ['OPEN', 'PARTIALLY_PAID', 'OVERDUE']),
   ])
 
-  const openInvoices = (pendingInvoices.data ?? []) as { total_cents: number; paid_cents: number; due_date: string }[]
+  for (const result of [ordersToday, active, deliveredToday, couriersActive]) {
+    wrap(null, result.error)
+  }
+
+  const openInvoices: { total_cents: number; paid_cents: number; due_date: string }[] = []
+  for (let offset = 0; ; offset += REPORT_PAGE_SIZE) {
+    const { data, error } = await supabase.from('invoices')
+      .select('id, total_cents, paid_cents, due_date')
+      .in('status', ['OPEN', 'PARTIALLY_PAID', 'OVERDUE'])
+      .order('id')
+      .range(offset, offset + REPORT_PAGE_SIZE - 1)
+    const page = wrap(data, error) as typeof openInvoices
+    openInvoices.push(...page)
+    if (page.length < REPORT_PAGE_SIZE) break
+  }
   const outstanding = openInvoices.reduce((s, i) => s + (i.total_cents - i.paid_cents), 0)
   const overdue = openInvoices
     .filter((i) => new Date(i.due_date) < new Date())
@@ -576,31 +611,47 @@ export async function dashboardMetrics() {
 }
 
 export async function ordersByStatus() {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('status')
-    .gte('created_at', new Date(Date.now() - 30 * 864e5).toISOString())
-  const rows = wrap(data, error) as { status: string }[]
   const counts: Record<string, number> = {}
-  for (const r of rows) counts[r.status] = (counts[r.status] ?? 0) + 1
+  const since = new Date(Date.now() - 30 * 864e5).toISOString()
+  for (let offset = 0; ; offset += REPORT_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id, status')
+      .gte('created_at', since)
+      .order('id')
+      .range(offset, offset + REPORT_PAGE_SIZE - 1)
+    const page = wrap(data, error) as { status: string }[]
+    for (const row of page) counts[row.status] = (counts[row.status] ?? 0) + 1
+    if (page.length < REPORT_PAGE_SIZE) break
+  }
   return counts
 }
 
 export async function deliveriesLast7Days() {
   const start = new Date(); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0, 0)
-  const { data, error } = await supabase
-    .from('orders')
-    .select('delivered_at')
-    .eq('status', 'DELIVERED')
-    .gte('delivered_at', start.toISOString())
-  const rows = wrap(data, error) as { delivered_at: string }[]
+  const totals = new Map<string, number>()
+  for (let offset = 0; ; offset += REPORT_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id, delivered_at')
+      .eq('status', 'DELIVERED')
+      .gte('delivered_at', start.toISOString())
+      .order('id')
+      .range(offset, offset + REPORT_PAGE_SIZE - 1)
+    const page = wrap(data, error) as { delivered_at: string }[]
+    for (const row of page) {
+      const key = row.delivered_at.slice(0, 10)
+      totals.set(key, (totals.get(key) ?? 0) + 1)
+    }
+    if (page.length < REPORT_PAGE_SIZE) break
+  }
   const days: { day: string; total: number }[] = []
   for (let i = 0; i < 7; i++) {
     const d = new Date(start); d.setDate(start.getDate() + i)
     const key = d.toISOString().slice(0, 10)
     days.push({
       day: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      total: rows.filter((r) => r.delivered_at.slice(0, 10) === key).length,
+      total: totals.get(key) ?? 0,
     })
   }
   return days
