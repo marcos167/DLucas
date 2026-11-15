@@ -5,7 +5,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!assets/|apresentacao(/.*)?$|apresentacao\\.html$).*)",
+      "source": "/((?!assets/|apresentacao).*)",
       "destination": "/index.html"
     }
   ],
