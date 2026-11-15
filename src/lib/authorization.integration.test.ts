@@ -126,7 +126,7 @@ beforeAll(async () => {
   // tabelas e policies depois de aplicar os helpers, em duas passagens.
   const [tables, policies] = schema.split('alter table public.profiles enable row level security;')
   await db.exec(tables)
-  const sql = readFileSync(resolve('supabase/migrations/20261115000700_authorization_hardening.sql'), 'utf8')
+  const sql = readFileSync(resolve('supabase/migrations/20261115123622_authorization_hardening_007.sql'), 'utf8')
   // Os helpers precisam existir antes das policies de teste; a migração é
   // reaplicada ao final para cobrir a substituição da policy orders_update.
   const helpers = sql.slice(0, sql.indexOf('-- Proteção por coluna com OLD/NEW:'))

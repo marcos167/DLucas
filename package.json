@@ -14,6 +14,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:postgres": "node scripts/test-postgres17.mjs",
+    "test:migrations": "node scripts/check-applied-migrations.mjs",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
