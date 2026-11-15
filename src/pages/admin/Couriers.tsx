@@ -121,6 +121,9 @@ export default function Couriers() {
                     <td>
                       <p className="font-semibold text-ink-900">{c.full_name}</p>
                       <p className="text-[11.5px] text-ink-500">{c.phone}{c.cpf ? ` · ${c.cpf}` : ''}</p>
+                      {c.status === 'ACTIVE' && !c.profile_id && (
+                        <p className="text-[11px] text-amber-700">Sem login vinculado — não recebe ofertas</p>
+                      )}
                     </td>
                     <td className="text-[12.5px]">
                       <p>{c.vehicle_type === 'MOTORCYCLE' ? 'Motocicleta' : c.vehicle_type}</p>

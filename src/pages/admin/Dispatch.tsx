@@ -171,7 +171,7 @@ export default function Dispatch() {
           {couriers.isLoading ? (
             <div className="space-y-2 p-4">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
           ) : activeCouriers.length === 0 ? (
-            <EmptyState title="Nenhum entregador ativo" description="Aprove entregadores para poder despachar." icon={<Bike className="h-6 w-6" />} />
+            <EmptyState title="Nenhum entregador apto ao despacho" description="Vincule uma conta ativa com papel Entregador em Usuários para enviar ofertas ou atribuir pedidos. Cadastros sem login continuam visíveis em Gerenciar." icon={<Bike className="h-6 w-6" />} />
           ) : (
             <ul className="divide-y divide-ink-100">
               {activeCouriers.map((c) => (
@@ -283,7 +283,7 @@ export default function Dispatch() {
 
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-ink-400">
-                {method === 'AUTO_SUGGESTION' ? 'Sugestões' : 'Todos os entregadores ativos'}
+                {method === 'AUTO_SUGGESTION' ? 'Sugestões' : 'Entregadores com acesso ativo'}
               </p>
               <div className="max-h-[380px] space-y-2 overflow-y-auto pr-1">
                 {(method === 'AUTO_SUGGESTION'

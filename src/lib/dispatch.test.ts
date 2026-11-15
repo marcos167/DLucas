@@ -17,7 +17,7 @@ import type { Courier, Order } from '@/types'
 function courier(over: Partial<Courier> = {}): Courier {
   return {
     id: 'c1',
-    profile_id: null,
+    profile_id: 'profile-c1',
     full_name: 'Entregador Padrão',
     cpf: null,
     birth_date: null,
@@ -64,6 +64,12 @@ function order(over: Partial<Order> = {}): Order {
 }
 
 describe('suggestCouriers — filtros', () => {
+  it('não sugere cadastro sem conta de entregador vinculada', () => {
+    const semAcesso = courier({ id: 'sem-acesso', profile_id: null })
+    const elegivel = courier({ id: 'elegivel', profile_id: 'user-entregador' })
+    expect(suggestCouriers(order(), [semAcesso, elegivel]).map((s) => s.courier.id)).toEqual(['elegivel'])
+  })
+
   it('exclui entregador que já está em rota', () => {
     const emRota = courier({ id: 'em-rota', availability: 'ON_DELIVERY' })
     const livre = courier({ id: 'livre' })

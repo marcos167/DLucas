@@ -35,7 +35,7 @@ export default function Users() {
   })
 
   const [invite, setInvite] = useState({
-    email: '', full_name: '', role: 'PHARMACY_STAFF' as UserRole, pharmacy_id: '', password: '',
+    email: '', full_name: '', role: 'PHARMACY_STAFF' as UserRole, pharmacy_id: '', courier_id: '', password: '',
   })
 
   const saveUser = useMutation({
@@ -47,7 +47,9 @@ export default function Users() {
 
       // vincula/desvincula entregador
       if (form.role === 'COURIER' && form.courier_id) {
-        await supabase.from('couriers').update({ profile_id: editing.id }).eq('id', form.courier_id)
+        const { error: linkError } = await supabase.from('couriers')
+          .update({ profile_id: editing.id }).eq('id', form.courier_id).select('id').single()
+        if (linkError) throw new Error(`Não foi possível vincular o entregador: ${linkError.message}`)
         await updateProfile(editing.id, { pharmacy_id: null })
       }
 
@@ -65,12 +67,16 @@ export default function Users() {
       setEditing(null); setFeedback('Usuário atualizado.')
       void qc.invalidateQueries({ queryKey: ['profiles'] })
       void qc.invalidateQueries({ queryKey: ['couriers'] })
+      void qc.invalidateQueries({ queryKey: ['dispatch-couriers'] })
     },
     onError: (e) => setError((e as Error).message),
   })
 
   const createUser = useMutation({
     mutationFn: async () => {
+      if (invite.role === 'COURIER' && !invite.courier_id) {
+        throw new Error('Selecione o cadastro de entregador que receberá o acesso.')
+      }
       const { data, error } = await supabase.functions.invoke('admin-users', {
         body: {
           action: 'create',
@@ -84,13 +90,26 @@ export default function Users() {
       if (error) throw new Error('Falha ao criar usuário. Verifique a função admin-users do Supabase.')
       const payload = data as { userId?: string }
       if (!payload?.userId) throw new Error('Resposta inválida da função admin-users.')
+      if (invite.role === 'COURIER') {
+        const { data: linked, error: linkError } = await supabase.from('couriers')
+          .update({ profile_id: payload.userId })
+          .eq('id', invite.courier_id)
+          .is('profile_id', null)
+          .select('id')
+          .single()
+        if (linkError || !linked) {
+          throw new Error('Usuário criado, mas o vínculo com o entregador falhou. Abra o usuário em Editar para concluir o vínculo; não crie a conta novamente.')
+        }
+      }
       await logAudit('CREATE', 'profile', payload.userId, `Criou usuário ${invite.email} (${invite.role})`)
     },
     onSuccess: () => {
       setInviteOpen(false)
-      setInvite({ email: '', full_name: '', role: 'PHARMACY_STAFF', pharmacy_id: '', password: '' })
+      setInvite({ email: '', full_name: '', role: 'PHARMACY_STAFF', pharmacy_id: '', courier_id: '', password: '' })
       setFeedback('Usuário criado. Uma senha temporária foi definida e a troca será exigida no primeiro acesso.')
       void qc.invalidateQueries({ queryKey: ['profiles'] })
+      void qc.invalidateQueries({ queryKey: ['couriers'] })
+      void qc.invalidateQueries({ queryKey: ['dispatch-couriers'] })
     },
     onError: (e) => setError((e as Error).message),
   })
@@ -247,6 +266,18 @@ export default function Users() {
                 <option value="">Selecione…</option>
                 {(pharmacies.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.trade_name}</option>)}
               </Select>
+            </div>
+          )}
+          {invite.role === 'COURIER' && (
+            <div>
+              <label className="label">Cadastro de entregador para vincular</label>
+              <Select value={invite.courier_id} onChange={(e) => setInvite((s) => ({ ...s, courier_id: e.target.value }))}>
+                <option value="">Selecione…</option>
+                {(couriers.data ?? []).filter((c) => !c.profile_id).map((c) => (
+                  <option key={c.id} value={c.id}>{c.full_name} — {c.status === 'ACTIVE' ? 'ativo' : 'aguardando aprovação'}</option>
+                ))}
+              </Select>
+              <p className="mt-1 text-[11px] text-ink-500">Somente cadastros ativos com conta vinculada podem receber ofertas.</p>
             </div>
           )}
           <div>
