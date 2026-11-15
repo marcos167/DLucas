@@ -140,15 +140,34 @@ export default function Login() {
             ou <Link to="/entregadores" className="link-quiet font-medium">candidate-se como entregador</Link>.
           </p>
 
-          <DemoAccess onPick={(em, pw) => { setEmail(em); setPassword(pw); setError('') }} configured={configured} />
+          {DEMO_ENABLED && (
+            <DemoAccess
+              onPick={(em, pw) => { setEmail(em); setPassword(pw); setError('') }}
+              configured={configured}
+            />
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-const DEMO_ACCOUNTS = [
-  { email: 'marco.lp12@hotmail.com', password: 'Dlc-p6xldi#RM7K!24', label: 'Super admin', note: 'exige troca de senha' },
+/**
+ * Contas de demonstração do bloco "Acesso rápido".
+ *
+ * Só aparecem quando `VITE_DEMO_LOGINS` está definida. Em produção a variável
+ * não é configurada e o bloco não é renderizado — nenhuma senha vai para o
+ * bundle publicado.
+ *
+ * Para apresentar ao cliente, defina `VITE_DEMO_LOGINS=1` no ambiente de
+ * preview da Vercel (ou no `.env` local) e o bloco volta a aparecer.
+ *
+ * NUNCA inclua contas reais aqui. Estas são contas fictícias, criadas apenas
+ * para a demonstração, e todas com senha de teste.
+ */
+const DEMO_ENABLED = import.meta.env.VITE_DEMO_LOGINS === '1'
+
+const DEMO_ACCOUNTS: { email: string; password: string; label: string }[] = [
   { email: 'despacho@dluca.com.br', password: 'Dluca@2026', label: 'Despacho' },
   { email: 'financeiro@dluca.com.br', password: 'Dluca@2026', label: 'Financeiro' },
   { email: 'farmacia@alquimia.com.br', password: 'Dluca@2026', label: 'Farmácia (gestor)' },
@@ -183,9 +202,7 @@ function DemoAccess({ onPick, configured }: { onPick: (email: string, password: 
                 <span className="block text-[12px] font-semibold text-ink-900">{a.label}</span>
                 <span className="block truncate text-[10.5px] text-ink-500">{a.email}</span>
               </span>
-              <span className="shrink-0 text-[10px] font-medium text-brand-700">
-                {a.note ?? 'usar'}
-              </span>
+              <span className="shrink-0 text-[10px] font-medium text-brand-700">usar</span>
             </button>
           ))}
           <p className="pt-1 text-[10.5px] leading-relaxed text-ink-500">
