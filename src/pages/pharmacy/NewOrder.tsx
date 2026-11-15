@@ -86,8 +86,13 @@ export default function NewOrder() {
     setGeocodeState(next.pickup && next.delivery ? 'ok' : next.delivery || next.pickup ? 'ok' : 'fail')
   }
 
-  const estimatedKm = coords.pickup && coords.delivery
-    ? distanceKm(coords.pickup, coords.delivery)
+  // A origem de cobrança é sempre a coordenada cadastrada da unidade, não
+  // uma coordenada de coleta informada pelo navegador. O banco arredonda km
+  // a duas casas antes de calcular o adicional do contrato.
+  const estimatedKm = selectedUnit?.latitude != null && selectedUnit?.longitude != null && coords.delivery
+    ? Number(distanceKm(
+        { lat: selectedUnit.latitude, lng: selectedUnit.longitude }, coords.delivery,
+      ).toFixed(2))
     : null
 
   const price = useMemo(() => {
@@ -339,11 +344,11 @@ export default function NewOrder() {
                 <span className="font-display text-lg font-bold text-ink-950">{brl(price.total)}</span>
               </div>
               {estimatedKm != null && (
-                <p className="text-[11px] text-ink-400">Distância estimada: {estimatedKm.toFixed(1)} km (linha reta)</p>
+                <p className="text-[11px] text-ink-400">Distância estimada: {estimatedKm.toFixed(1)} km (linha reta). Valor conferido ao criar o pedido.</p>
               )}
               {estimatedKm == null && (
                 <p className="text-[11px] text-ink-400">
-                  Use "Localizar" para calcular a distância — o valor final pode variar até o despacho.
+                  Sem coordenadas da unidade e do destino, não é possível estimar o adicional por distância. O valor é conferido ao criar o pedido.
                 </p>
               )}
             </div>

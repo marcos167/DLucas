@@ -223,6 +223,7 @@ export const ROLE_LABEL: Record<string, string> = {
 
 /** Transições permitidas por papel na operação */
 export const COURIER_FLOW: Partial<Record<OrderStatus, { next: OrderStatus; label: string }>> = {
+  ASSIGNED: { next: 'ACCEPTED', label: 'Aceitar entrega' },
   ACCEPTED: { next: 'PICKING_UP', label: 'Iniciar deslocamento' },
   PICKING_UP: { next: 'COLLECTED', label: 'Confirmar coleta' },
   COLLECTED: { next: 'IN_TRANSIT', label: 'Iniciar rota' },
