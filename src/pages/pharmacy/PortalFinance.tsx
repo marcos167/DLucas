@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Receipt, Wallet, Download } from 'lucide-react'
-import { Card, CardHeader, EmptyState, Modal, Skeleton } from '@/components/ui'
+import { Receipt, Wallet, Download, Banknote } from 'lucide-react'
+import { Card, CardHeader, EmptyState, Modal, Skeleton, StatCard } from '@/components/ui'
 import { getInvoice, listInvoices } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { brl, formatDate, formatDateTime, INVOICE_STATUS_CLASS, INVOICE_STATUS_LABEL } from '@/lib/utils'
@@ -33,18 +33,12 @@ export default function PortalFinance() {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Faturas</p>
-          <p className="kpi-value mt-1">{rows.length}</p>
-        </div>
-        <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Saldo em aberto</p>
-          <p className="kpi-value mt-1 text-amber-700">{brl(openTotal)}</p>
-        </div>
-        <div className="card p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Total pago</p>
-          <p className="kpi-value mt-1 text-emerald-700">{brl(paidTotal)}</p>
-        </div>
+        <StatCard label="Faturas" value={invoices.isLoading ? '—' : rows.length}
+          icon={<Receipt className="h-4 w-4" />} />
+        <StatCard label="Saldo em aberto" value={invoices.isLoading ? '—' : brl(openTotal)}
+          icon={<Wallet className="h-4 w-4" />} tone="accent" />
+        <StatCard label="Total pago" value={invoices.isLoading ? '—' : brl(paidTotal)}
+          icon={<Banknote className="h-4 w-4" />} />
       </div>
 
       <Card>

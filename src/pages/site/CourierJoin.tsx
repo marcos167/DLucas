@@ -4,6 +4,7 @@ import { Alert, Button, Field, Input, Select, Switch, Textarea } from '@/compone
 import { submitCourierApplication } from '@/lib/api'
 import { courierApplicationSchema, fieldErrors } from '@/lib/validation'
 import { maskCpf, maskPhone } from '@/lib/utils'
+import { PageHeader } from '@/components/site/PageSections'
 
 const perks = [
   { icon: Wallet, t: 'Repasse por entrega', d: 'Valor definido por entrega, com histórico de repasses na plataforma.' },
@@ -59,25 +60,18 @@ export default function CourierJoin() {
 
   return (
     <div>
-      <header className="border-b border-ink-200 bg-gradient-to-b from-brand-50 to-white">
-        <div className="container-page py-12 sm:py-16">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">Entregadores</p>
-          <h1 className="mt-2 max-w-3xl font-display text-3xl font-extrabold tracking-tight text-ink-950 sm:text-4xl">
-            Faça parte da rede de entregadores
-          </h1>
-          <p className="mt-4 max-w-2xl text-ink-600">
-            Cadastre-se para análise. Se aprovado, você recebe acesso à área do entregador e passa a
-            receber ofertas de entrega nas regiões em que atua.
-          </p>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Entregadores"
+        title="Faça parte da rede de entregadores"
+        description="Cadastre-se para análise. Se aprovado, você recebe acesso à área do entregador e passa a receber ofertas de entrega nas regiões em que atua."
+      />
 
       <div className="container-page grid gap-10 py-12 lg:grid-cols-[1fr_1.2fr]">
         <div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             {perks.map((p) => (
-              <div key={p.t} className="card flex gap-3 p-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+              <div key={p.t} className="card group flex gap-3 p-4 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-100 text-brand-700 ring-1 ring-inset ring-brand-200/60">
                   <p.icon className="h-5 w-5" />
                 </span>
                 <div>
@@ -90,7 +84,7 @@ export default function CourierJoin() {
         </div>
 
         {sent ? (
-          <div className="card h-fit p-8 text-center">
+          <div className="card h-fit p-8 text-center shadow-lift">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
               <CheckCircle2 className="h-7 w-7" />
             </div>
@@ -101,7 +95,7 @@ export default function CourierJoin() {
             </p>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="card p-6" noValidate>
+          <form onSubmit={onSubmit} className="card p-6 shadow-lift" noValidate>
             {serverError && <Alert tone="danger" title="Não foi possível enviar">{serverError}</Alert>}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Nome completo" required error={errors.full_name} className="sm:col-span-2">

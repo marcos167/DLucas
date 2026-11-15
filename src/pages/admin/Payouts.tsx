@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Wallet, Plus } from 'lucide-react'
+import { Wallet, Plus, Banknote } from 'lucide-react'
 import {
-  Button, Card, CardHeader, EmptyState, Field, Input, Modal, Select, Skeleton, Textarea,
+  Button, Card, CardHeader, EmptyState, Field, Input, Modal, Select, Skeleton, StatCard, Textarea,
 } from '@/components/ui'
 import { createPayout, listCouriers, listPayouts, listOrders, logAudit } from '@/lib/api'
 import { brl, formatDate } from '@/lib/utils'
@@ -58,8 +58,10 @@ export default function Payouts() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Lançamentos</p><p className="kpi-value mt-1">{rows.length}</p></div>
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Total</p><p className="kpi-value mt-1">{brl(total)}</p></div>
+        <StatCard label="Lançamentos" value={payouts.isLoading ? '—' : rows.length}
+          hint={tab === 'PENDING' ? 'A pagar' : 'Pagos'} icon={<Wallet className="h-4 w-4" />} />
+        <StatCard label="Total" value={payouts.isLoading ? '—' : brl(total)}
+          icon={<Banknote className="h-4 w-4" />} tone={tab === 'PENDING' ? 'accent' : 'brand'} />
       </div>
 
       <Card>

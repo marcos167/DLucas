@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   ArrowRight, CheckCircle2, Clock, Package, PlusCircle, Truck, AlertTriangle, Receipt,
 } from 'lucide-react'
-import { Card, CardHeader, EmptyState, Skeleton } from '@/components/ui'
+import { Card, CardHeader, EmptyState, Skeleton, StatCard } from '@/components/ui'
 import { listInvoices, listOrders } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { brl, formatDateTime, relativeTime, INVOICE_STATUS_CLASS, INVOICE_STATUS_LABEL } from '@/lib/utils'
@@ -49,9 +49,9 @@ export default function PortalHome() {
   }
 
   const kpis = [
-    { icon: <Clock className="h-4 w-4" />, label: 'Em andamento', value: active.data?.length ?? 0, tone: 'bg-blue-50 text-blue-700' },
-    { icon: <Truck className="h-4 w-4" />, label: 'Entregas concluídas', value: recent.data?.filter((o) => o.status === 'DELIVERED').length ?? 0, tone: 'bg-emerald-50 text-emerald-700' },
-    { icon: <Receipt className="h-4 w-4" />, label: 'Saldo em aberto', value: brl(balance), tone: 'bg-amber-50 text-amber-700' },
+    { icon: <Clock className="h-4 w-4" />, label: 'Em andamento', value: active.data?.length ?? 0, tone: 'neutral' as const, loading: active.isLoading, hint: 'Até 30 pedidos ativos' },
+    { icon: <Truck className="h-4 w-4" />, label: 'Concluídas recentes', value: recent.data?.filter((o) => o.status === 'DELIVERED').length ?? 0, tone: 'brand' as const, loading: recent.isLoading, hint: 'Entre as 6 entregas recentes' },
+    { icon: <Receipt className="h-4 w-4" />, label: 'Saldo em aberto', value: brl(balance), tone: 'accent' as const, loading: invoices.isLoading, hint: 'Faturas não quitadas' },
   ]
 
   return (
@@ -70,13 +70,8 @@ export default function PortalHome() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         {kpis.map((k) => (
-          <div key={k.label} className="card flex items-center justify-between p-4">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">{k.label}</p>
-              <p className="kpi-value mt-1">{active.isLoading ? '—' : k.value}</p>
-            </div>
-            <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${k.tone}`}>{k.icon}</span>
-          </div>
+          <StatCard key={k.label} label={k.label} value={k.loading ? '—' : k.value}
+            hint={k.hint} icon={k.icon} tone={k.tone} />
         ))}
       </div>
 

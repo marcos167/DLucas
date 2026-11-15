@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   ArrowRight, Building2, CheckCircle2, Eye, FileDown, History, Receipt, ShieldCheck, Users, PlusCircle,
 } from 'lucide-react'
+import { CtaBand, FeatureCard, PageHeader } from '@/components/site/PageSections'
 
 const features = [
   { icon: PlusCircle, t: 'Criar pedidos de entrega', d: 'Selecione a unidade de origem, informe coleta, destino, destinatário e telefone.' },
@@ -17,26 +18,23 @@ const features = [
 export default function Pharmacies() {
   return (
     <div>
-      <header className="border-b border-ink-200 bg-gradient-to-b from-brand-50 to-white">
-        <div className="container-page grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-2">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">Para farmácias</p>
-            <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink-950 sm:text-4xl">
-              Um portal exclusivo para a sua farmácia
-            </h1>
-            <p className="mt-4 max-w-xl text-ink-600">
-              Cada farmácia acessa somente as próprias informações: pedidos, unidades, funcionários,
-              comprovantes e financeiro. O isolamento entre clientes é garantido pelas políticas de
-              segurança do banco de dados.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/orcamento" className="btn-primary">Quero uma demonstração <ArrowRight className="h-4 w-4" /></Link>
-              <Link to="/entrar" className="btn-secondary">Já sou cliente · entrar</Link>
-            </div>
-          </div>
-          <div className="card p-6">
+      <PageHeader
+        eyebrow="Para farmácias"
+        title="Um portal exclusivo para a sua farmácia"
+        description="Cada farmácia acessa somente as próprias informações: pedidos, unidades, funcionários, comprovantes e financeiro. O isolamento entre clientes é garantido pelas políticas de segurança do banco de dados."
+        actions={
+          <>
+            <Link to="/orcamento" className="btn-primary btn-sheen group">
+              Quero uma demonstração
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </Link>
+            <Link to="/entrar" className="btn-secondary">Já sou cliente · entrar</Link>
+          </>
+        }
+        aside={
+          <div className="rounded-2xl border border-ink-200/70 bg-white p-6 shadow-lift">
             <div className="flex items-center gap-3 border-b border-ink-100 pb-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-100 text-brand-700 ring-1 ring-inset ring-brand-200">
                 <ShieldCheck className="h-5 w-5" />
               </span>
               <div>
@@ -58,18 +56,16 @@ export default function Pharmacies() {
               ))}
             </ul>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <section className="container-page py-14">
         <h2 className="section-title">O que a farmácia faz na plataforma</h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
-            <div key={f.t} className="card p-5">
-              <f.icon className="h-5 w-5 text-brand-700" />
-              <h3 className="mt-3 text-sm font-bold text-ink-950">{f.t}</h3>
-              <p className="mt-1 text-[13px] leading-relaxed text-ink-600">{f.d}</p>
-            </div>
+            <FeatureCard key={f.t} icon={<f.icon className="h-5 w-5" />} title={f.t} headingLevel={3}>
+              {f.d}
+            </FeatureCard>
           ))}
         </div>
       </section>
@@ -81,28 +77,28 @@ export default function Pharmacies() {
             {[
               { t: 'Origem e destino registrados', d: 'Endereço estruturado, instruções de coleta e identificação do destinatário com telefone.' },
               { t: 'Ocorrências padronizadas', d: 'Destinatário ausente, endereço incorreto, embalagem danificada e outros tipos com descrição.' },
-              { t: 'Comprovante da entrega', d: 'Registro fotográfico e assinatura quando a entrega exige comprovação.' },
+              { t: 'Comprovante da entrega', d: 'Registro fotográfico vinculado ao pedido quando a entrega exige comprovação.' },
             ].map((i) => (
-              <div key={i.t} className="card p-6">
-                <p className="text-sm font-bold text-ink-950">{i.t}</p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-ink-600">{i.d}</p>
+              <div key={i.t} className="card relative overflow-hidden p-6">
+                <span className="absolute left-0 top-0 h-full w-0.5 bg-gradient-to-b from-brand-400 to-brand-100" aria-hidden="true" />
+                <p className="font-display text-title-sm text-ink-950">{i.t}</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-ink-600">{i.d}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="container-page py-16">
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-ink-950 p-8 text-white">
-          <div>
-            <p className="font-display text-xl font-bold">Pronto para começar?</p>
-            <p className="mt-1 text-sm text-ink-300">Solicite o cadastro da sua farmácia e receba os acessos.</p>
-          </div>
-          <Link to="/orcamento" className="btn bg-white text-ink-950 hover:bg-brand-50">
-            Falar com a equipe <ArrowRight className="h-4 w-4" />
+      <CtaBand
+        title="Pronto para começar?"
+        description="Solicite uma demonstração para a sua farmácia. O acesso é liberado após análise e cadastro."
+        actions={
+          <Link to="/orcamento" className="btn-accent btn-sheen group">
+            Falar com a equipe
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
-        </div>
-      </section>
+        }
+      />
     </div>
   )
 }

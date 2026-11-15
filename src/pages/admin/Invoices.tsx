@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Receipt, Plus, Banknote, Wand2 } from 'lucide-react'
+import { Receipt, Plus, Banknote, Wand2, CircleDollarSign } from 'lucide-react'
 import {
-  Alert, Button, Card, CardHeader, EmptyState, Field, Input, Modal, SearchInput, Select, Skeleton, Textarea,
+  Alert, Button, Card, CardHeader, EmptyState, Field, Input, Modal, SearchInput, Select, Skeleton, StatCard, Textarea,
 } from '@/components/ui'
 import {
   addInvoiceItem, billableOrders, createInvoice, getInvoice, listInvoices, listPharmacies,
@@ -143,9 +143,12 @@ export default function Invoices() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Faturas listadas</p><p className="kpi-value mt-1">{rows.length}</p></div>
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Saldo em aberto</p><p className="kpi-value mt-1 text-amber-700">{brl(outstanding)}</p></div>
-        <div className="card p-4"><p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Recebido</p><p className="kpi-value mt-1 text-emerald-700">{brl(rows.reduce((s, i) => s + i.paid_cents, 0))}</p></div>
+        <StatCard label="Faturas listadas" value={invoices.isLoading ? '—' : rows.length}
+          hint="Conforme os filtros" icon={<Receipt className="h-4 w-4" />} />
+        <StatCard label="Saldo em aberto" value={invoices.isLoading ? '—' : brl(outstanding)}
+          icon={<CircleDollarSign className="h-4 w-4" />} tone="accent" />
+        <StatCard label="Recebido" value={invoices.isLoading ? '—' : brl(rows.reduce((s, i) => s + i.paid_cents, 0))}
+          icon={<Banknote className="h-4 w-4" />} />
       </div>
 
       <Card>
