@@ -183,6 +183,139 @@ try {
   assert.equal(direct.rows[0].status, 'ACCEPTED')
   assert.ok(direct.rows[0].accepted_at)
   log('atribuição manual: aceite autorizado e data registrada pelo banco')
+
+  // ---------------------------------------------------------------
+  // 010 · micro-rotas: reaplicação e disputas reais com duas conexões
+  // ---------------------------------------------------------------
+  const logistics = readFileSync(resolve('supabase/migrations/20261115150000_logistics_micro_routes_010.sql'), 'utf8')
+  // privilégios padrão de um projeto Supabase: objeto novo nasce liberado
+  await main.query(`
+    alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+    alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+    alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+  `)
+  await main.query(logistics)
+  await main.query(logistics)
+  log('010 aplicada duas vezes sem erro')
+  const open = (await main.query(`
+    select count(*)::int as n from information_schema.role_table_grants
+     where grantee = 'anon' and table_schema = 'public' and table_name in (
+       'packages','delivery_routes','route_stops','route_packages','delivery_attempts','delivery_proofs',
+       'package_scans','loading_manifests','package_assignments','distribution_batches',
+       'postal_code_regions','postal_code_assignments','route_events','route_optimization_logs','manifest_items')`)).rows[0].n
+  assert.equal(open, 0, 'visitante não pode ter privilégio em tabela do módulo')
+  const callable = (await main.query(`
+    select count(*)::int as n from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'public' and p.proname in ('rider_day','register_delivery_attempt','distribute_batch','import_packages')
+       and has_function_privilege('anon', p.oid, 'execute')`)).rows[0].n
+  assert.equal(callable, 0, 'visitante não pode executar função do módulo')
+  log('010: visitante sem acesso a tabelas e funções')
+
+  const call = (userId, text, params = []) => transaction(userId, async (client) => (await client.query(text, params)).rows[0])
+  const batchId = (await call(ids.admin, `
+    with region as (
+      insert into postal_code_regions(name, courier_id) values ('Zona PG17', '${ids.courierA}') returning id
+    ), coverage as (
+      insert into postal_code_assignments(region_id, zip_start, zip_end) select id, 2700000, 2799999 from region
+    )
+    insert into distribution_batches(batch_date, package_limit_override) values ('2026-11-15', 2) returning id`)).id
+  const rows = [1, 2, 3, 4].map((n) => ({
+    tracking_code: `PG${n}`, recipient_name: `Cliente ${n}`, zip_code: '02705-000', street: 'Rua PG', number: String(n),
+  }))
+  const imported = (await call(ids.admin, 'select import_packages($1, $2::jsonb) as r', [batchId, JSON.stringify(rows)])).r
+  assert.equal(imported.inserted, 4)
+
+  // dois cliques simultâneos em "distribuir": o limite do lote (2) vale para a soma
+  const distributed = await Promise.all([1, 2].map(() => call(ids.admin, 'select distribute_batch($1) as r', [batchId])))
+  assert.equal(distributed.reduce((sum, item) => sum + item.r.assigned, 0), 2)
+  const spread = (await main.query(`
+    select count(*) filter (where status = 'ASSIGNED')::int as assigned,
+           count(*) filter (where status = 'EXCEPTION' and exception_reason = 'OVER_CAPACITY')::int as over,
+           (select count(*)::int from package_assignments a where a.batch_id = $1 and a.ended_at is null) as current
+      from packages where batch_id = $1`, [batchId])).rows[0]
+  assert.deepEqual(spread, { assigned: 2, over: 2, current: 2 })
+  log('010: distribuição simultânea respeita o limite e não duplica responsável')
+
+  const mine = (await main.query(
+    `select id, tracking_code from packages where batch_id = $1 and status = 'ASSIGNED' order by tracking_code`, [batchId])).rows
+  const plan = mine.map((pkg) => ({ stops: [{ package_ids: [pkg.id] }] }))
+  await call(ids.admin, 'select save_route_plan($1, $2, $3::jsonb) as r', [batchId, ids.courierA, JSON.stringify(plan)])
+  const routeIds = (await main.query(
+    'select r.id, rp.package_id from delivery_routes r join route_packages rp on rp.route_id = r.id where r.batch_id = $1 order by r.sequence',
+    [batchId])).rows
+  await call(ids.admin, `select set_routes_status($1::uuid[], 'RELEASE') as r`, [routeIds.map((route) => route.id)])
+  const manifestId = (await call(ids.courierAUser, 'select open_manifest($1) as r', [batchId])).r.id
+
+  // a mesma leitura enviada duas vezes ao mesmo tempo (dois aparelhos, ou aba duplicada)
+  const scanId = '10000000-0000-4000-8000-000000000001'
+  const scans = await Promise.all([1, 2].map(() => call(ids.courierAUser,
+    `select register_package_scan($1, $2, 'LOAD', $3) as r`, [scanId, mine[1].tracking_code, manifestId])))
+  assert.deepEqual(scans.map((item) => item.r.status).sort(), ['APPLIED', 'DUPLICATE'])
+  assert.equal((await main.query('select count(*)::int as n from package_scans where id = $1', [scanId])).rows[0].n, 1)
+
+  // a mesma baixa enviada duas vezes ao mesmo tempo
+  const attemptId = '20000000-0000-4000-8000-000000000001'
+  const attempts = await Promise.all([1, 2].map(() => call(ids.courierAUser,
+    `select register_delivery_attempt($1, $2, 'DELIVERED') as r`, [attemptId, mine[0].id])))
+  assert.deepEqual(attempts.map((item) => item.r.status).sort(), ['APPLIED', 'DUPLICATE'])
+  const once = (await main.query(`select status, attempt_count,
+    (select count(*)::int from delivery_attempts where package_id = p.id) as attempts from packages p where id = $1`, [mine[0].id])).rows[0]
+  assert.deepEqual(once, { status: 'DELIVERED', attempt_count: 1, attempts: 1 })
+  log('010: registro repetido em envio simultâneo é aplicado uma única vez')
+
+  // Baixa e leitura do entregador disputando com a transferência do roteiro pelo
+  // supervisor. Qualquer ordem de chegada é válida; travamento mútuo não é.
+  const raceBatch = (await call(ids.admin,
+    `insert into distribution_batches(batch_date) values ('2026-11-15') returning id`)).id
+  const RACES = 10
+  await call(ids.admin, 'select import_packages($1, $2::jsonb) as r', [raceBatch, JSON.stringify(
+    Array.from({ length: RACES }, (_, n) => ({
+      tracking_code: `RC${n}`, recipient_name: `Cliente ${n}`, zip_code: '02705-000', street: 'Rua da Disputa', number: String(n),
+    })))])
+  await call(ids.admin, 'select distribute_batch($1) as r', [raceBatch])
+  const racers = (await main.query(
+    `select id, tracking_code from packages where batch_id = $1 and status = 'ASSIGNED' order by tracking_code`, [raceBatch])).rows
+  assert.equal(racers.length, RACES)
+  await call(ids.admin, 'select save_route_plan($1, $2, $3::jsonb) as r',
+    [raceBatch, ids.courierA, JSON.stringify(racers.map((pkg) => ({ stops: [{ package_ids: [pkg.id] }] })))])
+  const raceRoutes = (await main.query(
+    'select r.id, rp.package_id from delivery_routes r join route_packages rp on rp.route_id = r.id where r.batch_id = $1',
+    [raceBatch])).rows
+  await call(ids.admin, `select set_routes_status($1::uuid[], 'RELEASE') as r`, [raceRoutes.map((route) => route.id)])
+  const raceManifest = (await call(ids.courierAUser, 'select open_manifest($1) as r', [raceBatch])).r.id
+  for (const pkg of racers) {
+    const loaded = (await call(ids.courierAUser, `select register_package_scan(gen_random_uuid(), $1, 'LOAD', $2) as r`,
+      [pkg.tracking_code, raceManifest])).r
+    assert.equal(loaded.result, 'OK')
+  }
+  const summary = []
+  for (const [index, pkg] of racers.entries()) {
+    const recordId = `30000000-0000-4000-8000-0000000000${String(index).padStart(2, '0')}`
+    const routeId = raceRoutes.find((route) => route.package_id === pkg.id).id
+    const field = index % 2 === 0
+      ? call(ids.courierAUser, `select register_delivery_attempt($1, $2, 'DELIVERED') as r`, [recordId, pkg.id])
+      : call(ids.courierAUser, `select register_package_scan($1, $2, 'RETURN', $3) as r`, [recordId, pkg.tracking_code, raceManifest])
+    const transfer = call(ids.admin, `select transfer_route($1, $2, 'disputa') as r`, [routeId, ids.courierB])
+    const race = await Promise.allSettled(index % 4 < 2 ? [field, transfer] : [transfer, field])
+    const codes = race.map((item) => item.status === 'rejected' ? item.reason.code : 'ok')
+    assert.ok(!codes.includes('40P01'), `travamento mútuo na disputa ${index}: ${codes.join(' / ')}`)
+    const state = (await main.query(`select p.status, p.courier_id,
+        (select count(*)::int from package_assignments a where a.package_id = p.id and a.ended_at is null) as current,
+        (select count(*)::int from route_packages rp where rp.package_id = p.id and rp.released_at is null) as links,
+        (select sync_status from delivery_attempts where id = $2) as attempt
+      from packages p where p.id = $1`, [pkg.id, recordId])).rows[0]
+    assert.equal(state.current, 1, 'um único responsável atual')
+    assert.equal(state.links, 1, 'um único roteiro ativo')
+    if (state.status === 'DELIVERED') {
+      assert.equal(state.attempt, 'APPLIED')
+      assert.equal(state.courier_id, ids.courierA)
+    } else if (state.attempt !== null) {
+      assert.equal(state.attempt, 'CONFLICT')
+      assert.equal(state.courier_id, ids.courierB)
+    }
+    summary.push(`${state.status}${state.courier_id === ids.courierB ? '→B' : ''}`)
+  }
+  log(`010: ${RACES} disputas baixa/leitura x transferência sem travamento mútuo (${summary.join(', ')})`)
   log('homologação local concluída; nenhuma conexão ao Supabase foi feita')
 } finally {
   try { await main.end() } catch { /* não conectado */ }

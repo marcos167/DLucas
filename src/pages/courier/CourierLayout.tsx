@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Home, Inbox, History, User, LogOut, Bike, BellRing } from 'lucide-react'
+import { Home, Inbox, History, User, LogOut, Bike, BellRing, Route as RouteIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn, AVAILABILITY_LABEL, formatDateTime } from '@/lib/utils'
 import { updateCourier } from '@/lib/api'
 import { ChangePasswordModal } from '@/components/layout/ChangePasswordModal'
 import type { Courier } from '@/types'
+import { RiderProvider, useRider } from './rider/RiderContext'
+import { enableOfflineShell } from './rider/offlineShell'
 
 const tabs = [
   { to: '/entregador', label: 'Início', icon: Home, end: true },
+  { to: '/entregador/rotas', label: 'Rotas', icon: RouteIcon },
   { to: '/entregador/ofertas', label: 'Ofertas', icon: Inbox },
   { to: '/entregador/historico', label: 'Histórico', icon: History },
   { to: '/entregador/perfil', label: 'Perfil', icon: User },
@@ -28,6 +31,13 @@ export default function CourierLayout() {
   }, [profile?.must_change_password])
 
   useEffect(() => { setLocalCourier(courier) }, [courier])
+
+  // guarda a casca do aplicativo e as telas de rota para abrir sem internet
+  useEffect(() => {
+    void enableOfflineShell([
+      () => import('./RiderRoutes'), () => import('./RiderRoute'), () => import('./RiderCheck'),
+    ])
+  }, [])
 
   useEffect(() => {
     if (!courier?.id) return
@@ -50,6 +60,8 @@ export default function CourierLayout() {
   }, [courier?.id])
 
   const title = location.pathname === '/entregador' ? 'Meu dia'
+    : location.pathname.startsWith('/entregador/rotas') ? 'Minhas rotas'
+    : location.pathname.startsWith('/entregador/conferencia') ? 'Conferência'
     : location.pathname.startsWith('/entregador/ofertas') ? 'Ofertas'
     : location.pathname.startsWith('/entregador/historico') ? 'Histórico'
     : location.pathname.startsWith('/entregador/perfil') ? 'Perfil'
@@ -63,6 +75,7 @@ export default function CourierLayout() {
   }
 
   return (
+    <RiderProvider courierId={localCourier?.id ?? null}>
     <div className="min-h-screen bg-ink-50 pb-20">
       <header className="sticky top-0 z-20 border-b border-ink-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-lg items-center gap-3 px-4">
@@ -94,6 +107,7 @@ export default function CourierLayout() {
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
+        {location.pathname === '/entregador' && <RoutesShortcut />}
         <Outlet context={{ courier: localCourier, setCourier: setLocalCourier }} />
       </main>
 
@@ -109,6 +123,7 @@ export default function CourierLayout() {
             >
               <t.icon className="h-5 w-5" />
               {t.label}
+              {t.to === '/entregador/rotas' && <UnsentBadge />}
               {t.to === '/entregador/ofertas' && offerCount > 0 && (
                 <span className="absolute right-[26%] top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
                   {offerCount}
@@ -147,5 +162,36 @@ export default function CourierLayout() {
         forced={!!profile?.must_change_password}
       />
     </div>
+    </RiderProvider>
+  )
+}
+
+/** Atalho na tela inicial quando há roteiros liberados para o dia. */
+function RoutesShortcut() {
+  const { day } = useRider()
+  const open = day?.routes.filter((route) => route.status !== 'COMPLETED').length ?? 0
+  if (open === 0) return null
+  return (
+    <NavLink to="/entregador/rotas" className="mb-4 flex items-center gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3">
+      <RouteIcon className="h-5 w-5 shrink-0 text-brand-800" />
+      <span className="min-w-0 flex-1 text-[13px] font-semibold text-ink-950">
+        {open} roteiro(s) liberado(s) para você
+        <span className="block text-[12px] font-normal text-ink-600">Toque para ver as paradas e conferir os pacotes.</span>
+      </span>
+    </NavLink>
+  )
+}
+
+/** Registros guardados no aparelho que ainda não chegaram ao servidor (ou precisam de atenção). */
+function UnsentBadge() {
+  const { pending, attention } = useRider()
+  if (pending + attention === 0) return null
+  return (
+    <span className={cn(
+      'absolute right-[24%] top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white',
+      attention > 0 ? 'bg-red-500' : 'bg-amber-500',
+    )}>
+      {pending + attention}
+    </span>
   )
 }

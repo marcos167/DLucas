@@ -3,6 +3,9 @@ import {
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import {
+  forgetIdentity, isTransportFailure, recallIdentity, rememberIdentity, storedSession,
+} from '@/lib/offlineIdentity'
 import type { Courier, Profile, UserRole } from '@/types'
 
 interface AuthState {
@@ -48,20 +51,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [courier, setCourier] = useState<Courier | null>(null)
   const [loading, setLoading] = useState(true)
   const mounted = useRef(true)
+  /** verdadeiro enquanto a identidade vem do aparelho, por falta de rede */
+  const offlineIdentity = useRef(false)
 
   const loadContext = useCallback(async (current: Session | null) => {
     if (!current?.user) {
       setProfile(null); setCourier(null); return
     }
-    const { data: prof } = await supabase
+    const { data: prof, error } = await supabase
       .from('profiles').select('*').eq('id', current.user.id).maybeSingle()
     if (!mounted.current) return
+    // Sem rede, o entregador continua com a identidade confirmada da última vez.
+    const remembered = isTransportFailure(error) ? recallIdentity(current.user.id) : null
+    if (remembered) {
+      offlineIdentity.current = true
+      setProfile(remembered.profile); setCourier(remembered.courier)
+      return
+    }
+    offlineIdentity.current = false
     setProfile((prof as Profile) ?? null)
 
     if ((prof as Profile | null)?.role === 'COURIER') {
-      const { data: c } = await supabase
+      const { data: c, error: courierError } = await supabase
         .from('couriers').select('*').eq('profile_id', current.user.id).maybeSingle()
-      if (mounted.current) setCourier((c as Courier) ?? null)
+      if (!mounted.current) return
+      const fallback = isTransportFailure(courierError) ? recallIdentity(current.user.id) : null
+      if (fallback) {
+        setCourier(fallback.courier)
+      } else {
+        setCourier((c as Courier) ?? null)
+        if (!courierError) rememberIdentity(prof as Profile, (c as Courier) ?? null)
+      }
     } else {
       setCourier(null)
     }
@@ -75,14 +95,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    supabase.auth.getSession().then(async ({ data, error }) => {
       if (!mounted.current) return
-      setSession(data.session)
-      await loadContext(data.session)
+      // Sessão vencida e sem rede para renovar: o entregador reabre o aplicativo
+      // com a sessão guardada, que volta a valer quando a conexão retornar.
+      const current = data.session ?? (isTransportFailure(error) ? storedSession() : null)
+      if (!data.session && current) offlineIdentity.current = true
+      setSession(current)
+      await loadContext(current)
       if (mounted.current) setLoading(false)
     })
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      // enquanto a identidade vem do aparelho, só uma saída de verdade a encerra
+      if (!next && event !== 'SIGNED_OUT' && offlineIdentity.current) return
       setSession(next)
       void loadContext(next)
     })
@@ -104,6 +130,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
+    offlineIdentity.current = false
+    forgetIdentity()
     setProfile(null); setCourier(null); setSession(null)
   }, [])
 

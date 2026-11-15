@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Store, Building2, Users, Bike, Package, Radio, Map, History,
   AlertTriangle, FileCheck2, Wallet, Receipt, BarChart3, ShieldCheck, ScrollText, Settings,
-  Inbox, UserPlus,
+  Inbox, UserPlus, Boxes, MapPinned,
 } from 'lucide-react'
 import { DashboardShell, type NavSection } from '@/components/layout/DashboardShell'
 import { useAuth } from '@/contexts/AuthContext'
@@ -16,6 +16,8 @@ const sectionMap: { path: string; title: string; subtitle?: string }[] = [
   { path: '/app/entregadores', title: 'Entregadores', subtitle: 'Cadastro, aprovação e disponibilidade' },
   { path: '/app/pedidos', title: 'Pedidos', subtitle: 'Todos os pedidos da operação' },
   { path: '/app/despacho', title: 'Central de despacho', subtitle: 'Atribuição manual e sugestões automáticas' },
+  { path: '/app/distribuicao', title: 'Distribuição e roteiros', subtitle: 'Lote do dia: importação, responsável por CEP, roteiros e acompanhamento' },
+  { path: '/app/cobertura', title: 'Cobertura por CEP', subtitle: 'Regiões, faixas de CEP, responsáveis e limites' },
   { path: '/app/mapa', title: 'Mapa de entregas', subtitle: 'Posições autorizadas e pedidos ativos' },
   { path: '/app/historico', title: 'Histórico de entregas', subtitle: 'Entregas concluídas e auditoria de mudanças' },
   { path: '/app/ocorrencias', title: 'Ocorrências', subtitle: 'Problemas reportados em campo' },
@@ -49,6 +51,8 @@ export default function AdminLayout() {
         { to: '/app', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, end: true },
         { to: '/app/pedidos', label: 'Pedidos', icon: <Package className="h-4 w-4" /> },
         { to: '/app/despacho', label: 'Despacho', icon: <Radio className="h-4 w-4" /> },
+        { to: '/app/distribuicao', label: 'Distribuição e roteiros', icon: <Boxes className="h-4 w-4" /> },
+        { to: '/app/cobertura', label: 'Cobertura por CEP', icon: <MapPinned className="h-4 w-4" /> },
         { to: '/app/mapa', label: 'Mapa de entregas', icon: <Map className="h-4 w-4" /> },
         { to: '/app/historico', label: 'Histórico', icon: <History className="h-4 w-4" /> },
         { to: '/app/ocorrencias', label: 'Ocorrências', icon: <AlertTriangle className="h-4 w-4" /> },

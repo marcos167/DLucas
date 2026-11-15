@@ -44,6 +44,9 @@ const Audit = lazy(() => import('@/pages/admin/Audit'))
 const Settings = lazy(() => import('@/pages/admin/Settings'))
 const Leads = lazy(() => import('@/pages/admin/Leads'))
 const Applications = lazy(() => import('@/pages/admin/Applications'))
+const Distribution = lazy(() => import('@/pages/admin/Distribution'))
+const CourierRoutes = lazy(() => import('@/pages/admin/CourierRoutes'))
+const Coverage = lazy(() => import('@/pages/admin/Coverage'))
 
 /* ---- Portal da farmácia ---- */
 const PharmacyLayout = lazy(() => import('@/pages/pharmacy/PharmacyLayout'))
@@ -64,6 +67,9 @@ const CourierOffers = lazy(() => import('@/pages/courier/CourierOffers'))
 const CourierDelivery = lazy(() => import('@/pages/courier/CourierDelivery'))
 const CourierHistory = lazy(() => import('@/pages/courier/CourierHistory'))
 const CourierProfile = lazy(() => import('@/pages/courier/CourierProfile'))
+const RiderRoutes = lazy(() => import('@/pages/courier/RiderRoutes'))
+const RiderRoute = lazy(() => import('@/pages/courier/RiderRoute'))
+const RiderCheck = lazy(() => import('@/pages/courier/RiderCheck'))
 
 export default function App() {
   return (
@@ -99,6 +105,9 @@ export default function App() {
             <Route path="pedidos" element={<Orders />} />
             <Route path="pedidos/:id" element={<OrderDetail />} />
             <Route path="despacho" element={<Dispatch />} />
+            <Route path="distribuicao" element={<Distribution />} />
+            <Route path="distribuicao/:batchId/funcionario/:courierId" element={<CourierRoutes />} />
+            <Route path="cobertura" element={<Coverage />} />
             <Route path="mapa" element={<DeliveryMapPage />} />
             <Route path="farmacias" element={<Pharmacies />} />
             <Route path="unidades" element={<Units />} />
@@ -148,6 +157,9 @@ export default function App() {
             }
           >
             <Route index element={<CourierHome />} />
+            <Route path="rotas" element={<RiderRoutes />} />
+            <Route path="rotas/:routeId" element={<RiderRoute />} />
+            <Route path="conferencia" element={<RiderCheck />} />
             <Route path="ofertas" element={<CourierOffers />} />
             <Route path="entrega/:id" element={<CourierDelivery />} />
             <Route path="historico" element={<CourierHistory />} />
