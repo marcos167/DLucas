@@ -34,28 +34,40 @@ export default function Home() {
   return (
     <div>
       {/* HERO */}
-      <section className="relative overflow-hidden bg-ink-950 text-white">
-        <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-brand-600/25 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-ink-950 via-ink-950 to-[#071019] text-white">
+        <div className="bg-grid-subtle pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div className="pointer-events-none absolute -left-32 top-0 h-[28rem] w-[28rem] rounded-full bg-brand-500/20 blur-[110px]" />
+        <div className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-accent-400/10 blur-[100px]" />
+        {/* linha de luz no topo: separa o hero do header sem borda dura */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent" aria-hidden="true" />
         <div className="container-page relative grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
           <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-300" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-200 shadow-inner-light backdrop-blur-sm">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-300 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-300" />
+              </span>
               Logística para saúde
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-              Transporte de medicamentos com
-              <span className="text-brand-300"> controle de ponta a ponta</span>
+            <h1 className="mt-6 font-display text-[2.5rem] font-extrabold leading-[1.06] tracking-[-0.03em] sm:text-[3rem] lg:text-[3.5rem]">
+              Transporte de medicamentos com{' '}
+              <span className="bg-gradient-to-r from-brand-200 via-brand-300 to-brand-400 bg-clip-text text-transparent">
+                controle de ponta a ponta
+              </span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-300 sm:text-lg">
               A D'Luca Connect conecta farmácias de manipulação, central de despacho e motoboys
               em uma única plataforma: pedidos, distribuição, acompanhamento e financeiro.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/orcamento" className="btn-primary bg-brand-500 hover:bg-brand-400">
-                Solicitar orçamento <ArrowRight className="h-4 w-4" />
+              <Link to="/orcamento" className="btn-accent btn-sheen btn-lg group">
+                Solicitar orçamento
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
-              <Link to="/entrar" className="btn border border-white/20 bg-white/5 text-white hover:bg-white/10">
+              <Link
+                to="/entrar"
+                className="btn btn-lg border border-white/15 bg-white/[0.06] text-white shadow-inner-light backdrop-blur-sm transition hover:border-white/25 hover:bg-white/10"
+              >
                 Acessar plataforma
               </Link>
             </div>
@@ -74,14 +86,14 @@ export default function Home() {
           </div>
 
           <div className="relative animate-fade-up">
-            <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/10 to-white/[0.03] p-3 shadow-2xl backdrop-blur">
-              <div className="rounded-2xl bg-white p-5 text-ink-900">
+            <div className="rounded-3xl border border-white/12 bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-2.5 shadow-[0_24px_70px_-20px_rgb(0_0_0/0.7)] backdrop-blur-sm">
+              <div className="overflow-hidden rounded-[1.15rem] bg-white p-5 text-ink-900 shadow-[inset_0_1px_0_rgb(255_255_255/0.6)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Pedido em rota</p>
-                    <p className="font-display text-lg font-bold">DLC-2611-01042</p>
+                    <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-ink-400">Pedido em rota</p>
+                    <p className="font-display text-[17px] font-bold tracking-[-0.02em] tabular">DLC-2611-01042</p>
                   </div>
-                  <span className="badge bg-blue-100 text-blue-800">Em rota</span>
+                  <span className="badge bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200">Em rota</span>
                 </div>
                 <div className="mt-4 space-y-3.5">
                   <div className="flex gap-3">
@@ -130,12 +142,20 @@ export default function Home() {
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pillars.map((p) => (
-            <div key={p.title} className="card p-6 transition hover:shadow-lift">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+            <div
+              key={p.title}
+              className="group relative overflow-hidden rounded-2xl border border-ink-200/70 bg-white p-6 shadow-card transition-all duration-200 ease-out hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover"
+            >
+              {/* brilho que sobe no hover */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 -top-24 h-24 bg-gradient-to-b from-brand-200/40 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+              />
+              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-100/70 text-brand-700 ring-1 ring-inset ring-brand-200/60 transition-transform duration-200 group-hover:scale-105">
                 <p.icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 font-display text-base font-bold text-ink-950">{p.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-600">{p.text}</p>
+              <h3 className="relative mt-4 font-display text-title-sm text-ink-950">{p.title}</h3>
+              <p className="relative mt-2 text-[13.5px] leading-relaxed text-ink-600">{p.text}</p>
             </div>
           ))}
         </div>

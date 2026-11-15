@@ -32,8 +32,8 @@ export default function SiteLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-white/85 backdrop-blur-md">
-        <div className="container-page flex h-16 items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 border-b border-ink-200/60 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
+        <div className="container-page flex h-[4.25rem] items-center justify-between gap-4">
           <Logo />
           <nav className="hidden items-center gap-1 lg:flex">
             {links.map((l) => (
@@ -42,8 +42,10 @@ export default function SiteLayout() {
                 to={l.to}
                 end={l.end}
                 className={({ isActive }) => cn(
-                  'rounded-lg px-3 py-2 text-[13.5px] font-medium transition',
-                  isActive ? 'bg-brand-50 text-brand-800' : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
+                  'relative rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors duration-150',
+                  isActive
+                    ? 'text-brand-800'
+                    : 'text-ink-600 hover:bg-ink-100/70 hover:text-ink-900',
                 )}
               >
                 {l.label}
@@ -52,7 +54,7 @@ export default function SiteLayout() {
           </nav>
           <div className="hidden items-center gap-2 lg:flex">
             <Link to="/entregadores" className="btn-ghost btn-sm">Seja entregador</Link>
-            <Link to={profile ? homeRoute : '/entrar'} className="btn-primary btn-sm">
+            <Link to={profile ? homeRoute : '/entrar'} className="btn-primary btn-sheen btn-sm">
               <LogIn className="h-4 w-4" />
               {profile ? 'Meu painel' : 'Entrar'}
             </Link>

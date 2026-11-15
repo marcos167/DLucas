@@ -6,7 +6,7 @@ import {
 import {
   Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
-import { Card, CardHeader, EmptyState, Skeleton } from '@/components/ui'
+import { Card, CardHeader, EmptyState, Skeleton, StatCard } from '@/components/ui'
 import { dashboardMetrics, deliveriesLast7Days, listOrders, ordersByStatus } from '@/lib/api'
 import {
   brl, formatDateTime, ORDER_STATUS_CLASS, ORDER_STATUS_LABEL, relativeTime,
@@ -19,27 +19,16 @@ const STATUS_COLORS: Record<string, string> = {
   DELIVERED: '#10b981', FAILED: '#ef4444', CANCELLED: '#94a3b8', DRAFT: '#cbd5e1',
 }
 
+/** Adaptador fino: mantém a API usada nas chamadas abaixo, delegando o visual ao StatCard. */
 function KpiCard({ icon, label, value, hint, tone = 'brand' }: {
-  icon: React.ReactNode; label: string; value: string | number; hint?: string; tone?: 'brand' | 'amber' | 'red' | 'blue'
+  icon: React.ReactNode
+  label: string
+  value: string | number
+  hint?: string
+  tone?: 'brand' | 'amber' | 'red' | 'blue'
 }) {
-  const tones = {
-    brand: 'bg-brand-50 text-brand-700',
-    amber: 'bg-amber-50 text-amber-700',
-    red: 'bg-red-50 text-red-600',
-    blue: 'bg-blue-50 text-blue-700',
-  }
-  return (
-    <div className="card p-4 sm:p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">{label}</p>
-          <p className="kpi-value mt-1.5">{value}</p>
-          {hint && <p className="mt-0.5 text-[11.5px] text-ink-500">{hint}</p>}
-        </div>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tones[tone]}`}>{icon}</span>
-      </div>
-    </div>
-  )
+  const toneMap = { brand: 'brand', amber: 'accent', red: 'danger', blue: 'neutral' } as const
+  return <StatCard icon={icon} label={label} value={value} hint={hint} tone={toneMap[tone]} />
 }
 
 export default function Dashboard() {

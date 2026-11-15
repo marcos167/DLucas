@@ -46,26 +46,31 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-ink-950 p-10 text-white lg:flex">
-        <div className="pointer-events-none absolute -left-24 top-10 h-96 w-96 rounded-full bg-brand-600/25 blur-3xl" />
-        <div className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
-        <Logo variant="light" />
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-ink-950 via-ink-950 to-brand-950 p-10 text-white lg:flex">
+        {/* malha técnica que esvanece — dá textura sem competir com o texto */}
+        <div className="bg-grid-subtle pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div className="pointer-events-none absolute -left-24 top-10 h-96 w-96 rounded-full bg-brand-500/20 blur-[100px]" />
+        <div className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-accent-400/10 blur-[90px]" />
+        <div className="relative"><Logo variant="light" /></div>
         <div className="relative max-w-md">
-          <h1 className="font-display text-3xl font-extrabold leading-tight">
+          <h1 className="font-display text-display-sm leading-[1.15] text-white">
             A central da sua operação de transporte de medicamentos
           </h1>
-          <p className="mt-4 text-sm leading-relaxed text-ink-300">
+          <p className="mt-4 text-[13.5px] leading-relaxed text-ink-300">
             Painel administrativo, portal das farmácias e área do entregador em um único acesso —
             cada perfil vê somente o que lhe compete.
           </p>
-          <ul className="mt-8 space-y-3 text-sm text-ink-200">
+          <ul className="mt-8 space-y-3 text-[13.5px] text-ink-200">
             {[
               'Despacho manual e por sugestão automática',
               'Rastreamento apenas com autorização',
               'Faturas, pagamentos e relatórios',
             ].map((t) => (
-              <li key={t} className="flex items-center gap-2.5">
-                <ShieldCheck className="h-4 w-4 text-brand-300" /> {t}
+              <li key={t} className="flex items-center gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500/15 ring-1 ring-inset ring-brand-400/25">
+                  <ShieldCheck className="h-3.5 w-3.5 text-brand-300" />
+                </span>
+                {t}
               </li>
             ))}
           </ul>
@@ -73,14 +78,14 @@ export default function Login() {
         <p className="text-xs text-ink-500">© {new Date().getFullYear()} D'Luca Transportes</p>
       </div>
 
-      <div className="flex flex-col justify-center bg-white px-5 py-12 sm:px-10">
+      <div className="flex flex-col justify-center bg-ink-50/60 px-5 py-12 sm:px-10">
         <div className="mx-auto w-full max-w-sm">
           <div className="lg:hidden"><Logo /></div>
           <Link to="/" className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-ink-500 hover:text-ink-800 lg:mt-0">
             <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao site
           </Link>
-          <h2 className="mt-6 font-display text-2xl font-extrabold tracking-tight text-ink-950">Entrar na plataforma</h2>
-          <p className="mt-1.5 text-sm text-ink-600">
+          <h2 className="mt-6 font-display text-display-sm text-ink-950">Entrar na plataforma</h2>
+          <p className="mt-2 text-[13.5px] text-ink-600">
             Use o e-mail corporativo cadastrado pela D'Luca.
           </p>
 

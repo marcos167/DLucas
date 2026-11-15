@@ -7,7 +7,7 @@ import { X, Loader2, ChevronDown, Search, AlertTriangle, CheckCircle2, Info, Inb
 import { cn } from '@/lib/utils'
 
 /* ------------------------------------------------------------------ BOTÃO */
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'subtle'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'subtle' | 'accent'
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: 'sm' | 'md' | 'lg'
@@ -15,10 +15,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
 }
 const variantClass: Record<ButtonVariant, string> = {
-  primary: 'btn-primary',
+  primary: 'btn-primary btn-sheen',
   secondary: 'btn-secondary',
   ghost: 'btn-ghost',
   danger: 'btn-danger',
+  accent: 'btn-accent btn-sheen',
   subtle: 'btn bg-brand-50 text-brand-800 hover:bg-brand-100',
 }
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -30,8 +31,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       className={cn(
         variantClass[variant],
-        size === 'sm' && 'px-3 py-1.5 text-[13px]',
-        size === 'lg' && 'px-5 py-3 text-[15px]',
+        size === 'sm' && 'btn-sm',
+        size === 'lg' && 'btn-lg',
         className,
       )}
       {...rest}
@@ -111,12 +112,15 @@ export function Switch({ checked, onChange, label, description }: {
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition',
-          checked ? 'bg-brand-600' : 'bg-ink-300',
+          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ease-out',
+          'ring-1 ring-inset',
+          checked
+            ? 'bg-brand-600 ring-brand-700/30 shadow-[inset_0_1px_2px_rgb(0_0_0/0.12)]'
+            : 'bg-ink-200 ring-ink-300/40',
         )}
       >
         <span className={cn(
-          'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all',
+          'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_3px_rgb(11_17_28/0.25)] transition-all duration-200 ease-out',
           checked ? 'left-[22px]' : 'left-0.5',
         )} />
       </button>
@@ -129,8 +133,20 @@ export function Switch({ checked, onChange, label, description }: {
 }
 
 /* ------------------------------------------------------------------ BADGES */
-export function Badge({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cn('badge', className)}>{children}</span>
+export function Badge({ children, className, tone = 'neutral' }: {
+  children: ReactNode
+  className?: string
+  tone?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger' | 'info'
+}) {
+  const tones = {
+    neutral: 'bg-ink-50 text-ink-600 ring-ink-200',
+    brand: 'bg-brand-50 text-brand-700 ring-brand-200',
+    success: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+    warning: 'bg-amber-50 text-amber-700 ring-amber-200',
+    danger: 'bg-red-50 text-red-700 ring-red-200',
+    info: 'bg-sky-50 text-sky-700 ring-sky-200',
+  }[tone]
+  return <span className={cn('badge ring-1 ring-inset', tones, className)}>{children}</span>
 }
 
 export function StatusDot({ className }: { className?: string }) {
@@ -147,11 +163,11 @@ export function CardHeader({ title, description, action, className }: {
 }) {
   return (
     <div className={cn('flex flex-wrap items-start justify-between gap-3 border-b border-ink-100 px-4 py-3.5 sm:px-5', className)}>
-      <div>
-        <h3 className="font-display text-[15px] font-bold text-ink-950">{title}</h3>
-        {description && <p className="mt-0.5 text-xs text-ink-500">{description}</p>}
+      <div className="min-w-0">
+        <h3 className="font-display text-title-sm text-ink-950">{title}</h3>
+        {description && <p className="mt-1 text-[12.5px] leading-relaxed text-ink-500">{description}</p>}
       </div>
-      {action}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }
@@ -160,21 +176,94 @@ export function EmptyState({ title, description, icon, action }: {
   title: string; description?: string; icon?: ReactNode; action?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-ink-100 text-ink-400">
-        {icon ?? <Inbox className="h-6 w-6" />}
+    <div className="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+      <div className="relative">
+        <span className="absolute inset-0 rounded-2xl bg-brand-500/10 blur-lg" aria-hidden="true" />
+        <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-ink-200/70 bg-gradient-to-b from-white to-ink-50 text-ink-400 shadow-card">
+          {icon ?? <Inbox className="h-6 w-6" />}
+        </div>
       </div>
       <div>
-        <p className="font-semibold text-ink-800">{title}</p>
-        {description && <p className="mx-auto mt-1 max-w-sm text-sm text-ink-500">{description}</p>}
+        <p className="font-display text-title-sm text-ink-900">{title}</p>
+        {description && <p className="mx-auto mt-1.5 max-w-sm text-[13px] leading-relaxed text-ink-500">{description}</p>}
       </div>
       {action}
     </div>
   )
 }
 
+/**
+ * Cartão de indicador.
+ *
+ * É o elemento mais visível do painel, então concentra o acabamento:
+ * rótulo discreto, valor em escala display, variação com cor semântica e
+ * ícone em pílula com fundo tonal. O número usa `tabular` para não dançar
+ * quando o valor atualiza em tempo real.
+ */
+export function StatCard({
+  label, value, hint, delta, icon, tone = 'brand', onClick, className,
+}: {
+  label: string
+  value: ReactNode
+  hint?: string
+  /** Variação percentual ou absoluta. Positivo = verde, negativo = vermelho. */
+  delta?: { value: string; positive?: boolean }
+  icon?: ReactNode
+  tone?: 'brand' | 'accent' | 'neutral' | 'danger'
+  onClick?: () => void
+  className?: string
+}) {
+  const toneMap = {
+    brand: 'bg-brand-50 text-brand-700 ring-brand-100',
+    accent: 'bg-accent-50 text-accent-600 ring-accent-100',
+    neutral: 'bg-ink-100 text-ink-600 ring-ink-200',
+    danger: 'bg-red-50 text-red-600 ring-red-100',
+  }[tone]
+
+  const Wrapper = onClick ? 'button' : 'div'
+
+  return (
+    <Wrapper
+      onClick={onClick}
+      className={cn(
+        'group relative w-full overflow-hidden rounded-2xl border border-ink-200/70 bg-white p-4 text-left shadow-card',
+        onClick && 'transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-ink-300/70 hover:shadow-card-hover',
+        className,
+      )}
+    >
+      {/* halo tonal que aparece no hover — profundidade sem poluir o repouso */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-500/5 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+      />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-500">{label}</p>
+          <p className="kpi-value tabular mt-2">{value}</p>
+          {delta && (
+            <p className={cn(
+              'mt-1.5 inline-flex items-center gap-1 text-[12px] font-semibold',
+              delta.positive === false ? 'text-red-600' : 'text-brand-700',
+            )}>
+              <span aria-hidden="true">{delta.positive === false ? '▼' : '▲'}</span>
+              {delta.value}
+            </p>
+          )}
+          {hint && !delta && <p className="mt-1.5 text-[12px] text-ink-500">{hint}</p>}
+        </div>
+        {icon && (
+          <span className={cn('shrink-0 rounded-xl p-2.5 ring-1 ring-inset transition-transform duration-200 group-hover:scale-105', toneMap)}>
+            {icon}
+          </span>
+        )}
+      </div>
+    </Wrapper>
+  )
+}
+
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('skeleton', className)} />
+  // shimmer comunica "carregando"; o pulse puro parece conteúdo vazio
+  return <div className={cn('skeleton-shimmer', className)} aria-hidden="true" />
 }
 
 /* ------------------------------------------------------------------ MODAL */
@@ -199,25 +288,36 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   const width = { sm: 'max-w-md', md: 'max-w-xl', lg: 'max-w-3xl', xl: 'max-w-5xl' }[size]
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/55 p-0 backdrop-blur-[3px] animate-fade-in sm:items-center sm:p-4">
       <div
+        role="dialog"
+        aria-modal="true"
         className={cn(
-          'flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-lift sm:rounded-2xl',
+          'flex max-h-[92vh] w-full flex-col overflow-hidden border border-white/60 bg-white sm:rounded-2xl',
+          'shadow-modal animate-scale-in',
           width,
-          'animate-fade-up',
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
-          <div>
-            <h2 className="font-display text-base font-bold text-ink-950">{title}</h2>
-            {description && <p className="mt-0.5 text-sm text-ink-500">{description}</p>}
+        {/* cabeçalho com gradiente discreto: separa sem precisar de borda dura */}
+        <div className="flex items-start justify-between gap-4 border-b border-ink-100 bg-gradient-to-b from-white to-ink-50/40 px-5 py-4">
+          <div className="min-w-0">
+            <h2 className="font-display text-title-md text-ink-950">{title}</h2>
+            {description && <p className="mt-1 text-[13px] leading-relaxed text-ink-500">{description}</p>}
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700" aria-label="Fechar">
+          <button
+            onClick={onClose}
+            className="-mr-1 rounded-lg p-1.5 text-ink-400 transition hover:bg-ink-100 hover:text-ink-700"
+            aria-label="Fechar"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-ink-100 bg-ink-50/60 px-5 py-3.5">{footer}</div>}
+        {footer && (
+          <div className="flex flex-wrap justify-end gap-2 border-t border-ink-100 bg-ink-50/60 px-5 py-3.5">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body,
